@@ -1,2 +1,2 @@
 # Datenbanktechnologien
-Repository for our course databasetechnologies
+Repository for our course 
