@@ -9,4 +9,6 @@ https://docs.google.com/document/d/1C2AAM66euVr3dRe5oEmN0LRMrXNHqncrzLRu335XbQE/
 3. Build small UI?
 4. Select Technology for NoSQL
 5. Build DB in NoSQL
-6. Do some analyses & comparisons & queries etc...
+6. Attach NoSQL to UI?
+7. Do some analyses & comparisons & queries etc...
+8. Document all steps 
