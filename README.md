@@ -15,4 +15,30 @@ https://miro.com/welcomeonboard/eE1QaUp4ZWFqTzd2OWcwdUw5QWlBZWVJc0RveUFYcjd3a3gx
 5. Build DB in NoSQL
 6. Attach NoSQL to UI?
 7. Do some analyses & comparisons & queries etc...
-8. Document all steps 
+8. Document all steps
+
+***
+***
+# Project Name
+
+## Description
+Design and Comparison of a Library Application Using NoSQL and SQL
+
+## Technologies
+
+- JDK: **23.0.1**
+- JavaFx SDK: **21.0.5**
+
+## Installation
+Clone the project and install `JavaFX` along with all other required dependencies on your system. Then run the following commands:
+
+```bash
+git clone https://github.com/Lisa-Baumgaertner/database-technologies.git
+```
+
+
+
+## Authors
+- Lisa Stephanie Baumgärtner
+- Aaliyah Roderer
+- Basma Rahal
