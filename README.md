@@ -21,8 +21,9 @@ https://miro.com/welcomeonboard/eE1QaUp4ZWFqTzd2OWcwdUw5QWlBZWVJc0RveUFYcjd3a3gx
 ***
 # Project Name
 
+
 ## Description
-Design and Comparison of a Library Application Using NoSQL and SQL
+Design and Comparison of a Library Application in NoSQL and SQL
 
 ## Technologies
 
@@ -30,7 +31,7 @@ Design and Comparison of a Library Application Using NoSQL and SQL
 - JavaFx SDK: **21.0.5**
 
 ## Installation
-Clone the project and install `JavaFX` along with all other required dependencies on your system. Then run the following commands:
+Clone the project and install `JavaFX` along with all other required dependencies on your system.
 
 ```bash
 git clone https://github.com/Lisa-Baumgaertner/database-technologies.git
