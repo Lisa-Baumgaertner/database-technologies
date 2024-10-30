@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="application.controller.BookSearchController">
+    <children>
+        <TextField fx:id="searchField" layoutX="14.0" layoutY="20.0" promptText="Buchtitel eingeben"/>
+        <Button fx:id="searchButton" text="Buch suchen" layoutX="220.0" layoutY="20.0" onAction="#searchBook"/>
+        <Button fx:id="backButton" text="Zurück" layoutX="350.0" layoutY="20.0" onAction="#goBackToMainView"/>
+
+        <TableView fx:id="resultTable" layoutX="14.0" layoutY="60.0" prefHeight="300.0" prefWidth="600.0">
+            <columns>
+                <TableColumn fx:id="titleColumn" text="Titel"/>
+                <TableColumn fx:id="authorColumn" text="Autor"/>
+                <TableColumn fx:id="statusColumn" text="Status"/>
+            </columns>
+        </TableView>
+    </children>
+</AnchorPane>

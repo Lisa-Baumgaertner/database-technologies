@@ -1,41 +1,53 @@
 package application.model;
 
-public class Book {
-    private String title;
-    private String author;
-    private String status;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
-    // Konstruktor
+public class Book {
+    private final StringProperty title;
+    private final StringProperty author;
+    private final StringProperty status;
+
     public Book(String title, String author, String status) {
-        this.title = title;
-        this.author = author;
-        this.status = status;
+        this.title = new SimpleStringProperty(title);
+        this.author = new SimpleStringProperty(author);
+        this.status = new SimpleStringProperty(status);
     }
 
-    // Getter-Methoden
     public String getTitle() {
+        return title.get();
+    }
+
+    public void setTitle(String title) {
+        this.title.set(title);
+    }
+
+    public StringProperty titleProperty() {
         return title;
     }
 
     public String getAuthor() {
+        return author.get();
+    }
+
+    public void setAuthor(String author) {
+        this.author.set(author);
+    }
+
+    public StringProperty authorProperty() {
         return author;
     }
 
     public String getStatus() {
+        return status.get();
+    }
+
+    public void setStatus(String status) {
+        this.status.set(status);
+    }
+
+    public StringProperty statusProperty() {
         return status;
-    }
-
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public void setStatus(int year) {
-        this.status = status;
     }
 
     // toString-Methode (für Debugging und Darstellung in der UI nützlich)
