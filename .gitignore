@@ -1,0 +1,17 @@
+# Ignoriere die Konfigurationsdatei mit sensiblen Daten
+src/main/resources/application.properties
+
+# Ignoriere alle Dateien im build-Ordner
+/build/
+
+# Ignoriere alle Log-Dateien
+*.log
+
+# IntelliJ IDEA spezifische Dateien ignorieren
+/.idea/
+/*.iml
+/out/
+
+# Ignoriere Maven Zielverzeichnis
+/target/
+/.gitignore
