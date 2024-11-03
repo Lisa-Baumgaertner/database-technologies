@@ -26,12 +26,25 @@
             <version>21.0.5</version>
         </dependency>
 
-        <!-- PostgreSQL JDBC -->
-      <!--  <dependency>
+        <!-- PostgreSQL JDBC-Treiber . (Java Database Connectivity-)-->
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.5.0</version>
-        </dependency> -->
+            <version>42.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+
 
     </dependencies>
     <build>
