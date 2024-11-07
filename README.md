@@ -52,14 +52,19 @@ mvn clean install
 ## ⚙️ Configuration
 The configuration for the database connections is provided in the ```application.properties``` file, located in the src/main/resources directory.
 
-**Note:** You must change yourUsername and yourPassword to your actual database credentials in the application.properties file.
+**Note:** You must change Username and Password to your actual database credentials in the application.properties file.
 
 ```bash
 # PostgreSQL Configuration
 database.driver=org.postgresql.Driver
 database.url=jdbc:postgresql://localhost:5432/library
-database.username=yourUsername
-database.password=yourPassword
+database.username=username
+database.password=password
+
+# MongoDB Datenbankverbindung
+mongodb.uri=mongodb+srv://<username>:<password>@librarymanagement.nogaz.mongodb.net/?retryWrites=true&w=majority&appName=librarymanagement
+mongodb.database=librarymanagement
+
 ```
 ## ➕ Add to ``` .gitignore ```
 Create or update the ```.gitignore``` file in your project root and add the following line:
