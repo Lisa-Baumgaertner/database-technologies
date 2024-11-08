@@ -27,7 +27,7 @@ INSERT INTO KEYWORD (KEYWORD_ID, KEYWORD) VALUES
 (DEFAULT, 'Poetry'),
 (DEFAULT, 'Classic'),
 (DEFAULT, 'Humor'),
-(DEFAULT, 'Children\'s Fiction'),
+(DEFAULT, 'Children''s Fiction'),
 (DEFAULT, 'Literary Fiction'),
 (DEFAULT, 'Crime'),
 (DEFAULT, 'True Crime'),
@@ -181,7 +181,7 @@ INSERT INTO BOOK (BOOK_ID, ISBN, BOOKTITLE, BOOKAUTHOR, PUBLISHER, YEAR_PUBLISHE
 (DEFAULT, '978-3-16-148414-8', 'Web Design Trends', 'Vanessa Kurz', 'WebDev Publishers', 2020, 'Latest trends in web design and UX.', 'reserved', 6),
 (DEFAULT, '978-3-16-148414-9', 'Agile Transformation', 'Johannes Maier', 'Agile Books', 2019, 'Implementing agile processes in organizations.', 'borrowed', 1),
 (DEFAULT, '978-1-61-729256-5', 'Die letzten Sterne', 'Mia Schulze', 'SciFi Verlag', 2023, 'Ein Weltraumabenteuer in einer fernen Zukunft', 'available', 1),
-(DEFAULT, '978-0-14-132323-3', 'Magie der Drachen', 'Elena Wolf', 'Fantasy World', 2022, 'Ein episches Abenteuer im Land der Drachen', ''borrowed', 2),
+(DEFAULT, '978-0-14-132323-3', 'Magie der Drachen', 'Elena Wolf', 'Fantasy World', 2022, 'Ein episches Abenteuer im Land der Drachen', 'borrowed', 2),
 (DEFAULT, '978-0-54-537718-7', 'Der Fluch der Rosen', 'Jessica Meyer', 'Romance Verlag', 2021, 'Eine verbotene Liebe zwischen zwei Welten', 'available', 3),
 (DEFAULT, '978-0-15-104549-5', 'Der mysteriöse Fall', 'Oliver Schwarz', 'MysteryPress', 2022, 'Ein unlösbarer Mordfall in einer kleinen Stadt', 'borrowed', 4),
 (DEFAULT, '978-1-23-456847-9', 'Die Jagd', 'Sarah Becker', 'Thriller Verlag', 2023, 'Ein Thriller über einen unerbittlichen Jäger', 'available', 5),
@@ -191,7 +191,7 @@ INSERT INTO BOOK (BOOK_ID, ISBN, BOOKTITLE, BOOKAUTHOR, PUBLISHER, YEAR_PUBLISHE
 (DEFAULT, '978-0-32-918435-5', 'Der geheime Club', 'Anna Fischer', 'Young Adult Verlag', 2021, 'Freundschaft und Geheimnisse in der Jugendzeit', 'available', 9),
 (DEFAULT, '978-1-41-657345-9', 'Welt aus Asche', 'Felix Braun', 'Dystopian Books', 2020, 'Eine Zukunft zerstört von Naturkatastrophen', 'borrowed', 10),
 (DEFAULT, '978-0-15-846236-9', 'Die verborgene Welt', 'Monika Kraus', 'Paranormal Verlag', 2022, 'Geheimnisse und übernatürliche Kräfte', 'available', 11),
-(DEFAULT, '978-1-58-832046-9', 'Im Schatten des Zweifels', 'Robert Peters', 'Contemporary Verlag', 2021, 'Ein Roman über Liebe, Verlust und Vertrauen', ''borrowed', 12),
+(DEFAULT, '978-1-58-832046-9', 'Im Schatten des Zweifels', 'Robert Peters', 'Contemporary Verlag', 2021, 'Ein Roman über Liebe, Verlust und Vertrauen', 'borrowed', 12),
 (DEFAULT, '978-1-45-237741-8', 'Ein Leben in Worten', 'Jessica Fischer', 'Biography Press', 2023, 'Die Geschichte eines außergewöhnlichen Lebens', 'available', 13),
 (DEFAULT, '978-1-56-672934-6', 'In Erinnerung an den Krieg', 'Markus Braun', 'Memoir Verlag', 2022, 'Ein persönliches Memoir über das Leben nach dem Krieg', 'borrowed', 14),
 (DEFAULT, '978-1-68-722409-5', 'Der Weg der Veränderung', 'Simon Müller', 'Non-fiction Books', 2021, 'Ein Buch über persönliche Entwicklung und Veränderung', 'available', 15),
@@ -203,7 +203,7 @@ INSERT INTO BOOK (BOOK_ID, ISBN, BOOKTITLE, BOOKAUTHOR, PUBLISHER, YEAR_PUBLISHE
 (DEFAULT, '978-1-84-323073-7', 'Gedichte der Nacht', 'Clara Vogel', 'Poetry Press', 2022, 'Eine Sammlung von düsteren und nachdenklichen Gedichten', 'available', 21),
 (DEFAULT, '978-1-62-118430-0', 'Die Unendlichkeit des Augenblicks', 'Jana Weber', 'ClassicBooks', 2021, 'Ein klassischer Roman über die Unvermeidlichkeit des Schicksals', 'borrowed', 22),
 (DEFAULT, '978-0-12-349672-3', 'Der Lächelnsplan', 'Eva Heidrich', 'Humor Press', 2022, 'Lachen als Lebensstrategie – ein humorvolles Sachbuch', 'available', 23),
-(DEFAULT, '978-1-56-738129-4', 'Die verlorenen Tage', 'Ursula Hoffmann', 'Children\'s Fiction Verlag', 2020, 'Ein Kinderbuch über Freundschaft und Abenteuer', 'borrowed', 24),
+(DEFAULT, '978-1-56-738129-4', 'Die verlorenen Tage', 'Ursula Hoffmann', 'Children''s Fiction Verlag', 2020, 'Ein Kinderbuch über Freundschaft und Abenteuer', 'borrowed', 24),
 (DEFAULT, '978-3-15-948632-7', 'Der große Traum', 'Felix Sturm', 'Literary Fiction Books', 2022, 'Ein literarisches Meisterwerk über das Leben und seine Tragödien', 'available', 25),
 (DEFAULT, '978-1-13-489567-7', 'Das düstere Geheimnis', 'Isabelle Reuter', 'CrimeBooks', 2021, 'Ein Kriminalfall, der das Leben aller Beteiligten verändert', 'borrowed', 26),
 (DEFAULT, '978-1-43-248753-0', 'Das düstere Netz', 'Markus Stein', 'True Crime Verlag', 2022, 'Echte Kriminalfälle, die die Welt erschütterten', 'available', 27),
@@ -464,35 +464,36 @@ INSERT INTO REVIEW (REVIEW_ID, BOOK_ID, USER_ID, REVIEW_TEXT, REVIEW_DATE, REVIE
 
 -- Lending
 
--- Setzt due date automatisch auf 28 Tage nach ausleihen
-DELIMITER $$
 
-CREATE TRIGGER set_due_date
-BEFORE INSERT ON LENDING
-FOR EACH ROW
+CREATE OR REPLACE FUNCTION set_due_date() RETURNS TRIGGER AS $$
 BEGIN
-    -- Setze das DUE_DATE auf 28 Tage nach dem CHECKOUT_DATE
-    SET NEW.DUE_DATE = DATE_ADD(NEW.CHECKOUT_DATE, INTERVAL 28 DAY);
-END$$
+    NEW.DUE_DATE := NEW.CHECKOUT_DATE + INTERVAL '28 days';
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-DELIMITER ;
+CREATE TRIGGER trigger_set_due_date
+    BEFORE INSERT ON LENDING
+    FOR EACH ROW
+EXECUTE FUNCTION set_due_date();
 
 
--- Trigger zum Setzen des RETURN_DATE bei Statuswechsel
-DELIMITER $$
-
-CREATE TRIGGER set_return_date
-BEFORE UPDATE ON LENDING
-FOR EACH ROW
+CREATE OR REPLACE FUNCTION set_return_date() RETURNS TRIGGER AS $$
 BEGIN
     -- Wenn der Status von 'borrowed' auf 'returned' geändert wird,
     -- setze das RETURN_DATE auf das aktuelle Datum
     IF NEW.STATUS = 'returned' AND OLD.STATUS = 'borrowed' THEN
-        SET NEW.RETURN_DATE = CURDATE();  -- Aktuelles Datum als Rückgabedatum
+        NEW.RETURN_DATE := CURRENT_DATE; -- Aktuelles Datum als Rückgabedatum
     END IF;
-END$$
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-DELIMITER ;
+CREATE TRIGGER trigger_set_return_date
+    BEFORE UPDATE ON LENDING
+    FOR EACH ROW
+EXECUTE FUNCTION set_return_date();
+
 
 -- Daten eingabe
 INSERT INTO LENDING (LENDING_ID, BOOK_ID, USER_ID_BORROWER, USER_ID_WORKER, STATUS, CHECKOUT_DATE, RETURN_DATE, DUE_DATE) VALUES
