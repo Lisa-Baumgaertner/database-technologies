@@ -1,7 +1,12 @@
 package application.controller;
 
+import application.config.DatabaseConfig;
 import application.model.Book;
+import application.repository.MongoBookRepository;
+import application.repository.PostgresBookRepository;
+import application.repository.PostgresBookRepositoryImpl;
 import application.service.BookService;
+import application.util.SQLDatabaseConnection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,12 +20,15 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.Objects;
 
 public class BookSearchController {
 
     @FXML
     private TextField searchField;
+    @FXML
+    private Button searchButton;
     @FXML
     private Button backButton;
     @FXML
@@ -32,19 +40,34 @@ public class BookSearchController {
     @FXML
     private TableColumn<Book, String> statusColumn;
 
-    private final BookService bookService = new BookService();
+    private final BookService bookService;
     private ObservableList<Book> bookList = FXCollections.observableArrayList();
+
+    public BookSearchController() {
+        Connection postgresConnection = SQLDatabaseConnection.getConnection();
+
+        PostgresBookRepository postgresBookRepository = new PostgresBookRepositoryImpl(postgresConnection);
+        MongoBookRepository mongoBookRepository = new MongoBookRepository();
+        DatabaseConfig databaseConfig = new DatabaseConfig();
+
+        // Initialisiere BookService mit den benötigten Abhängigkeiten
+        this.bookService = new BookService(postgresBookRepository, mongoBookRepository, databaseConfig);
+    }
+
+
 
     // Initialisierungslogik für die Ansicht
     @FXML
     public void initialize() {
         // Spalten mit Daten binden , wenn nötig
-       /* titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
+        titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
         authorColumn.setCellValueFactory(cellData -> cellData.getValue().authorProperty());
-        statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty()); */
+        statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
 
         // Zunächst keine Bücher anzeigen
         resultTable.setItems(bookList);
+
+        searchButton.setOnAction(event -> searchBook());
     }
 
     // Suchmethode für Bücher

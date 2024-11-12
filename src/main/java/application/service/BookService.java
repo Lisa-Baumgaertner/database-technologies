@@ -1,36 +1,60 @@
 package application.service;
 
+import application.config.DatabaseConfig;
 import application.model.Book;
-import application.repository.BookRepository;
+import application.repository.MongoBookRepository;
+import application.repository.PostgresBookRepository;
 
 import java.util.List;
 
 public class BookService {
 
-    private final BookRepository bookRepository;
+    private final PostgresBookRepository postgresBookRepository;
+    private final MongoBookRepository mongoBookRepository;
+    private final DatabaseConfig databaseConfig;
 
-    public BookService() {
-        this.bookRepository = new BookRepository();
+    public BookService(PostgresBookRepository postgresBookRepository,
+                       MongoBookRepository mongoBookRepository,
+                       DatabaseConfig databaseConfig) {
+        this.postgresBookRepository = postgresBookRepository;
+        this.mongoBookRepository = mongoBookRepository;
+        this.databaseConfig = databaseConfig;
+    }
+
+    private boolean isUsingMongoDB() {
+        return databaseConfig.isUseMongoDB();
     }
 
     public List<Book> getAllBooks() {
-        return bookRepository.getAllBooks();
+        return isUsingMongoDB() ? mongoBookRepository.getAllBooks() : postgresBookRepository.getAllBooks();
     }
 
     public void addBook(Book book) {
-        // Zum Beispiel Validierung der Eingaben
+
         if (book.getTitle() != null && !book.getTitle().isEmpty()) {
-            bookRepository.insertBook(book);
+            if (isUsingMongoDB()) {
+                mongoBookRepository.insertBook(book);
+            } else {
+                postgresBookRepository.insertBook(book);
+            }
         } else {
             throw new IllegalArgumentException("Der Buchtitel darf nicht leer sein");
         }
     }
 
     public void updateBook(Book book) {
-        bookRepository.updateBook(book);
+        if (isUsingMongoDB()) {
+            mongoBookRepository.updateBook(book);
+        } else {
+            postgresBookRepository.updateBook(book);
+        }
     }
 
-    public void deleteBook(String title) {
-        bookRepository.deleteBook(title);
+    public void deleteBook(Long id) {
+        if (isUsingMongoDB()) {
+            mongoBookRepository.deleteBookById(id);
+        } else {
+            postgresBookRepository.deleteBookById(id);
+        }
     }
 }

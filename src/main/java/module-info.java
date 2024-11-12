@@ -11,6 +11,7 @@ module application {
     requires jakarta.annotation;
 
     exports application;
+    opens application.config to spring.beans;
     opens application.util to spring.beans, spring.context, spring.core;
     opens application.controller to javafx.fxml;
     opens view to javafx.fxml;
