@@ -30,11 +30,11 @@ public class BookSearchController {
     @FXML
     private Button searchButton;
     @FXML
-    private Button backButton;
-    @FXML
     private TableView<Book> resultTable;
     @FXML
     private TableColumn<Book, String> titleColumn;
+    @FXML
+    private TableColumn<Book, String> isbnColumn;
     @FXML
     private TableColumn<Book, String> authorColumn;
     @FXML
@@ -62,6 +62,7 @@ public class BookSearchController {
         // Spalten mit Daten binden , wenn nötig
         titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
         authorColumn.setCellValueFactory(cellData -> cellData.getValue().authorProperty());
+        isbnColumn.setCellValueFactory(cellData -> cellData.getValue().isbnProperty());
         statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
 
         // Zunächst keine Bücher anzeigen
@@ -73,11 +74,15 @@ public class BookSearchController {
     // Suchmethode für Bücher
     @FXML
     private void searchBook() {
+
         String searchText = searchField.getText().toLowerCase();
+        System.out.println("Search query: " + searchText);
         if (!searchText.isEmpty()) {
-            ObservableList<Book> filteredBooks = FXCollections.observableArrayList(bookService.getAllBooks().stream()
+            ObservableList<Book> filteredBooks = FXCollections.observableArrayList(bookService.searchBooks(searchText).stream()
                     .filter(book -> book.getTitle().toLowerCase().contains(searchText) ||
-                            book.getAuthor().toLowerCase().contains(searchText))
+                            book.getAuthor().toLowerCase().contains(searchText) ||
+                            book.getIsbn().toLowerCase().contains(searchText)||
+                            book.getStatus().toLowerCase().contains(searchText))
                     .toList());
             resultTable.setItems(filteredBooks);
         } else {

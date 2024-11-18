@@ -12,6 +12,13 @@ public class MongoBookRepository {
         return new ArrayList<>();
     }
 
+    public List<Book> searchBooks() {
+        // String query = "SELECT * FROM books";
+        // TODO
+        return new ArrayList<>();
+    }
+
+
     public void insertBook(Book book) {
         //  String query = "INSERT INTO books ...;
         // TODO

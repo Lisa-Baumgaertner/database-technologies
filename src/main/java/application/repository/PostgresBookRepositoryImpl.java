@@ -17,19 +17,66 @@ public class PostgresBookRepositoryImpl implements PostgresBookRepository {
     @Override
     public List<Book> getAllBooks() {
         List<Book> books = new ArrayList<>();
-        String query = "SELECT * FROM book";
+        String sql = "SELECT * FROM book";
 
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    books.add(new Book(
+                            rs.getInt("book_id"),
+                            rs.getString("isbn"),
+                            rs.getString("booktitle"),
+                            rs.getString("bookauthor"),
+                            rs.getString("publisher"),
+                            rs.getInt("year_published"),
+                            rs.getString("description"),
+                            rs.getString("status"),
+                            rs.getInt("keyword_id")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
 
+    public List<Book> searchBooks(String userQuery) {
+
+        List<Book> books = new ArrayList<>();
+        String query = "SELECT * FROM book WHERE " +
+                "(LOWER(booktitle) LIKE ?) OR " +
+                "(LOWER(bookauthor) LIKE ?) OR " +
+                "(isbn LIKE ?) OR " +
+                "(LOWER(status) LIKE ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            String formattedQuery = "%" + userQuery.trim().toLowerCase() + "%";
+            stmt.setString(1, formattedQuery); // Für booktitle
+            stmt.setString(2, formattedQuery); // Für bookauthor
+            stmt.setString(3, query.trim());   // Exakte ISBN-Suche
+            stmt.setString(4, formattedQuery);
+            System.out.println("Parameter 4 (status): " + formattedQuery);// Für status
+
+            try (ResultSet resultSet = stmt.executeQuery()) {
             while (resultSet.next()) {
-                Book book = mapResultSetToBook(resultSet);
-                books.add(book);
+                books.add(new Book(
+                        resultSet.getInt("book_id"),
+                        resultSet.getString("isbn"),
+                        resultSet.getString("booktitle"), // Titel des Buches
+                        resultSet.getString("bookauthor"), // Autor des Buches
+                        resultSet.getString("publisher"),
+                        resultSet.getInt("year_published"),
+                        resultSet.getString("description"),
+                        resultSet.getString("status"),
+                        resultSet.getInt("keyword_id")
+                ));
+            }
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        System.out.println("Books found: " + books.size());
         return books;
     }
 

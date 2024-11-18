@@ -7,15 +7,16 @@
       fx:controller="application.controller.BookSearchController"
       spacing="10" alignment="center" style="-fx-padding: 20;">
 
-    <TextField fx:id="searchField" promptText="Titel oder Autor eingeben"/>
+    <TextField fx:id="searchField" promptText="Titel, Autor, ISBN oder Status eingeben"/>
 
     <Button fx:id="searchButton" text="Suchen" onAction="#searchBook"/>
 
     <TableView fx:id="resultTable" prefHeight="400" prefWidth="600">
         <columns>
-            <TableColumn fx:id="titleColumn" text="Titel" prefWidth="200"/>
-            <TableColumn fx:id="authorColumn" text="Autor" prefWidth="200"/>
-            <TableColumn fx:id="statusColumn" text="Status" prefWidth="200"/>
+            <TableColumn fx:id="titleColumn" text="Title" prefWidth="150"/>
+            <TableColumn fx:id="authorColumn" text="Author" prefWidth="150"/>
+            <TableColumn fx:id="isbnColumn" text="ISBN" prefWidth="150"/>
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="150"/>
         </columns>
     </TableView>
 </VBox>

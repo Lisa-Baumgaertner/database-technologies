@@ -29,6 +29,10 @@ public class BookService {
         return isUsingMongoDB() ? mongoBookRepository.getAllBooks() : postgresBookRepository.getAllBooks();
     }
 
+    public List<Book> searchBooks( String userQuery) {
+        return isUsingMongoDB() ? mongoBookRepository.searchBooks() : postgresBookRepository.searchBooks(userQuery);
+    }
+
     public void addBook(Book book) {
 
         if (book.getTitle() != null && !book.getTitle().isEmpty()) {
