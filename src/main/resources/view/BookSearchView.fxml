@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.control.*?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="application.controller.BookSearchController">
-    <children>
-        <TextField fx:id="searchField" layoutX="14.0" layoutY="20.0" promptText="Buchtitel eingeben"/>
-        <Button fx:id="searchButton" text="Buch suchen" layoutX="220.0" layoutY="20.0" onAction="#searchBook"/>
-        <Button fx:id="backButton" text="Zurück" layoutX="350.0" layoutY="20.0" onAction="#goBackToMainView"/>
+<?import javafx.scene.layout.VBox?>
 
-        <TableView fx:id="resultTable" layoutX="14.0" layoutY="60.0" prefHeight="300.0" prefWidth="600.0">
-            <columns>
-                <TableColumn fx:id="titleColumn" text="Titel"/>
-                <TableColumn fx:id="authorColumn" text="Autor"/>
-                <TableColumn fx:id="statusColumn" text="Status"/>
-            </columns>
-        </TableView>
-    </children>
-</AnchorPane>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="application.controller.BookSearchController"
+      spacing="10" alignment="center" style="-fx-padding: 20;">
+
+    <TextField fx:id="searchField" promptText="Titel oder Autor eingeben"/>
+
+    <Button fx:id="searchButton" text="Suchen" onAction="#searchBook"/>
+
+    <TableView fx:id="resultTable" prefHeight="400" prefWidth="600">
+        <columns>
+            <TableColumn fx:id="titleColumn" text="Titel" prefWidth="200"/>
+            <TableColumn fx:id="authorColumn" text="Autor" prefWidth="200"/>
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="200"/>
+        </columns>
+    </TableView>
+</VBox>

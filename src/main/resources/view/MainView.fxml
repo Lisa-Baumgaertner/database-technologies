@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="application.controller.MainController"
+           style="-fx-padding: 20;">
 
-
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="application.controller.MainController">
-    <top>
-        <HBox spacing="10">
-            <Button  fx:id="navigateBookSearchButton"  text="Buch suchen" onAction="#showBookSearchView" />
-            <Button text="Ausleihe verwalten" onAction="#showLendingManagementView" />
-        </HBox>
-    </top>
-    <center>
-        <Label text="Willkommen in der Bibliotheksverwaltung" styleClass="welcome-label" />
-    </center>
-</BorderPane>
+    <VBox spacing="20" alignment="center">
+        <Button  fx:id="navigateUserViewButton" text="Nutzer" onAction="#showUserView"/>
+        <Button fx:id="navigateEmployeeViewButton" text="Mitarbeiter" onAction="#showEmployeeView"/>
+    </VBox>
+</StackPane>

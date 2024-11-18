@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:id="mainPane"
+            fx:controller="application.controller.EmployeePageController">
+
+    <!-- Top Navigation Bar -->
+    <top>
+        <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #D8D8D8;" alignment="center">
+            <Button text="Zurück" onAction="#navigateToMainView"/>
+            <Button fx:id="navigateBookSearchButton"  text="Buch Suchen" onAction="#handleBookSearch"/>
+        </HBox>
+    </top>
+
+    <!-- Center Content Area -->
+    <center>
+        <!-- Dynamischer Inhalt wird vom Controller hier eingefügt -->
+    </center>
+
+</BorderPane>

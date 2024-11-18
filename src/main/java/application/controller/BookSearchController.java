@@ -84,18 +84,4 @@ public class BookSearchController {
             resultTable.setItems(bookList);
         }
     }
-
-    @FXML
-    private void goBackToMainView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
-            Parent mainView = loader.load();
-            Scene scene = new Scene(mainView, 800, 600);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
-            Stage stage = (Stage) backButton.getScene().getWindow();
-            stage.setScene(scene);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
