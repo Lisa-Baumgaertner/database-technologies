@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="application.controller.BookAddController"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controller.BookAddController">
+    <TextField fx:id="isbn" onAction="#addBook" promptText="ISBN eingeben" />
+    <TextField fx:id="title" onAction="#addBook" promptText="Titel eingeben" />
+    <TextField fx:id="author" onAction="#addBook" promptText="Autor eingeben" />
+    <TextField fx:id="publisher" onAction="#addBook" promptText="Verlag eingeben" />
+    <TextField fx:id="year_published" onAction="#addBook" promptText="Jahr der Veröffentlichung eingeben" />
+    <TextField fx:id="description" onAction="#addBook" prefHeight="25.0" prefWidth="280.0" promptText="Beschreibung eingeben" />
+    <TextField fx:id="status" onAction="#addBook" promptText="Status eingeben" />
+    <TextField fx:id="keyword_id" layoutY="25.0" onAction="#addBook" prefHeight="25.0" prefWidth="149.0" promptText="Stichwort Id eingeben" />
 
-</AnchorPane>
+
+</VBox>

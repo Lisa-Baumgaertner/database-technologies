@@ -16,6 +16,9 @@ public class EmployeePageController {
     public Button navigateBookSearchButton;
     @FXML
     private BorderPane mainPane; // Bindet das BorderPane aus MainView.fxml
+
+    @FXML
+    public Button addBookButton;
     @FXML
     private void handleBookSearch() {
         try {
@@ -43,11 +46,22 @@ public class EmployeePageController {
     @FXML
     private void handleBookAdd() {
         try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookAddView.fxml"));
+            Parent bookAddView = loader.load();
+
+            Scene scene = new Scene(bookAddView, 800, 600);
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
+            Stage stage = (Stage) addBookButton.getScene().getWindow();
+            stage.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        /*try {
             Parent bookAddView = FXMLLoader.load(getClass().getResource("/view/BookAddView.fxml"));
             mainPane.setCenter(bookAddView); // Setzt die Buchinsertion in den Center-Bereich
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
 
