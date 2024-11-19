@@ -40,4 +40,15 @@ public class EmployeePageController {
         }
     }
 
+    @FXML
+    private void handleBookAdd() {
+        try {
+            Parent bookAddView = FXMLLoader.load(getClass().getResource("/view/BookAddView.fxml"));
+            mainPane.setCenter(bookAddView); // Setzt die Buchinsertion in den Center-Bereich
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
