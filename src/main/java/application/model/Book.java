@@ -17,6 +17,8 @@ public class Book {
     private StringProperty status;
     private IntegerProperty keywordId;
 
+
+
     // Leerer Konstruktor
     public Book() {
         this.bookId = new SimpleIntegerProperty();

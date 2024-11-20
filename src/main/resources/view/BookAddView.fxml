@@ -12,6 +12,8 @@
     <TextField fx:id="description" onAction="#addBook" prefHeight="25.0" prefWidth="280.0" promptText="Beschreibung eingeben" />
     <TextField fx:id="status" onAction="#addBook" promptText="Status eingeben" />
     <TextField fx:id="keyword_id" layoutY="25.0" onAction="#addBook" prefHeight="25.0" prefWidth="149.0" promptText="Stichwort Id eingeben" />
+   <Button fx:id="addButton" mnemonicParsing="false" onAction="#addBook" text="Hinzufügen" />
+   <Button fx:id="navigateBackToEmployeeButton" mnemonicParsing="false" onAction="#navigateToEmployeeView" text="Zurück" />
 
 
 </VBox>

@@ -56,12 +56,7 @@ public class EmployeePageController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*try {
-            Parent bookAddView = FXMLLoader.load(getClass().getResource("/view/BookAddView.fxml"));
-            mainPane.setCenter(bookAddView); // Setzt die Buchinsertion in den Center-Bereich
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
+
     }
 
 

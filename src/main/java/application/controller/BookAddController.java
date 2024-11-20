@@ -10,9 +10,16 @@ import application.util.SQLDatabaseConnection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.sql.Connection;
+import java.util.Objects;
 
 public class BookAddController {
 
@@ -32,6 +39,10 @@ public class BookAddController {
     private TextField status;
     @FXML
     private TextField keyword_id;
+    @FXML
+    private Button addButton;
+    @FXML
+    private Button navigateBackToEmployeeButton;
     private final BookService bookService;
 
     public BookAddController() {
@@ -49,33 +60,96 @@ public class BookAddController {
 
     @FXML
     private void addBook(){
-        String isbnText = isbn.getText().toLowerCase();
-        String titleText = title.getText().toLowerCase();
-        String authorText = author.getText().toLowerCase();
-        String publisherText = publisher.getText().toLowerCase();
-        String year_publishedText = year_published.getText().toLowerCase();
-        String descriptionText = description.getText().toLowerCase();
-        String statusText = status.getText().toLowerCase();
-        String keyword_idText = keyword_id.getText().toLowerCase();
 
+        Book bookToInsert = new Book();
+        if (! checkTextFieldsValid()) {
+            // one or more of the text fields are empty
+            System.out.println("At least one Text Field is empty, please enter valid data into all fields.");
+            System.out.println("Double check that you are not entering characters into the fields Year published and Keyword Id");
+
+        } else {
+            bookToInsert.setIsbn(isbn.getText().trim());
+            bookToInsert.setTitle(title.getText().trim());
+            bookToInsert.setAuthor(author.getText().trim());
+            bookToInsert.setAuthor(author.getText().trim());
+            bookToInsert.setPublisher(publisher.getText().trim());
+            bookToInsert.setYearPublished(Integer.valueOf(year_published.getText().trim()));
+            bookToInsert.setDescription(description.getText().trim());
+            bookToInsert.setDescription(description.getText().trim());
+            bookToInsert.setStatus(status.getText().toLowerCase().trim());
+            bookToInsert.setKeywordId(Integer.valueOf(keyword_id.getText().trim()));
+            bookService.addBook(bookToInsert);
+            isbn.clear();
+            title.clear();
+            author.clear();
+            publisher.clear();
+            year_published.clear();
+            description.clear();
+            status.clear();
+            keyword_id.clear();
+            System.out.println("Book was successfully added.");
+
+        }
 
 
     }
-    //@FXML
-    /*private void addBook() {
 
-        String searchText = searchField.getText().toLowerCase();
-        System.out.println("Search query: " + searchText);
-        if (!searchText.isEmpty()) {
-            ObservableList<Book> filteredBooks = FXCollections.observableArrayList(bookService.searchBooks(searchText).stream()
-                    .filter(book -> book.getTitle().toLowerCase().contains(searchText) ||
-                            book.getAuthor().toLowerCase().contains(searchText) ||
-                            book.getIsbn().toLowerCase().contains(searchText)||
-                            book.getStatus().toLowerCase().contains(searchText))
-                    .toList());
-            resultTable.setItems(filteredBooks);
-        } else {
-            resultTable.setItems(bookList);
+    @FXML
+    private void navigateToEmployeeView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/EmployeeView.fxml"));
+            Parent bookSearchView = loader.load();
+
+            Scene scene = new Scene(bookSearchView, 800, 600);
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
+            Stage stage = (Stage) navigateBackToEmployeeButton.getScene().getWindow();
+            stage.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }*/
+    }
+
+
+    private boolean checkTextFieldsValid() {
+
+        boolean validTextFields = true;
+
+        if (isbn.getText().isEmpty()) {
+            validTextFields = false;
+        }
+
+        if (title.getText().isEmpty()) {
+            validTextFields = false;
+
+        }
+
+        if (author.getText().isEmpty()) {
+            validTextFields = false;
+
+        }
+        if (publisher.getText().isEmpty()) {
+            validTextFields = false;
+
+        }
+        if (year_published.getText().isEmpty() || !year_published.getText().matches("[0-9]+")) {
+            validTextFields = false;
+
+        }
+        if (description.getText().isEmpty()) {
+            validTextFields = false;
+
+        }
+        if (status.getText().isEmpty()) {
+            validTextFields = false;
+
+        }
+        if (keyword_id.getText().isEmpty()|| !keyword_id.getText().matches("[0-9]+")) {
+            validTextFields = false;
+
+        }
+
+        return validTextFields;
+    }
+
+
 }
