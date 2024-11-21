@@ -21,6 +21,8 @@ public class EmployeePageController {
     @FXML
     public Button editBookButton;
     @FXML
+    public Button deleteBookButton;
+    @FXML
     private void handleBookSearch() {
         try {
             Parent bookSearchView = FXMLLoader.load(getClass().getResource("/view/BookSearchView.fxml"));
@@ -69,6 +71,22 @@ public class EmployeePageController {
             Scene scene = new Scene(bookAddView, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) editBookButton.getScene().getWindow();
+            stage.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @FXML
+    private void handleBookDelete() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookDeleteView.fxml"));
+            Parent bookDeleteView = loader.load();
+
+            Scene scene = new Scene(bookDeleteView, 800, 600);
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
+            Stage stage = (Stage) deleteBookButton.getScene().getWindow();
             stage.setScene(scene);
         } catch (IOException e) {
             e.printStackTrace();

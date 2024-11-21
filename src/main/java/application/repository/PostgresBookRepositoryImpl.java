@@ -154,7 +154,7 @@ public class PostgresBookRepositoryImpl implements PostgresBookRepository {
 
     @Override
     public void deleteBookById(Long id) {
-        String query = "DELETE FROM book WHERE id = ?";
+        String query = "DELETE FROM book WHERE book_id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setLong(1, id);
