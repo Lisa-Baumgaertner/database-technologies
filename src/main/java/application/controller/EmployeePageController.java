@@ -64,9 +64,9 @@ public class EmployeePageController {
     private void handleBookEdit() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookEditView.fxml"));
-            Parent bookAddView = loader.load();
+            Parent bookEditView = loader.load();
 
-            Scene scene = new Scene(bookAddView, 800, 600);
+            Scene scene = new Scene(bookEditView, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) editBookButton.getScene().getWindow();
             stage.setScene(scene);

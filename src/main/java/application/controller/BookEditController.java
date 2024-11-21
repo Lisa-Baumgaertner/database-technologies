@@ -76,25 +76,25 @@ public class BookEditController {
     @FXML
     private void editBook(){
 
-        Book bookToInsert = new Book();
+        Book bookToEdit = new Book();
         if (! checkTextFieldsValid()) {
             // one or more of the text fields are empty
             System.out.println("At least one Text Field is empty, please enter valid data into all fields.");
             System.out.println("Double check that you are not entering characters into the fields Year published and Keyword Id");
 
         } else {
-            bookToInsert.setBookId(Integer.valueOf(bookIdField.getText().trim()));
-            bookToInsert.setIsbn(isbn.getText().trim());
-            bookToInsert.setTitle(title.getText().trim());
-            bookToInsert.setAuthor(author.getText().trim());
-            bookToInsert.setAuthor(author.getText().trim());
-            bookToInsert.setPublisher(publisher.getText().trim());
-            bookToInsert.setYearPublished(Integer.valueOf(year_published.getText().trim()));
-            bookToInsert.setDescription(description.getText().trim());
-            bookToInsert.setDescription(description.getText().trim());
-            bookToInsert.setStatus(status.getText().toLowerCase().trim());
-            bookToInsert.setKeywordId(Integer.valueOf(keyword_id.getText().trim()));
-            bookService.updateBook(bookToInsert);
+            bookToEdit.setBookId(Integer.valueOf(bookIdField.getText().trim()));
+            bookToEdit.setIsbn(isbn.getText().trim());
+            bookToEdit.setTitle(title.getText().trim());
+            bookToEdit.setAuthor(author.getText().trim());
+            bookToEdit.setAuthor(author.getText().trim());
+            bookToEdit.setPublisher(publisher.getText().trim());
+            bookToEdit.setYearPublished(Integer.valueOf(year_published.getText().trim()));
+            bookToEdit.setDescription(description.getText().trim());
+            bookToEdit.setDescription(description.getText().trim());
+            bookToEdit.setStatus(status.getText().toLowerCase().trim());
+            bookToEdit.setKeywordId(Integer.valueOf(keyword_id.getText().trim()));
+            bookService.updateBook(bookToEdit);
             bookIdField.clear();
             isbn.clear();
             title.clear();
