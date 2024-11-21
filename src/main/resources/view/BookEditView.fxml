@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controller.BookEditController">
+   <TextField fx:id="bookIdField" onAction="#editBook" promptText="Book-ID eingeben" />
+<TextField fx:id="isbn" onAction="#editBook" promptText="ISBN eingeben" />
+<TextField fx:id="title" onAction="#editBook" promptText="Titel eingeben" />
+<TextField fx:id="author" onAction="#editBook" promptText="Autor eingeben" />
+<TextField fx:id="publisher" onAction="#editBook" promptText="Verlag eingeben" />
+<TextField fx:id="year_published" onAction="#editBook" promptText="Jahr der Veröffentlichung eingeben" />
+<TextField fx:id="description" onAction="#editBook" prefHeight="25.0" prefWidth="280.0" promptText="Beschreibung eingeben" />
+<TextField fx:id="status" onAction="#editBook" promptText="Status eingeben" />
+<TextField fx:id="keyword_id" layoutY="25.0" onAction="#editBook" prefHeight="25.0" prefWidth="149.0" promptText="Stichwort Id eingeben" />
+<Button fx:id="editButton" mnemonicParsing="false" onAction="#editBook" text="Update" />
+<Button fx:id="navigateBackToEmployeeButton" mnemonicParsing="false" onAction="#navigateToEmployeeView" text="Zurück" />
+
+
+</VBox>
