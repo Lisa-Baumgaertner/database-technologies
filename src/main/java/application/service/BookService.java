@@ -1,64 +1,43 @@
 package application.service;
 
-import application.config.DatabaseConfig;
 import application.model.Book;
-import application.repository.MongoBookRepository;
-import application.repository.PostgresBookRepository;
+import application.repository.BookRepository;
+
 
 import java.util.List;
 
+
 public class BookService {
 
-    private final PostgresBookRepository postgresBookRepository;
-    private final MongoBookRepository mongoBookRepository;
-    private final DatabaseConfig databaseConfig;
+    private final BookRepository bookRepository;
 
-    public BookService(PostgresBookRepository postgresBookRepository,
-                       MongoBookRepository mongoBookRepository,
-                       DatabaseConfig databaseConfig) {
-        this.postgresBookRepository = postgresBookRepository;
-        this.mongoBookRepository = mongoBookRepository;
-        this.databaseConfig = databaseConfig;
-    }
 
-    private boolean isUsingMongoDB() {
-        return databaseConfig.isUseMongoDB();
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+
     }
 
     public List<Book> getAllBooks() {
-        return isUsingMongoDB() ? mongoBookRepository.getAllBooks() : postgresBookRepository.getAllBooks();
+        return bookRepository.getAllBooks();
     }
 
     public List<Book> searchBooks(String title, String author, String isbn, String status) {
-        return isUsingMongoDB() ? mongoBookRepository.searchBooks(title, author, isbn, status) : postgresBookRepository.searchBooks(title, author, isbn, status);
+        return bookRepository.searchBooks(title, author, isbn, status);
     }
 
-    public void addBook(Book book) {
+    public Book findBookById(Long id) {
+        return bookRepository.findBookById(id);
+    }
 
-        if (book.getTitle() != null && !book.getTitle().isEmpty()) {
-            if (isUsingMongoDB()) {
-                mongoBookRepository.insertBook(book);
-            } else {
-                postgresBookRepository.insertBook(book);
-            }
-        } else {
-            throw new IllegalArgumentException("Der Buchtitel darf nicht leer sein");
-        }
+    public Book insertBook(Book book) {
+        return bookRepository.insertBook(book);
     }
 
     public void updateBook(Book book) {
-        if (isUsingMongoDB()) {
-            mongoBookRepository.updateBook(book);
-        } else {
-            postgresBookRepository.updateBook(book);
-        }
+        bookRepository.updateBook(book);
     }
 
     public void deleteBook(Long id) {
-        if (isUsingMongoDB()) {
-            mongoBookRepository.deleteBookById(id);
-        } else {
-            postgresBookRepository.deleteBookById(id);
-        }
+        bookRepository.deleteBookById(id);
     }
 }

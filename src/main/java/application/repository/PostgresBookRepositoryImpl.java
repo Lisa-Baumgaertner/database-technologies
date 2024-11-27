@@ -6,7 +6,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PostgresBookRepositoryImpl implements PostgresBookRepository {
+
+public class PostgresBookRepositoryImpl implements BookRepository {
 
     private final Connection connection;
 
@@ -17,7 +18,7 @@ public class PostgresBookRepositoryImpl implements PostgresBookRepository {
     @Override
     public List<Book> getAllBooks() {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT book_id, isbn_long, isbn_short, booktitle, bookauthor, status FROM book";
+        String sql = "SELECT * FROM book";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             try (ResultSet rs = stmt.executeQuery()) {
@@ -44,7 +45,6 @@ public class PostgresBookRepositoryImpl implements PostgresBookRepository {
     }
 
     public List<Book> searchBooks(String title, String author, String isbn, String status) {
-
         List<Book> books = new ArrayList<>();
         String query = "SELECT * FROM BOOK WHERE " +
                 "(LOWER(BOOKTITLE) LIKE ? OR ? IS NULL) AND " +

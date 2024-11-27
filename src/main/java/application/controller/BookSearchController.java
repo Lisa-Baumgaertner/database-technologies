@@ -1,13 +1,7 @@
 package application.controller;
 
-import application.config.DatabaseConfig;
 import application.model.Book;
-import application.repository.MongoBookRepository;
-import application.repository.MongoBookRepositoryImpl;
-import application.repository.PostgresBookRepository;
-import application.repository.PostgresBookRepositoryImpl;
 import application.service.BookService;
-import application.util.SQLDatabaseConnection;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
 
-import java.sql.Connection;
 import java.util.List;
 
 public class BookSearchController {
@@ -28,36 +21,33 @@ public class BookSearchController {
     private TextField isbnField;
     @FXML
     private ComboBox<String> statusDropdown;
+
     @FXML
     private Button searchButton;
+
     @FXML
     private TableView<Book> resultTable;
+
     @FXML
     private TableColumn<Book, String> titleColumn;
+
     @FXML
     private TableColumn<Book, String> isbnColumn;
+
     @FXML
     private TableColumn<Book, String> authorColumn;
+
     @FXML
     private TableColumn<Book, String> statusColumn;
 
-    private final BookService bookService;
-    private ObservableList<Book> bookList = FXCollections.observableArrayList();
+    private final ObservableList<Book> bookList = FXCollections.observableArrayList();
 
-    public BookSearchController() {
-        Connection postgresConnection = SQLDatabaseConnection.getConnection();
+    private BookService bookService; // Service-Instanz
 
-        PostgresBookRepository postgresBookRepository = new PostgresBookRepositoryImpl(postgresConnection);
-        MongoBookRepository mongoBookRepository = new MongoBookRepositoryImpl();
-        DatabaseConfig databaseConfig = new DatabaseConfig();
-
-        // Initialisiere BookService mit den benötigten Abhängigkeiten
-        this.bookService = new BookService(postgresBookRepository, mongoBookRepository, databaseConfig);
+    public void setBookService(BookService bookService) {
+        this.bookService = bookService;
     }
 
-
-
-    // Initialisierungslogik für die Ansicht
     @FXML
     public void initialize() {
         // Spalten mit Daten binden , wenn nötig
@@ -102,8 +92,6 @@ public class BookSearchController {
         });
 
 
-
-
         statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
         statusColumn.setCellValueFactory(cellData -> {
             String status = cellData.getValue().getStatus();
@@ -128,7 +116,6 @@ public class BookSearchController {
         searchButton.setOnAction(event -> searchBook());
     }
 
-    // Suchmethode für Bücher
     @FXML
     private void searchBook() {
         String title = titleField.getText().trim().toLowerCase();
@@ -151,6 +138,7 @@ public class BookSearchController {
                 isbn.isEmpty() ? null : isbn,
                 status
         );
+    System.out.println("results: " + results.size());
 
         ObservableList<Book> filteredBooks = FXCollections.observableArrayList(results);
         resultTable.setItems(filteredBooks);
