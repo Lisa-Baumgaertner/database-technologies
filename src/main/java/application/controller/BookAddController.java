@@ -1,14 +1,7 @@
 package application.controller;
 
-import application.config.DatabaseConfig;
 import application.model.Book;
-import application.repository.MongoBookRepository;
-import application.repository.PostgresBookRepository;
-import application.repository.PostgresBookRepositoryImpl;
 import application.service.BookService;
-import application.util.SQLDatabaseConnection;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,13 +11,14 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.Objects;
 
 public class BookAddController {
 
     @FXML
-    private TextField isbn;
+    private TextField isbn_long;
+    @FXML
+    private TextField isbn_short;
     @FXML
     private TextField title;
     @FXML
@@ -40,23 +34,14 @@ public class BookAddController {
     @FXML
     private TextField keyword_id;
     @FXML
-    private Button addButton;
+    private TextField copies;
     @FXML
-    private Button navigateBackToEmployeeButton;
-    private final BookService bookService;
+    private Button addButton;
+    private BookService bookService;
 
-    public BookAddController() {
-        Connection postgresConnection = SQLDatabaseConnection.getConnection();
-
-        PostgresBookRepository postgresBookRepository = new PostgresBookRepositoryImpl(postgresConnection);
-        MongoBookRepository mongoBookRepository = new MongoBookRepository();
-        DatabaseConfig databaseConfig = new DatabaseConfig();
-
-        // Initialisiere BookService mit den benötigten Abhängigkeiten
-        this.bookService = new BookService(postgresBookRepository, mongoBookRepository, databaseConfig);
+    public void setBookService(BookService bookService) {
+        this.bookService = bookService;
     }
-
-
 
     @FXML
     private void addBook(){
@@ -68,18 +53,24 @@ public class BookAddController {
             System.out.println("Double check that you are not entering characters into the fields Year published and Keyword Id");
 
         } else {
-            bookToInsert.setIsbn(isbn.getText().trim());
+            if(bookToInsert.isValidIsbn13(String.valueOf(isbn_long))!= false){
+                bookToInsert.setIsbnLong(isbn_long.getText().trim());
+            }
+            if(bookToInsert.isValidIsbn10(String.valueOf(isbn_short))!= false){
+                bookToInsert.setIsbnShort(isbn_short.getText().trim());
+            }
             bookToInsert.setTitle(title.getText().trim());
             bookToInsert.setAuthor(author.getText().trim());
             bookToInsert.setAuthor(author.getText().trim());
             bookToInsert.setPublisher(publisher.getText().trim());
             bookToInsert.setYearPublished(Integer.valueOf(year_published.getText().trim()));
             bookToInsert.setDescription(description.getText().trim());
-            bookToInsert.setDescription(description.getText().trim());
             bookToInsert.setStatus(status.getText().toLowerCase().trim());
             bookToInsert.setKeywordId(Integer.valueOf(keyword_id.getText().trim()));
-            bookService.addBook(bookToInsert);
-            isbn.clear();
+            bookToInsert.setCopies(Integer.valueOf(copies.getText().trim()));
+            bookService.insertBook(bookToInsert);
+            isbn_long.clear();
+            isbn_short.clear();
             title.clear();
             author.clear();
             publisher.clear();
@@ -87,26 +78,11 @@ public class BookAddController {
             description.clear();
             status.clear();
             keyword_id.clear();
+            copies.clear();
             System.out.println("Book was successfully added.");
 
         }
 
-
-    }
-
-    @FXML
-    private void navigateToEmployeeView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/EmployeeView.fxml"));
-            Parent bookSearchView = loader.load();
-
-            Scene scene = new Scene(bookSearchView, 800, 600);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
-            Stage stage = (Stage) navigateBackToEmployeeButton.getScene().getWindow();
-            stage.setScene(scene);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -114,7 +90,10 @@ public class BookAddController {
 
         boolean validTextFields = true;
 
-        if (isbn.getText().isEmpty()) {
+        if (isbn_long.getText().isEmpty()) {
+            validTextFields = false;
+        }
+        if (isbn_short.getText().isEmpty()) {
             validTextFields = false;
         }
 
@@ -144,6 +123,10 @@ public class BookAddController {
 
         }
         if (keyword_id.getText().isEmpty()|| !keyword_id.getText().matches("[0-9]+")) {
+            validTextFields = false;
+
+        }
+        if (copies.getText().isEmpty()|| !copies.getText().matches("[0-9]+")) {
             validTextFields = false;
 
         }

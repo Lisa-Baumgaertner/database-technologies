@@ -191,7 +191,7 @@ public class Book {
         this.keywordId.set(keywordId);
     }
 
-    private boolean isValidIsbn13(String isbn) {
+    public boolean isValidIsbn13(String isbn) {
         if (isbn == null || isbn.length() != 13) return false;
         int sum = 0;
         for (int i = 0; i < 12; i++) {
@@ -202,7 +202,7 @@ public class Book {
         return checksum == Character.getNumericValue(isbn.charAt(12));
     }
 
-    private boolean isValidIsbn10(String isbn) {
+    public boolean isValidIsbn10(String isbn) {
         if (isbn == null || isbn.length() != 10) return false;
         int sum = 0;
         for (int i = 0; i < 9; i++) {
