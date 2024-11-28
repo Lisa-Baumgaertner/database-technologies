@@ -104,10 +104,11 @@ public class EmployeePageController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookDeleteView.fxml"));
             Parent bookDeleteView = loader.load();
 
-            Scene scene = new Scene(bookDeleteView, 800, 600);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
-            Stage stage = (Stage) deleteBookButton.getScene().getWindow();
-            stage.setScene(scene);
+            mainPane.setCenter(bookDeleteView);
+
+            BookDeleteController controller = loader.getController();
+            controller.setBookService(bookService);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
