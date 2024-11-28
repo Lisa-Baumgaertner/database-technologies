@@ -1,45 +1,12 @@
 package application.controller;
-
 import application.service.BookService;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
-import application.service.BookService;
-import java.io.IOException;
-import java.util.Objects;
-
-
-import application.config.DatabaseConfig;
 import application.model.Book;
-import application.repository.MongoBookRepository;
-import application.repository.PostgresBookRepository;
-import application.repository.PostgresBookRepositoryImpl;
 
-import application.util.SQLDatabaseConnection;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.util.Objects;
 
 public class BookEditController {
-
-    @FXML
-    public Button navigateBackToEmployeeButton;
-    @FXML
-    private TextField isbn;
     @FXML
     private TextField title;
     @FXML
@@ -57,19 +24,19 @@ public class BookEditController {
     @FXML
     private TextField bookIdField;
     @FXML
+    private TextField isbn_short;
+    @FXML
+    private TextField isbn_long;
+    @FXML
+    private TextField copies;
+
+    @FXML
     private Button editButton;
 
-    private final BookService bookService;
+    private BookService bookService;
 
-    public BookEditController() {
-        Connection postgresConnection = SQLDatabaseConnection.getConnection();
-
-        PostgresBookRepository postgresBookRepository = new PostgresBookRepositoryImpl(postgresConnection);
-        MongoBookRepository mongoBookRepository = new MongoBookRepository();
-        DatabaseConfig databaseConfig = new DatabaseConfig();
-
-        // Initialisiere BookService mit den benötigten Abhängigkeiten
-        this.bookService = new BookService(postgresBookRepository, mongoBookRepository, databaseConfig);
+    public void setBookService(BookService bookService) {
+        this.bookService = bookService;
     }
 
 
@@ -84,7 +51,12 @@ public class BookEditController {
 
         } else {
             bookToEdit.setBookId(Integer.valueOf(bookIdField.getText().trim()));
-            bookToEdit.setIsbn(isbn.getText().trim());
+            if(bookToEdit.isValidIsbn13(String.valueOf(isbn_long))!= false){
+                bookToEdit.setIsbnLong(isbn_long.getText().trim());
+            }
+            if(bookToEdit.isValidIsbn10(String.valueOf(isbn_short))!= false){
+                bookToEdit.setIsbnShort(isbn_short.getText().trim());
+            }
             bookToEdit.setTitle(title.getText().trim());
             bookToEdit.setAuthor(author.getText().trim());
             bookToEdit.setAuthor(author.getText().trim());
@@ -94,9 +66,11 @@ public class BookEditController {
             bookToEdit.setDescription(description.getText().trim());
             bookToEdit.setStatus(status.getText().toLowerCase().trim());
             bookToEdit.setKeywordId(Integer.valueOf(keyword_id.getText().trim()));
+            bookToEdit.setCopies(Integer.valueOf(copies.getText().trim()));
             bookService.updateBook(bookToEdit);
             bookIdField.clear();
-            isbn.clear();
+            isbn_long.clear();
+            isbn_short.clear();
             title.clear();
             author.clear();
             publisher.clear();
@@ -104,6 +78,7 @@ public class BookEditController {
             description.clear();
             status.clear();
             keyword_id.clear();
+            copies.clear();
             System.out.println("Book was successfully updated.");
 
         }
@@ -115,20 +90,6 @@ public class BookEditController {
 
 
 
-    @FXML
-    private void navigateToEmployeeView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/EmployeeView.fxml"));
-            Parent bookSearchView = loader.load();
-
-            Scene scene = new Scene(bookSearchView, 800, 600);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
-            Stage stage = (Stage) navigateBackToEmployeeButton.getScene().getWindow();
-            stage.setScene(scene);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private boolean checkTextFieldsValid() {
@@ -139,7 +100,10 @@ public class BookEditController {
             validTextFields = false;
 
         }
-        if (isbn.getText().isEmpty()) {
+        if (isbn_long.getText().isEmpty()) {
+            validTextFields = false;
+        }
+        if (isbn_short.getText().isEmpty()) {
             validTextFields = false;
         }
 
@@ -171,6 +135,9 @@ public class BookEditController {
         if (keyword_id.getText().isEmpty()|| !keyword_id.getText().matches("[0-9]+")) {
             validTextFields = false;
 
+        }
+        if (copies.getText().isEmpty()) {
+            validTextFields = false;
         }
 
         return validTextFields;

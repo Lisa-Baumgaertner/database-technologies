@@ -74,17 +74,7 @@ public class EmployeePageController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookAddView.fxml"));
-            Parent bookAddView = loader.load();
 
-            Scene scene = new Scene(bookAddView, 800, 600);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
-            Stage stage = (Stage) addBookButton.getScene().getWindow();
-            stage.setScene(scene);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }}*/
 
     }
 
@@ -94,13 +84,15 @@ public class EmployeePageController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookEditView.fxml"));
             Parent bookEditView = loader.load();
 
-            Scene scene = new Scene(bookEditView, 800, 600);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
-            Stage stage = (Stage) editBookButton.getScene().getWindow();
-            stage.setScene(scene);
+            mainPane.setCenter(bookEditView);
+
+            BookEditController controller = loader.getController();
+            controller.setBookService(bookService);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
 
     }
 
