@@ -26,7 +26,7 @@
             <version>21.0.5</version>
         </dependency>
 
-        <!-- PostgreSQL JDBC-Treiber . (Java Database Connectivity-)-->
+        <!-- PostgreSQL JDBC-Treiber -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -46,31 +46,33 @@
             <version>4.9.1</version>
         </dependency>
 
-            <!-- Spring Core und Spring Context für grundlegende Spring-Funktionalitäten -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>6.1.14</version>
-            </dependency>
-
-            <!-- Spring Boot Starter für MongoDB -->
+        <!-- Spring Core und Spring Context für grundlegende Spring-Funktionalitäten -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-            <version>3.1.4</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>6.1.14</version> <!-- Füge die Version hinzu -->
         </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-data-mongodb</artifactId>
-                <version>3.1.4</version>
-            </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>6.1.14</version> <!-- Füge die Version hinzu -->
+        </dependency>
+
+        <!-- Spring Boot Starter für MongoDB -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
             <version>3.1.4</version>
-            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
+
+           <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>6.1.14</version> <!-- Füge die Version hinzu -->
+        </dependency>
+
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
@@ -81,7 +83,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.4.11</version>
+            <version>1.4.12</version>
         </dependency>
 
         <dependency>
@@ -89,8 +91,8 @@
             <artifactId>snakeyaml</artifactId>
             <version>2.1</version>
         </dependency>
-
     </dependencies>
+
     <build>
         <plugins>
             <!-- Maven Compiler Plugin für die Kompilierung -->

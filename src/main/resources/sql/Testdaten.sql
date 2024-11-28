@@ -1,3 +1,40 @@
+-- Entfernen bestehender Trigger, falls sie existieren
+DROP TRIGGER IF EXISTS trigger_set_due_date ON LENDING;
+DROP TRIGGER IF EXISTS trigger_set_return_date ON LENDING;
+
+-- Entfernen bestehender Funktionen, falls sie existieren
+DROP FUNCTION IF EXISTS set_due_date();
+DROP FUNCTION IF EXISTS set_return_date();
+
+-- Trigger für lending
+CREATE OR REPLACE FUNCTION set_due_date() RETURNS TRIGGER AS $$
+BEGIN
+    NEW.DUE_DATE := NEW.CHECKOUT_DATE + INTERVAL '28 days';
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_set_due_date
+    BEFORE INSERT ON LENDING
+    FOR EACH ROW
+EXECUTE FUNCTION set_due_date();
+
+
+CREATE OR REPLACE FUNCTION set_return_date() RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.STATUS = 'returned' AND OLD.STATUS = 'borrowed' THEN
+        NEW.RETURN_DATE := CURRENT_DATE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_set_return_date
+    BEFORE UPDATE ON LENDING
+    FOR EACH ROW
+EXECUTE FUNCTION set_return_date();
+
+
 -- Testdaten
 
 
@@ -91,131 +128,130 @@ INSERT INTO KEYWORD (KEYWORD_ID, KEYWORD) VALUES
 
 -- Book
 
-INSERT INTO BOOK (BOOK_ID, ISBN, BOOKTITLE, BOOKAUTHOR, PUBLISHER, YEAR_PUBLISHED, DESCRIPTION, STATUS, KEYWORD_ID) VALUES
-(DEFAULT, '978-3-16-148410-0', 'Datenbanken Grundlagen', 'Max Mustermann', 'Fachverlag', 2020, 'Einführung in Datenbanken', 'available', 1),
-(DEFAULT, '978-1-23-456789-7', 'Programmieren für Einsteiger', 'Julia Muster', 'TechBooks', 2019, 'Grundlagen der Programmierung', 'available', 2),
-(DEFAULT, '978-1-47-321678-0', 'Fortgeschrittene SQL Techniken', 'Laura Behr', 'DB Verlag', 2018, 'Fortgeschrittene Konzepte für SQL-Nutzer', 'borrowed', 1),
-(DEFAULT, '978-0-14-312547-1', 'Big Data und NoSQL', 'Hannes Krieger', 'TechWorld', 2021, 'Einführung in NoSQL und Big Data Technologien', 'available', 3),
-(DEFAULT, '978-0-16-148410-2', 'Machine Learning Grundlagen', 'Maria Schmidt', 'AI Books', 2020, 'Einführung in Machine Learning Konzepte', 'available', 4),
-(DEFAULT, '978-1-50-117321-8', 'Algorithmen und Datenstrukturen', 'Thomas Lange', 'CompSci Verlag', 2015, 'Grundlagen der Algorithmen und Datenstrukturen', 'borrowed', 2),
-(DEFAULT, '978-1-43-026778-0', 'Datenbanken für Fortgeschrittene', 'Markus Müller', 'Informatik Verlag', 2017, 'Erweiterte Datenbanktechniken', 'available', 1),
-(DEFAULT, '978-0-12-374979-9', 'Python für Anfänger', 'Lena Braun', 'CodeBooks', 2022, 'Python-Programmierung für Einsteiger', 'checked out', 2),
-(DEFAULT, '978-1-84-800003-6', 'Java und OOP', 'Kurt Keller', 'DeveloperPress', 2016, 'Objektorientierte Programmierung mit Java', 'available', 3),
-(DEFAULT, '978-3-16-148410-3', 'Webentwicklung mit HTML und CSS', 'Nina Fischer', 'WebTech', 2021, 'Grundlagen der Webentwicklung', 'available', 4),
-(DEFAULT, '978-0-13-708107-3', 'JavaScript für Einsteiger', 'Lucas Herrmann', 'Frontend Verlag', 2020, 'Einsteigerkurs in JavaScript', 'borrowed', 4),
-(DEFAULT, '978-0-13-708107-4', 'Statistik für Data Science', 'Clara Berger', 'DataWorld', 2021, 'Einführung in statistische Konzepte', 'available', 3),
-(DEFAULT, '978-3-16-148410-5', 'Grundlagen der Netzwerksicherheit', 'Philipp Maier', 'Security Press', 2019, 'Netzwerksicherheitskonzepte', 'borrowed', 5),
-(DEFAULT, '978-0-13-708107-6', 'Künstliche Intelligenz', 'Daniel Kaiser', 'TechBooks', 2018, 'Überblick über Künstliche Intelligenz', 'available', 4),
-(DEFAULT, '978-0-13-708107-7', 'Systemarchitektur für IT', 'Sandra Frank', 'IT Pro', 2020, 'Architekturen für moderne IT-Systeme', 'available', 2),
-(DEFAULT, '978-3-16-148410-6', 'Objektorientierte Analyse und Design', 'Bernd Klein', 'OOAD Verlag', 2015, 'Grundlagen der objektorientierten Analyse', 'borrowed', 4),
-(DEFAULT, '978-1-63-322710-1', 'SQL für Einsteiger', 'Anna Lehmann', 'SQL Press', 2017, 'Einsteigerkurs für SQL', 'available', 1),
-(DEFAULT, '978-1-16-148410-8', 'Data Science Konzepte', 'Mara Hoffmann', 'DataBooks', 2019, 'Wichtige Konzepte für Data Science', 'available', 3),
-(DEFAULT, '978-3-16-148410-9', 'Visualisierung mit Tableau', 'Kevin Schmitt', 'Tableau Press', 2021, 'Einführung in die Datenvisualisierung mit Tableau', 'borrowed', 2),
-(DEFAULT, '978-0-12-374968-3', 'Einführung in Datenanalyse', 'Leon Schwarz', 'Analytics Verlag', 2018, 'Grundlagen der Datenanalyse', 'available', 1),
-(DEFAULT, '978-0-16-148410-0', 'Cloud Computing Grundlagen', 'Paul Steiner', 'CloudTech', 2020, 'Konzepte des Cloud Computing', 'borrowed', 5),
-(DEFAULT, '978-1-23-456789-8', 'Deep Learning Basics', 'Sabrina Weber', 'AI Books', 2019, 'Grundlagen des Deep Learning', 'available', 4),
-(DEFAULT, '978-0-14-312547-2', 'Cybersecurity Essentials', 'Johanna Kurz', 'Security Verlag', 2021, 'Grundlagen der Cybersicherheit', 'available', 2),
-(DEFAULT, '978-1-47-321678-1', 'Datenmanagement in der Praxis', 'Tobias Schmid', 'Data Verlag', 2016, 'Praktische Datenmanagement-Konzepte', 'borrowed', 1),
-(DEFAULT, '978-1-23-456789-9', 'Frontend-Entwicklung', 'Karl Zimmer', 'WebWorks', 2020, 'Grundlagen für die Frontend-Entwicklung', 'available', 3),
-(DEFAULT, '978-0-13-708107-8', 'Backend-Programmierung mit Node.js', 'Lisa Bauer', 'BackendBooks', 2019, 'Node.js für Backend-Entwicklung', 'borrowed', 4),
-(DEFAULT, '978-1-16-148410-1', 'DevOps für Einsteiger', 'Finn Seidel', 'TechFlow', 2018, 'Grundlagen der DevOps-Praxis', 'available', 5),
-(DEFAULT, '978-3-16-148410-7', 'Programmieren mit C++', 'Moritz Winter', 'TechPress', 2022, 'C++ Programmierung für Einsteiger', 'borrowed', 2),
-(DEFAULT, '978-1-63-322710-2', 'Einführung in R', 'Susanne Sommer', 'DataWorks', 2017, 'R-Programmierung für Data Science', 'available', 4),
-(DEFAULT, '978-1-23-456789-0', 'Konzepte der Datenbankoptimierung', 'Hanna Weigel', 'DB Verlag', 2016, 'Optimierungstechniken für Datenbanken', 'borrowed', 1),
-(DEFAULT, '978-0-14-312547-3', 'Software Engineering Basics', 'Marco Vogel', 'Software Verlag', 2021, 'Grundlagen des Software Engineerings', 'available', 3),
-(DEFAULT, '978-1-47-321678-2', 'Fortgeschrittene Web-Technologien', 'Claudia Lang', 'Web Innovators', 2019, 'Fortgeschrittene Themen für die Webentwicklung', 'available', 2),
-(DEFAULT, '978-1-63-322710-3', 'Blockchain und Kryptowährungen', 'Tom Kühn', 'CryptoPress', 2018, 'Einführung in Blockchain-Technologie', 'borrowed', 5),
-(DEFAULT, '978-0-12-374968-4', 'Agiles Projektmanagement', 'Rita Stark', 'PM Verlag', 2020, 'Agile Methoden für Projektmanagement', 'available', 3),
-(DEFAULT, '978-0-16-148410-3', 'Datenbanken für Fortgeschrittene', 'Uwe Schmidt', 'DB Verlag', 2017, 'Fortgeschrittene Datenbankthemen', 'available', 1),
-(DEFAULT, '978-0-12-374968-5', 'IT-Sicherheit Grundlagen', 'Norbert Weiß', 'SecurityPro', 2021, 'Grundlagen der IT-Sicherheit', 'available', 5),
-(DEFAULT, '978-1-47-321678-3', 'E-Commerce Technologien', 'Jan König', 'Commerce Verlag', 2019, 'Technologien für E-Commerce Systeme', 'borrowed', 3),
-(DEFAULT, '978-0-13-708107-9', 'Data Engineering Basics', 'Birgit Lutz', 'Data Verlag', 2020, 'Grundlagen des Data Engineerings', 'available', 2),
-(DEFAULT, '978-1-23-456789-1', 'Digitalisierung im Unternehmen', 'Otto Groß', 'Digital Press', 2018, 'Digitalisierungskonzepte', 'borrowed', 4),
-(DEFAULT, '978-3-16-148410-1', 'Data Science 101', 'Maria Weber', 'TechBooks', 2015, 'An introduction to Data Science fundamentals.', 'available', 1),
-(DEFAULT, '978-3-16-148410-2', 'Python für Anfänger', 'Thomas Müller', 'CodeMedia', 2018, 'A comprehensive guide to Python programming for beginners.', 'borrowed', 2),
-(DEFAULT, '978-3-16-148410-3', 'Java in Depth', 'Sandra Schmid', 'DevPress', 2016, 'Advanced Java programming techniques and best practices.', 'available', 3),
-(DEFAULT, '978-3-16-148410-4', 'Machine Learning Essentials', 'Laura Richter', 'AI Books', 2019, 'A beginner-friendly guide to machine learning concepts.', 'reserved', 4),
-(DEFAULT, '978-3-16-148410-5', 'C++ in der Praxis', 'Felix Lang', 'TechWorld', 2017, 'Practical applications and examples in C++ programming.', 'borrowed', 5),
-(DEFAULT, '978-3-16-148410-6', 'Die Welt der Algorithmen', 'Lisa Braun', 'InformatikVerlag', 2020, 'A deep dive into algorithm design and analysis.', 'available', 6),
-(DEFAULT, '978-3-16-148410-7', 'Datenstrukturen leicht gemacht', 'Martin Becker', 'ComputerBooks', 2015, 'Fundamentals of data structures with practical examples.', 'borrowed', 1),
-(DEFAULT, '978-3-16-148410-8', 'JavaScript Basics', 'Nina Fischer', 'WebDev Publishers', 2019, 'An introduction to JavaScript for web development.', 'available', 2),
-(DEFAULT, '978-3-16-148410-9', 'Projektmanagement in IT', 'Peter Hoffmann', 'BusinessBooks', 2018, 'Managing projects in the tech industry effectively.', 'available', 3),
-(DEFAULT, '978-3-16-148411-0', 'Künstliche Intelligenz für Anfänger', 'Alexandra Meyer', 'FutureTech', 2020, 'An introduction to artificial intelligence concepts.', 'reserved', 4),
-(DEFAULT, '978-3-16-148411-1', 'Big Data Grundlagen', 'Oliver Müller', 'DataPress', 2017, 'Exploring the basics of Big Data technologies.', 'borrowed', 5),
-(DEFAULT, '978-3-16-148411-2', 'SQL und Datenbanken', 'Emma Schmidt', 'CodeMedia', 2016, 'A practical guide to SQL and relational databases.', 'available', 6),
-(DEFAULT, '978-3-16-148411-3', 'Linux Administration', 'Tim Berger', 'SysAdmin Books', 2015, 'Essential knowledge for Linux system administrators.', 'borrowed', 1),
-(DEFAULT, '978-3-16-148411-4', 'Cloud Computing für Unternehmen', 'Sandra Keller', 'CloudPress', 2019, 'Implementing cloud solutions for businesses.', 'available', 2),
-(DEFAULT, '978-3-16-148411-5', 'Netzwerksicherheit', 'Sebastian Lorenz', 'CyberBooks', 2018, 'Protecting networks from cyber threats.', 'reserved', 3),
-(DEFAULT, '978-3-16-148411-6', 'Agile Entwicklungsmethoden', 'Tobias Schneider', 'IT Management', 2016, 'Introduction to Agile and Scrum methodologies.', 'borrowed', 4),
-(DEFAULT, '978-3-16-148411-7', 'Android Programmierung', 'Julia Fischer', 'MobileDev', 2017, 'Developing applications for Android devices.', 'available', 5),
-(DEFAULT, '978-3-16-148411-8', 'Software Testing', 'Fabian Weiß', 'TestWorld', 2020, 'Best practices in software testing.', 'borrowed', 6),
-(DEFAULT, '978-3-16-148411-9', 'Blockchain für Einsteiger', 'Melanie Klein', 'FutureTech', 2019, 'A beginner’s guide to blockchain technology.', 'available', 1),
-(DEFAULT, '978-3-16-148412-0', 'Cybersecurity Basics', 'Kevin Jung', 'SecBooks', 2015, 'Understanding cybersecurity principles.', 'reserved', 2),
-(DEFAULT, '978-3-16-148412-1', 'R für Datenanalyse', 'Thomas Keller', 'DataPress', 2018, 'Data analysis with the R programming language.', 'borrowed', 3),
-(DEFAULT, '978-3-16-148412-2', 'Digitales Marketing', 'Sarah Wagner', 'MarketingPro', 2017, 'An overview of digital marketing strategies.', 'available', 4),
-(DEFAULT, '978-3-16-148412-3', 'Fortgeschrittene Python-Programmierung', 'Lars Wolf', 'TechBooks', 2020, 'Advanced techniques in Python programming.', 'borrowed', 5),
-(DEFAULT, '978-3-16-148412-4', 'IT-Sicherheit', 'Max Weber', 'CyberPress', 2019, 'Best practices for IT security management.', 'available', 6),
-(DEFAULT, '978-3-16-148412-5', 'Datenvisualisierung', 'Anna Kaiser', 'VizBooks', 2016, 'Data visualization techniques and tools.', 'borrowed', 1),
-(DEFAULT, '978-3-16-148412-6', 'Scrum und Agile Methoden', 'Michael Franz', 'Agile Books', 2018, 'Applying Scrum and Agile methodologies in projects.', 'available', 2),
-(DEFAULT, '978-3-16-148412-7', 'Digitale Transformation', 'Clara Winkler', 'FutureTech', 2019, 'Navigating digital transformation in organizations.', 'reserved', 3),
-(DEFAULT, '978-3-16-148412-8', 'Webentwicklung mit HTML5 und CSS3', 'Frank Müller', 'WebDev Press', 2017, 'Creating modern websites with HTML5 and CSS3.', 'borrowed', 4),
-(DEFAULT, '978-3-16-148412-9', 'React für Einsteiger', 'Nina Ludwig', 'CodeMedia', 2020, 'Introduction to React for front-end development.', 'available', 5),
-(DEFAULT, '978-3-16-148413-0', 'Datenanalyse mit SQL', 'Simon Köhler', 'DataPress', 2015, 'Analyzing data with SQL queries.', 'borrowed', 6),
-(DEFAULT, '978-3-16-148413-1', 'Systemarchitektur', 'Uwe Becker', 'InformatikVerlag', 2016, 'Designing scalable system architectures.', 'available', 1),
-(DEFAULT, '978-3-16-148413-2', 'Einführung in Ruby', 'Leonie Fischer', 'RubyBooks', 2018, 'Learning the Ruby programming language.', 'borrowed', 2),
-(DEFAULT, '978-3-16-148413-3', 'Design Thinking', 'Tom Schuster', 'Creative Books', 2017, 'Applying design thinking to innovation.', 'reserved', 3),
-(DEFAULT, '978-3-16-148413-4', 'Kubernetes für Entwickler', 'Patrick Brandt', 'CloudPress', 2019, 'Using Kubernetes for container management.', 'available', 4),
-(DEFAULT, '978-3-16-148413-5', 'Künstliche neuronale Netze', 'Nina Schwarz', 'AI Books', 2020, 'An introduction to neural networks.', 'borrowed', 5),
-(DEFAULT, '978-3-16-148413-6', 'Cyber-Risiken in Unternehmen', 'Max Bauer', 'SecBooks', 2018, 'Understanding and mitigating cyber risks.', 'available', 6),
-(DEFAULT, '978-3-16-148413-7', 'Die Programmiersprache Go', 'Oliver König', 'DevPress', 2017, 'An introduction to the Go programming language.', 'borrowed', 1),
-(DEFAULT, '978-3-16-148413-8', 'Software-Engineering', 'Miriam Schmid', 'TechBooks', 2015, 'Software development processes and methodologies.', 'available', 2),
-(DEFAULT, '978-3-16-148413-9', 'JavaScript Frameworks', 'Lars Walter', 'WebDev Publishers', 2019, 'A guide to popular JavaScript frameworks.', 'reserved', 3),
-(DEFAULT, '978-3-16-148414-0', 'SQL für Fortgeschrittene', 'Klaus Weber', 'DataPress', 2016, 'Advanced SQL techniques and practices.', 'borrowed', 4),
-(DEFAULT, '978-3-16-148414-1', '3D-Animation und Modellierung', 'Stefan Braun', 'GraphicsPro', 2018, 'Creating 3D animations and models.', 'available', 5),
-(DEFAULT, '978-3-16-148414-2', 'Microservices Architektur', 'Petra Wolf', 'CloudPress', 2020, 'Developing applications with microservices.', 'borrowed', 6),
-(DEFAULT, '978-3-16-148414-3', 'IT-Projektmanagement', 'Birgit Lang', 'BusinessBooks', 2017, 'Managing IT projects effectively.', 'available', 1),
-(DEFAULT, '978-3-16-148414-4', 'Digitalisierung in der Industrie', 'Helmut Richter', 'IndustrialBooks', 2019, 'Digital transformation in the industrial sector.', 'borrowed', 2),
-(DEFAULT, '978-3-16-148414-5', 'Einführung in NoSQL', 'Carina Ludwig', 'DataPress', 2015, 'Exploring NoSQL databases and their applications.', 'available', 3),
-(DEFAULT, '978-3-16-148414-6', 'Kreatives Programmieren', 'Tobias Busch', 'Creative Books', 2016, 'Coding creatively with Processing and p5.js.', 'borrowed', 4),
-(DEFAULT, '978-3-16-148414-7', 'Risikomanagement in der IT', 'Fabian Neumann', 'RiskBooks', 2018, 'Managing risk in IT projects.', 'available', 5),
-(DEFAULT, '978-3-16-148414-8', 'Web Design Trends', 'Vanessa Kurz', 'WebDev Publishers', 2020, 'Latest trends in web design and UX.', 'reserved', 6),
-(DEFAULT, '978-3-16-148414-9', 'Agile Transformation', 'Johannes Maier', 'Agile Books', 2019, 'Implementing agile processes in organizations.', 'borrowed', 1),
-(DEFAULT, '978-1-61-729256-5', 'Die letzten Sterne', 'Mia Schulze', 'SciFi Verlag', 2023, 'Ein Weltraumabenteuer in einer fernen Zukunft', 'available', 1),
-(DEFAULT, '978-0-14-132323-3', 'Magie der Drachen', 'Elena Wolf', 'Fantasy World', 2022, 'Ein episches Abenteuer im Land der Drachen', 'borrowed', 2),
-(DEFAULT, '978-0-54-537718-7', 'Der Fluch der Rosen', 'Jessica Meyer', 'Romance Verlag', 2021, 'Eine verbotene Liebe zwischen zwei Welten', 'available', 3),
-(DEFAULT, '978-0-15-104549-5', 'Der mysteriöse Fall', 'Oliver Schwarz', 'MysteryPress', 2022, 'Ein unlösbarer Mordfall in einer kleinen Stadt', 'borrowed', 4),
-(DEFAULT, '978-1-23-456847-9', 'Die Jagd', 'Sarah Becker', 'Thriller Verlag', 2023, 'Ein Thriller über einen unerbittlichen Jäger', 'available', 5),
-(DEFAULT, '978-1-25-346938-3', 'Blutmond', 'Lukas Jäger', 'Horror Verlag', 2020, 'Dunkle Mächte und ein schreckliches Geheimnis', 'borrowed', 6),
-(DEFAULT, '978-3-16-415271-4', 'Der Krieg der Könige', 'Katharina Stein', 'Historical Fiction Books', 2021, 'Ein historischer Roman über Macht und Verrat', 'available', 7),
-(DEFAULT, '978-1-84-784206-7', 'Die Insel der verlorenen Schätze', 'Thomas Schuster', 'Adventure Press', 2022, 'Ein Abenteuer voller Geheimnisse und Schätze', 'borrowed', 8),
-(DEFAULT, '978-0-32-918435-5', 'Der geheime Club', 'Anna Fischer', 'Young Adult Verlag', 2021, 'Freundschaft und Geheimnisse in der Jugendzeit', 'available', 9),
-(DEFAULT, '978-1-41-657345-9', 'Welt aus Asche', 'Felix Braun', 'Dystopian Books', 2020, 'Eine Zukunft zerstört von Naturkatastrophen', 'borrowed', 10),
-(DEFAULT, '978-0-15-846236-9', 'Die verborgene Welt', 'Monika Kraus', 'Paranormal Verlag', 2022, 'Geheimnisse und übernatürliche Kräfte', 'available', 11),
-(DEFAULT, '978-1-58-832046-9', 'Im Schatten des Zweifels', 'Robert Peters', 'Contemporary Verlag', 2021, 'Ein Roman über Liebe, Verlust und Vertrauen', 'borrowed', 12),
-(DEFAULT, '978-1-45-237741-8', 'Ein Leben in Worten', 'Jessica Fischer', 'Biography Press', 2023, 'Die Geschichte eines außergewöhnlichen Lebens', 'available', 13),
-(DEFAULT, '978-1-56-672934-6', 'In Erinnerung an den Krieg', 'Markus Braun', 'Memoir Verlag', 2022, 'Ein persönliches Memoir über das Leben nach dem Krieg', 'borrowed', 14),
-(DEFAULT, '978-1-68-722409-5', 'Der Weg der Veränderung', 'Simon Müller', 'Non-fiction Books', 2021, 'Ein Buch über persönliche Entwicklung und Veränderung', 'available', 15),
-(DEFAULT, '978-0-14-127844-4', 'Kraft der Gedanken', 'Eva Schulz', 'Self-help Verlag', 2020, 'Hilfreiche Tipps zur Steigerung des persönlichen Wohlbefindens', 'borrowed', 16),
-(DEFAULT, '978-0-98-765453-4', 'Der Erfolgscode', 'Julian Weber', 'Business Verlag', 2022, 'Erfolgsstrategien für Unternehmer und Selbstständige', 'available', 17),
-(DEFAULT, '978-1-73-254892-6', 'Die Kunst der Selbstfürsorge', 'Lena Becker', 'Health & Wellness Verlag', 2021, 'Ein Leitfaden für ein gesundes und glückliches Leben', 'borrowed', 18),
-(DEFAULT, '978-1-45-675763-2', 'Gesunde Küche', 'Miriam Klein', 'Cookbook Press', 2020, 'Leckere Rezepte für eine ausgewogene Ernährung', 'available', 19),
-(DEFAULT, '978-0-98-734208-3', 'Die Farben der Welt', 'Paul Richter', 'ArtBooks', 2021, 'Ein Kunstbuch über die Bedeutung von Farben in der Kunst', 'borrowed', 20),
-(DEFAULT, '978-1-84-323073-7', 'Gedichte der Nacht', 'Clara Vogel', 'Poetry Press', 2022, 'Eine Sammlung von düsteren und nachdenklichen Gedichten', 'available', 21),
-(DEFAULT, '978-1-62-118430-0', 'Die Unendlichkeit des Augenblicks', 'Jana Weber', 'ClassicBooks', 2021, 'Ein klassischer Roman über die Unvermeidlichkeit des Schicksals', 'borrowed', 22),
-(DEFAULT, '978-0-12-349672-3', 'Der Lächelnsplan', 'Eva Heidrich', 'Humor Press', 2022, 'Lachen als Lebensstrategie – ein humorvolles Sachbuch', 'available', 23),
-(DEFAULT, '978-1-56-738129-4', 'Die verlorenen Tage', 'Ursula Hoffmann', 'Children''s Fiction Verlag', 2020, 'Ein Kinderbuch über Freundschaft und Abenteuer', 'borrowed', 24),
-(DEFAULT, '978-3-15-948632-7', 'Der große Traum', 'Felix Sturm', 'Literary Fiction Books', 2022, 'Ein literarisches Meisterwerk über das Leben und seine Tragödien', 'available', 25),
-(DEFAULT, '978-1-13-489567-7', 'Das düstere Geheimnis', 'Isabelle Reuter', 'CrimeBooks', 2021, 'Ein Kriminalfall, der das Leben aller Beteiligten verändert', 'borrowed', 26),
-(DEFAULT, '978-1-43-248753-0', 'Das düstere Netz', 'Markus Stein', 'True Crime Verlag', 2022, 'Echte Kriminalfälle, die die Welt erschütterten', 'available', 27),
-(DEFAULT, '978-1-50-151848-2', 'Das Geheimnis der Sterne', 'Andrea Weber', 'Science Verlag', 2020, 'Wissenschaftliche Entdeckungen und ihre Bedeutung für die Zukunft', 'borrowed', 28),
-(DEFAULT, '978-1-54-654937-5', 'Die geheime Natur', 'Johanna Fischer', 'NatureBooks', 2021, 'Eine Reise in die Geheimnisse der Natur', 'available', 29),
-(DEFAULT, '978-3-16-715899-2', 'Die Maschinen', 'Erik Müller', 'Technology Books', 2022, 'Wie Maschinen die Zukunft verändern', 'borrowed', 30),
-(DEFAULT, '978-1-24-798596-4', 'Die Philosophie des Lebens', 'Marcel Fischer', 'Philosophy Books', 2021, 'Ein philosophischer Blick auf das Leben und seine Bedeutung', 'available', 31),
-(DEFAULT, '978-0-19-482982-1', 'Psychologie des Glücks', 'Elena Hahn', 'Psychology Press', 2020, 'Wie du dein Leben mit positiven Gedanken verändern kannst', 'borrowed', 32),
-(DEFAULT, '978-1-56-072804-7', 'Das Geheimnis des Glaubens', 'Oliver Becker', 'Religion Verlag', 2021, 'Ein philosophischer Blick auf Religion und Spiritualität', 'available', 33),
-(DEFAULT, '978-0-92-184396-4', 'Der Weg zum inneren Frieden', 'Jana Huber', 'Spirituality Press', 2022, 'Wie du deine innere Ruhe findest', 'borrowed', 34),
-(DEFAULT, '978-1-13-348172-6', 'Die Welt bereisen', 'Max Schuster', 'TravelBooks', 2021, 'Reiseberichte aus den entlegensten Teilen der Erde', 'available', 35),
-(DEFAULT, '978-1-25-374901-8', 'Der Klang der Musik', 'Eva Krüger', 'Music Press', 2020, 'Eine Reise durch die Welt der Musik und ihrer Geschichte', 'borrowed', 36);
+INSERT INTO BOOK (BOOK_ID, ISBN_LONG, ISBN_SHORT, COPIES, BOOKTITLE, BOOKAUTHOR, PUBLISHER, YEAR_PUBLISHED, DESCRIPTION, STATUS, KEYWORD_ID) VALUES
+(DEFAULT, '978-3-16-148410-0', '9517534862',2, 'Datenbanken Grundlagen', 'Max Mustermann', 'Fachverlag', 2020, 'Einführung in Datenbanken', 'available', 1),
+(DEFAULT, '978-1-23-456789-7', '7539514862',3, 'Programmieren für Einsteiger', 'Julia Muster', 'TechBooks', 2019, 'Grundlagen der Programmierung', 'available', 2),
+(DEFAULT, '978-0-14-312547-1', '5639464648',4,'Big Data und NoSQL', 'Hannes Krieger', 'TechWorld', 2021, 'Einführung in NoSQL und Big Data Technologien', 'available', 3),
+(DEFAULT, '978-0-16-148410-2', '9513574862', 5,'Machine Learning Grundlagen', 'Maria Schmidt', 'AI Books', 2020, 'Einführung in Machine Learning Konzepte', 'available', 4),
+(DEFAULT, '978-1-50-117321-8', '2468135790', 1, 'Algorithmen und Datenstrukturen', 'Thomas Lange', 'CompSci Verlag', 2015, 'Grundlagen der Algorithmen und Datenstrukturen', 'borrowed', 2),
+(DEFAULT, '978-1-43-026778-0', '1238765743', 1,'Datenbanken für Fortgeschrittene 2', 'Markus Müller', 'Informatik Verlag', 2017, 'Erweiterte Datenbanktechniken', 'available', 1),
+(DEFAULT, '978-0-12-374979-9', '1234567890', 3,'Python für Anfänger 1', 'Lena Braun', 'CodeBooks', 2022, 'Python-Programmierung für Einsteiger', 'checked out', 2),
+(DEFAULT, '978-1-84-800003-6', '4445554444', 4,'Java und OOP', 'Kurt Keller', 'DeveloperPress', 2016, 'Objektorientierte Programmierung mit Java', 'available', 3),
+(DEFAULT, '978-3-16-148110-3', '1065478974', 3, 'Webentwicklung mit HTML und CSS', 'Nina Fischer', 'WebTech', 2021, 'Grundlagen der Webentwicklung', 'available', 4),
+(DEFAULT, '978-0-13-708107-3', '7899999999', 1, 'JavaScript für Einsteiger', 'Lucas Herrmann', 'Frontend Verlag', 2020, 'Einsteigerkurs in JavaScript', 'borrowed', 4),
+(DEFAULT, '978-0-13-708107-4', '1593574862', 1,'Statistik für Data Science', 'Clara Berger', 'DataWorld', 2021, 'Einführung in statistische Konzepte', 'available', 3),
+(DEFAULT, '978-3-16-248410-5', '9981776522',2, 'Grundlagen der Netzwerksicherheit', 'Philipp Maier', 'Security Press', 2019, 'Netzwerksicherheitskonzepte', 'borrowed', 5),
+(DEFAULT, '978-0-13-708107-6', '9802345768', 1,'Künstliche Intelligenz', 'Daniel Kaiser', 'TechBooks', 2018, 'Überblick über Künstliche Intelligenz', 'available', 4),
+(DEFAULT, '978-0-13-708107-7', '2763837484', 6,'Systemarchitektur für IT', 'Sandra Frank', 'IT Pro', 2020, 'Architekturen für moderne IT-Systeme', 'available', 2),
+(DEFAULT, '978-3-26-148410-6', '6555554444', 9,'Objektorientierte Analyse und Design', 'Bernd Klein', 'OOAD Verlag', 2015, 'Grundlagen der objektorientierten Analyse', 'borrowed', 4),
+(DEFAULT, '978-1-63-322710-1', '1999999999', 10,'SQL für Einsteiger', 'Anna Lehmann', 'SQL Press', 2017, 'Einsteigerkurs für SQL', 'available', 1),
+(DEFAULT, '978-1-16-148410-8', '2999999999', 3, 'Data Science Konzepte', 'Mara Hoffmann', 'DataBooks', 2019, 'Wichtige Konzepte für Data Science', 'available', 3),
+(DEFAULT, '978-3-16-142410-9', '4444445554', 7,'Visualisierung mit Tableau', 'Kevin Schmitt', 'Tableau Press', 2021, 'Einführung in die Datenvisualisierung mit Tableau', 'borrowed', 2),
+(DEFAULT, '978-0-12-374968-3', '6667776666', 2,'Einführung in Datenanalyse', 'Leon Schwarz', 'Analytics Verlag', 2018, 'Grundlagen der Datenanalyse', 'available', 1),
+(DEFAULT, '978-0-16-148410-0', '9333333337', 10,'Cloud Computing Grundlagen', 'Paul Steiner', 'CloudTech', 2020, 'Konzepte des Cloud Computing', 'borrowed', 5),
+(DEFAULT, '978-1-23-456789-8', '2333444278', 5, 'Deep Learning Basics', 'Sabrina Weber', 'AI Books', 2019, 'Grundlagen des Deep Learning', 'available', 4),
+(DEFAULT, '978-0-14-312547-2', '1239800049', 8,'Cybersecurity Essentials', 'Johanna Kurz', 'Security Verlag', 2021, 'Grundlagen der Cybersicherheit', 'available', 2),
+(DEFAULT, '978-1-47-321678-1', '2122211121', 9,'Datenmanagement in der Praxis', 'Tobias Schmid', 'Data Verlag', 2016, 'Praktische Datenmanagement-Konzepte', 'borrowed', 1),
+(DEFAULT, '978-1-23-456789-9', '1000030001', 14, 'Frontend-Entwicklung', 'Karl Zimmer', 'WebWorks', 2020, 'Grundlagen für die Frontend-Entwicklung', 'available', 3),
+(DEFAULT, '978-0-13-708107-8', '2111221111', 3, 'Backend-Programmierung mit Node.js', 'Lisa Bauer', 'BackendBooks', 2019, 'Node.js für Backend-Entwicklung', 'borrowed', 4),
+(DEFAULT, '978-1-16-148410-1', '9111222834', 9,'DevOps für Einsteiger', 'Finn Seidel', 'TechFlow', 2018, 'Grundlagen der DevOps-Praxis', 'available', 5),
+(DEFAULT, '978-3-16-148430-7', '1209876543', 9,'Programmieren mit C++', 'Moritz Winter', 'TechPress', 2022, 'C++ Programmierung für Einsteiger', 'borrowed', 2),
+(DEFAULT, '978-1-63-322710-2', '9645364563', 11,'Einführung in R', 'Susanne Sommer', 'DataWorks', 2017, 'R-Programmierung für Data Science', 'available', 4),
+(DEFAULT, '978-1-23-456789-0', '7223889873', 1,'Konzepte der Datenbankoptimierung', 'Hanna Weigel', 'DB Verlag', 2016, 'Optimierungstechniken für Datenbanken', 'borrowed', 1),
+(DEFAULT, '978-0-14-312547-3', '1111131111', 4,'Software Engineering Basics', 'Marco Vogel', 'Software Verlag', 2021, 'Grundlagen des Software Engineerings', 'available', 3),
+(DEFAULT, '978-1-47-321678-2', '3333333323', 5,'Fortgeschrittene Web-Technologien', 'Claudia Lang', 'Web Innovators', 2019, 'Fortgeschrittene Themen für die Webentwicklung', 'available', 2),
+(DEFAULT, '978-1-63-322710-3', '7773337467', 13,'Blockchain und Kryptowährungen', 'Tom Kühn', 'CryptoPress', 2018, 'Einführung in Blockchain-Technologie', 'borrowed', 5),
+(DEFAULT, '978-0-12-374968-4', '3434343434', 4, 'Agiles Projektmanagement', 'Rita Stark', 'PM Verlag', 2020, 'Agile Methoden für Projektmanagement', 'available', 3),
+(DEFAULT, '978-0-16-148410-3', '9173954735', 9,'Datenbanken für Fortgeschrittene 1', 'Uwe Schmidt', 'DB Verlag', 2017, 'Fortgeschrittene Datenbankthemen', 'available', 1),
+(DEFAULT, '978-0-12-374968-5', '7836666666', 1,'IT-Sicherheit Grundlagen', 'Norbert Weiß', 'SecurityPro', 2021, 'Grundlagen der IT-Sicherheit', 'available', 5),
+(DEFAULT, '978-1-47-321678-3', '2322200009', 2,'E-Commerce Technologien', 'Jan König', 'Commerce Verlag', 2019, 'Technologien für E-Commerce Systeme', 'borrowed', 3),
+(DEFAULT, '978-0-13-708107-9', '1110001110', 1, 'Data Engineering Basics', 'Birgit Lutz', 'Data Verlag', 2020, 'Grundlagen des Data Engineerings', 'available', 2),
+(DEFAULT, '978-1-23-456789-1', '2122222222', 3,'Digitalisierung im Unternehmen', 'Otto Groß', 'Digital Press', 2018, 'Digitalisierungskonzepte', 'borrowed', 4),
+(DEFAULT, '978-3-16-148410-1', '9012229489', 2,'Data Science 101', 'Maria Weber', 'TechBooks', 2015, 'An introduction to Data Science fundamentals.', 'available', 1),
+(DEFAULT, '978-3-16-148410-2', '9988776522', 1,'Python für Anfänger 2', 'Thomas Müller', 'CodeMedia', 2018, 'A comprehensive guide to Python programming for beginners.', 'borrowed', 2),
+(DEFAULT, '978-3-16-148410-3', '2226356472',1,'Java in Depth', 'Sandra Schmid', 'DevPress', 2016, 'Advanced Java programming techniques and best practices.', 'available', 3),
+(DEFAULT, '978-3-16-148410-4', '1000000001', 1,'Machine Learning Essentials', 'Laura Richter', 'AI Books', 2019, 'A beginner-friendly guide to machine learning concepts.', 'reserved', 4),
+(DEFAULT, '978-3-16-148410-5', '1000000002', 2,'C++ in der Praxis', 'Felix Lang', 'TechWorld', 2017, 'Practical applications and examples in C++ programming.', 'borrowed', 5),
+(DEFAULT, '978-3-16-148410-6', '1000000003', 3, 'Die Welt der Algorithmen', 'Lisa Braun', 'InformatikVerlag', 2020, 'A deep dive into algorithm design and analysis.', 'available', 6),
+(DEFAULT, '978-3-16-148410-7', '1000000004',4,'Datenstrukturen leicht gemacht', 'Martin Becker', 'ComputerBooks', 2015, 'Fundamentals of data structures with practical examples.', 'borrowed', 1),
+(DEFAULT, '978-3-16-148410-8', '1000000005', 5, 'JavaScript Basics', 'Nina Fischer', 'WebDev Publishers', 2019, 'An introduction to JavaScript for web development.', 'available', 2),
+(DEFAULT, '978-3-16-148410-9', '1000000006', 6,'Projektmanagement in IT', 'Peter Hoffmann', 'BusinessBooks', 2018, 'Managing projects in the tech industry effectively.', 'available', 3),
+(DEFAULT, '978-3-16-148411-0', '1000000007', 7,'Künstliche Intelligenz für Anfänger', 'Alexandra Meyer', 'FutureTech', 2020, 'An introduction to artificial intelligence concepts.', 'reserved', 4),
+(DEFAULT, '978-3-16-148411-1', '1000000008', 8,'Big Data Grundlagen', 'Oliver Müller', 'DataPress', 2017, 'Exploring the basics of Big Data technologies.', 'borrowed', 5),
+(DEFAULT, '978-3-16-148411-2', '1000000009', 9,'SQL und Datenbanken', 'Emma Schmidt', 'CodeMedia', 2016, 'A practical guide to SQL and relational databases.', 'available', 6),
+(DEFAULT, '978-3-16-148411-3', '2000000001', 1,'Linux Administration', 'Tim Berger', 'SysAdmin Books', 2015, 'Essential knowledge for Linux system administrators.', 'borrowed', 1),
+(DEFAULT, '978-3-16-148411-4', '2000000002', 2,'Cloud Computing für Unternehmen', 'Sandra Keller', 'CloudPress', 2019, 'Implementing cloud solutions for businesses.', 'available', 2),
+(DEFAULT, '978-3-16-148411-5', '2000000003', 4,'Netzwerksicherheit', 'Sebastian Lorenz', 'CyberBooks', 2018, 'Protecting networks from cyber threats.', 'reserved', 3),
+(DEFAULT, '978-3-16-148411-6', '2000000004', 4,'Agile Entwicklungsmethoden', 'Tobias Schneider', 'IT Management', 2016, 'Introduction to Agile and Scrum methodologies.', 'borrowed', 4),
+(DEFAULT, '978-3-16-148411-7', '2000000005', 4, 'Android Programmierung', 'Julia Fischer', 'MobileDev', 2017, 'Developing applications for Android devices.', 'available', 5),
+(DEFAULT, '978-3-16-148411-8', '2274350598', 3, 'Software Testing', 'Fabian Weiß', 'TestWorld', 2020, 'Best practices in software testing.', 'borrowed', 6),
+(DEFAULT, '978-3-16-148411-9', '5779684565', 1, 'Blockchain für Einsteiger', 'Melanie Klein', 'FutureTech', 2019, 'A beginner’s guide to blockchain technology.', 'available', 1),
+(DEFAULT, '978-3-16-148412-0', '9133487424', 1, 'Cybersecurity Basics', 'Kevin Jung', 'SecBooks', 2015, 'Understanding cybersecurity principles.', 'reserved', 2),
+(DEFAULT, '978-3-16-148412-1', '2233086136', 3, 'R für Datenanalyse', 'Thomas Keller', 'DataPress', 2018, 'Data analysis with the R programming language.', 'borrowed', 3),
+(DEFAULT, '978-3-16-148412-2', '3448828072', 4, 'Digitales Marketing', 'Sarah Wagner', 'MarketingPro', 2017, 'An overview of digital marketing strategies.', 'available', 4),
+(DEFAULT, '978-3-16-148412-3', '4951489342', 3,'Fortgeschrittene Python-Programmierung', 'Lars Wolf', 'TechBooks', 2020, 'Advanced techniques in Python programming.', 'borrowed', 5),
+(DEFAULT, '978-3-16-148412-4', '7504242343', 1,'IT-Sicherheit', 'Max Weber', 'CyberPress', 2019, 'Best practices for IT security management.', 'available', 6),
+(DEFAULT, '978-3-16-148412-5', '5119785119', 3,'Datenvisualisierung', 'Anna Kaiser', 'VizBooks', 2016, 'Data visualization techniques and tools.', 'borrowed', 1),
+(DEFAULT, '978-3-16-148412-6', '2679082805', 6, 'Scrum und Agile Methoden', 'Michael Franz', 'Agile Books', 2018, 'Applying Scrum and Agile methodologies in projects.', 'available', 2),
+(DEFAULT, '978-3-16-148412-7', '1059564553', 3,'Digitale Transformation', 'Clara Winkler', 'FutureTech', 2019, 'Navigating digital transformation in organizations.', 'reserved', 3),
+(DEFAULT, '978-3-16-148412-8', '0217346134', 2,'Webentwicklung mit HTML5 und CSS3', 'Frank Müller', 'WebDev Press', 2017, 'Creating modern websites with HTML5 and CSS3.', 'borrowed', 4),
+(DEFAULT, '978-3-16-148412-9', '3331583882', 8, 'React für Einsteiger', 'Nina Ludwig', 'CodeMedia', 2020, 'Introduction to React for front-end development.', 'available', 5),
+(DEFAULT, '978-3-16-148413-0', '6582062333', 5,'Datenanalyse mit SQL', 'Simon Köhler', 'DataPress', 2015, 'Analyzing data with SQL queries.', 'borrowed', 6),
+(DEFAULT, '978-3-16-148413-1', '4216243299', 3,'Systemarchitektur', 'Uwe Becker', 'InformatikVerlag', 2016, 'Designing scalable system architectures.', 'available', 1),
+(DEFAULT, '978-3-16-148413-2', '0145629201', 5,'Einführung in Ruby', 'Leonie Fischer', 'RubyBooks', 2018, 'Learning the Ruby programming language.', 'borrowed', 2),
+(DEFAULT, '978-3-16-148413-3', '0543642213', 3,'Design Thinking', 'Tom Schuster', 'Creative Books', 2017, 'Applying design thinking to innovation.', 'reserved', 3),
+(DEFAULT, '978-3-16-148413-4', '8500725528', 5,'Kubernetes für Entwickler', 'Patrick Brandt', 'CloudPress', 2019, 'Using Kubernetes for container management.', 'available', 4),
+(DEFAULT, '978-3-16-148413-5', '8123300367', 2,'Künstliche neuronale Netze', 'Nina Schwarz', 'AI Books', 2020, 'An introduction to neural networks.', 'borrowed', 5),
+(DEFAULT, '978-3-16-148413-6', '4195205270', 2,'Cyber-Risiken in Unternehmen', 'Max Bauer', 'SecBooks', 2018, 'Understanding and mitigating cyber risks.', 'available', 6),
+(DEFAULT, '978-3-16-148413-7', '8261651843', 4,'Die Programmiersprache Go', 'Oliver König', 'DevPress', 2017, 'An introduction to the Go programming language.', 'borrowed', 1),
+(DEFAULT, '978-3-16-148413-8', '6414613095', 2,'Software-Engineering', 'Miriam Schmid', 'TechBooks', 2015, 'Software development processes and methodologies.', 'available', 2),
+(DEFAULT, '978-3-16-148413-9', '1196250167', 1,'JavaScript Frameworks', 'Lars Walter', 'WebDev Publishers', 2019, 'A guide to popular JavaScript frameworks.', 'reserved', 3),
+(DEFAULT, '978-3-16-148414-0', '5468309882', 2,'SQL für Fortgeschrittene', 'Klaus Weber', 'DataPress', 2016, 'Advanced SQL techniques and practices.', 'borrowed', 4),
+(DEFAULT, '978-3-16-148414-1', '1774371415', 2,'3D-Animation und Modellierung', 'Stefan Braun', 'GraphicsPro', 2018, 'Creating 3D animations and models.', 'available', 5),
+(DEFAULT, '978-3-16-148414-2','900000384', 1,  'Microservices Architektur', 'Petra Wolf', 'CloudPress', 2020, 'Developing applications with microservices.', 'borrowed', 6),
+(DEFAULT, '978-3-16-148414-3', '4622760045', 5,'IT-Projektmanagement', 'Birgit Lang', 'BusinessBooks', 2017, 'Managing IT projects effectively.', 'available', 1),
+(DEFAULT, '978-3-16-148414-4', '0799165772', 4,'Digitalisierung in der Industrie', 'Helmut Richter', 'IndustrialBooks', 2019, 'Digital transformation in the industrial sector.', 'borrowed', 2),
+(DEFAULT, '978-3-16-148414-5','1907977995', 2, 'Einführung in NoSQL', 'Carina Ludwig', 'DataPress', 2015, 'Exploring NoSQL databases and their applications.', 'available', 3),
+(DEFAULT, '978-3-16-148414-6', '7772692814', 2,'Kreatives Programmieren', 'Tobias Busch', 'Creative Books', 2016, 'Coding creatively with Processing and p5.js.', 'borrowed', 4),
+(DEFAULT, '978-3-16-148414-7', '1193926872', 2,'Risikomanagement in der IT', 'Fabian Neumann', 'RiskBooks', 2018, 'Managing risk in IT projects.', 'available', 5),
+(DEFAULT, '978-3-16-148414-8', '8023939891', 8,'Web Design Trends', 'Vanessa Kurz', 'WebDev Publishers', 2020, 'Latest trends in web design and UX.', 'reserved', 6),
+(DEFAULT, '978-3-16-148414-9','0081926301', 2, 'Agile Transformation', 'Johannes Maier', 'Agile Books', 2019, 'Implementing agile processes in organizations.', 'borrowed', 1),
+(DEFAULT, '978-1-61-729256-5', '0557440352', 4, 'Die letzten Sterne', 'Mia Schulze', 'SciFi Verlag', 2023, 'Ein Weltraumabenteuer in einer fernen Zukunft', 'available', 1),
+(DEFAULT, '978-0-14-132323-3', '6814524807', 2,'Magie der Drachen', 'Elena Wolf', 'Fantasy World', 2022, 'Ein episches Abenteuer im Land der Drachen', 'borrowed', 2),
+(DEFAULT, '978-0-54-537718-7', '8349589906', 5,'Der Fluch der Rosen', 'Jessica Meyer', 'Romance Verlag', 2021, 'Eine verbotene Liebe zwischen zwei Welten', 'available', 3),
+(DEFAULT, '978-0-15-104549-5', '0441299518', 5,'Der mysteriöse Fall', 'Oliver Schwarz', 'MysteryPress', 2022, 'Ein unlösbarer Mordfall in einer kleinen Stadt', 'borrowed', 4),
+(DEFAULT, '978-1-23-456847-9', '3168060260', 3,'Die Jagd', 'Sarah Becker', 'Thriller Verlag', 2023, 'Ein Thriller über einen unerbittlichen Jäger', 'available', 5),
+(DEFAULT, '978-1-25-346938-3', '2463665267', 3,'Blutmond', 'Lukas Jäger', 'Horror Verlag', 2020, 'Dunkle Mächte und ein schreckliches Geheimnis', 'borrowed', 6),
+(DEFAULT, '978-3-16-415271-4', '7227673315',2,'Der Krieg der Könige', 'Katharina Stein', 'Historical Fiction Books', 2021, 'Ein historischer Roman über Macht und Verrat', 'available', 7),
+(DEFAULT, '978-1-84-784206-7', '2400641219',1,'Die Insel der verlorenen Schätze', 'Thomas Schuster', 'Adventure Press', 2022, 'Ein Abenteuer voller Geheimnisse und Schätze', 'borrowed', 8),
+(DEFAULT, '978-0-32-918435-5', '2634530061', 3,'Der geheime Club', 'Anna Fischer', 'Young Adult Verlag', 2021, 'Freundschaft und Geheimnisse in der Jugendzeit', 'available', 9),
+(DEFAULT, '978-1-41-657345-9', '5023597566',2,'Welt aus Asche', 'Felix Braun', 'Dystopian Books', 2020, 'Eine Zukunft zerstört von Naturkatastrophen', 'borrowed', 10),
+(DEFAULT, '978-0-15-846236-9', '4761007598', 3,'Die verborgene Welt', 'Monika Kraus', 'Paranormal Verlag', 2022, 'Geheimnisse und übernatürliche Kräfte', 'available', 11),
+(DEFAULT, '978-1-58-832046-9', '6848065000', 1,'Im Schatten des Zweifels', 'Robert Peters', 'Contemporary Verlag', 2021, 'Ein Roman über Liebe, Verlust und Vertrauen', 'borrowed', 12),
+(DEFAULT, '978-1-45-237741-8', '4621262920',1,'Ein Leben in Worten', 'Jessica Fischer', 'Biography Press', 2023, 'Die Geschichte eines außergewöhnlichen Lebens', 'available', 13),
+(DEFAULT, '978-1-56-672934-6', '9111134213', 2,'In Erinnerung an den Krieg', 'Markus Braun', 'Memoir Verlag', 2022, 'Ein persönliches Memoir über das Leben nach dem Krieg', 'borrowed', 14),
+(DEFAULT, '978-1-68-722409-5', '9698231068', 9,'Der Weg der Veränderung', 'Simon Müller', 'Non-fiction Books', 2021, 'Ein Buch über persönliche Entwicklung und Veränderung', 'available', 15),
+(DEFAULT, '978-0-14-127844-4', '4621760045', 1,'Kraft der Gedanken', 'Eva Schulz', 'Self-help Verlag', 2020, 'Hilfreiche Tipps zur Steigerung des persönlichen Wohlbefindens', 'borrowed', 16),
+(DEFAULT, '978-0-98-765453-4', '6036388423', 1,'Der Erfolgscode', 'Julian Weber', 'Business Verlag', 2022, 'Erfolgsstrategien für Unternehmer und Selbstständige', 'available', 17),
+(DEFAULT, '978-1-73-254892-6', '3270370227', 1,'Die Kunst der Selbstfürsorge', 'Lena Becker', 'Health & Wellness Verlag', 2021, 'Ein Leitfaden für ein gesundes und glückliches Leben', 'borrowed', 18),
+(DEFAULT, '978-1-45-675763-2', '7008614729', 1,'Gesunde Küche', 'Miriam Klein', 'Cookbook Press', 2020, 'Leckere Rezepte für eine ausgewogene Ernährung', 'available', 19),
+(DEFAULT, '978-0-98-734208-3', '5500150166', 8,'Die Farben der Welt', 'Paul Richter', 'ArtBooks', 2021, 'Ein Kunstbuch über die Bedeutung von Farben in der Kunst', 'borrowed', 20),
+(DEFAULT, '978-1-84-323073-7','5010714745', 2, 'Gedichte der Nacht', 'Clara Vogel', 'Poetry Press', 2022, 'Eine Sammlung von düsteren und nachdenklichen Gedichten', 'available', 21),
+(DEFAULT, '978-1-62-118430-0', '7508317679', 3,'Die Unendlichkeit des Augenblicks', 'Jana Weber', 'ClassicBooks', 2021, 'Ein klassischer Roman über die Unvermeidlichkeit des Schicksals', 'borrowed', 22),
+(DEFAULT, '978-0-12-349672-3','9308618245', 4, 'Der Lächelnsplan', 'Eva Heidrich', 'Humor Press', 2022, 'Lachen als Lebensstrategie – ein humorvolles Sachbuch', 'available', 23),
+(DEFAULT, '978-1-56-738129-4', '0818830141', 4,'Die verlorenen Tage', 'Ursula Hoffmann', 'Children''s Fiction Verlag', 2020, 'Ein Kinderbuch über Freundschaft und Abenteuer', 'borrowed', 24),
+(DEFAULT, '978-3-15-948632-7', '2403818633', 1, 'Der große Traum', 'Felix Sturm', 'Literary Fiction Books', 2022, 'Ein literarisches Meisterwerk über das Leben und seine Tragödien', 'available', 25),
+(DEFAULT, '978-1-13-489567-7', '6036820037', 1,'Das düstere Geheimnis', 'Isabelle Reuter', 'CrimeBooks', 2021, 'Ein Kriminalfall, der das Leben aller Beteiligten verändert', 'borrowed', 26),
+(DEFAULT, '978-1-43-248753-0', '2413818633', 1, 'Das düstere Netz', 'Markus Stein', 'True Crime Verlag', 2022, 'Echte Kriminalfälle, die die Welt erschütterten', 'available', 27),
+(DEFAULT, '978-1-50-151848-2', '3420751627', 1,'Das Geheimnis der Sterne', 'Andrea Weber', 'Science Verlag', 2020, 'Wissenschaftliche Entdeckungen und ihre Bedeutung für die Zukunft', 'borrowed', 28),
+(DEFAULT, '978-1-54-654937-5','2476498345', 3,  'Die geheime Natur', 'Johanna Fischer', 'NatureBooks', 2021, 'Eine Reise in die Geheimnisse der Natur', 'available', 29),
+(DEFAULT, '978-3-16-715899-2', '7735760294', 1, 'Die Maschinen', 'Erik Müller', 'Technology Books', 2022, 'Wie Maschinen die Zukunft verändern', 'borrowed', 30),
+(DEFAULT, '978-1-24-798596-4', '5726252668', 3, 'Die Philosophie des Lebens', 'Marcel Fischer', 'Philosophy Books', 2021, 'Ein philosophischer Blick auf das Leben und seine Bedeutung', 'available', 31),
+(DEFAULT, '978-0-19-482982-1', '2224490317', 3,'Psychologie des Glücks', 'Elena Hahn', 'Psychology Press', 2020, 'Wie du dein Leben mit positiven Gedanken verändern kannst', 'borrowed', 32),
+(DEFAULT, '978-1-56-072804-7','3353574855', 1, 'Das Geheimnis des Glaubens', 'Oliver Becker', 'Religion Verlag', 2021, 'Ein philosophischer Blick auf Religion und Spiritualität', 'available', 33),
+(DEFAULT, '978-0-92-184396-4', '8618399525', 1,'Der Weg zum inneren Frieden', 'Jana Huber', 'Spirituality Press', 2022, 'Wie du deine innere Ruhe findest', 'borrowed', 34),
+(DEFAULT, '978-1-13-348172-6', '2111989373', 1,'Die Welt bereisen', 'Max Schuster', 'TravelBooks', 2021, 'Reiseberichte aus den entlegensten Teilen der Erde', 'available', 35),
+(DEFAULT, '978-1-25-374901-8', '7111111112', 3, 'Der Klang der Musik', 'Eva Krüger', 'Music Press', 2020, 'Eine Reise durch die Welt der Musik und ihrer Geschichte', 'borrowed', 36);
 
 
 -- Person
@@ -371,8 +407,7 @@ INSERT INTO WAITLIST (WAITLIST_ID, USER_ID, BOOK_ID, CHECKOUT_DATE, RETURN_DATE,
 (DEFAULT, 41, 12, '2023-02-12', NULL, 'waiting'),
 (DEFAULT, 42, 9, '2023-02-13', NULL, 'waiting'),
 (DEFAULT, 43, 8, '2023-02-14', NULL, 'waiting'),
-(DEFAULT, 44, 5, '2023-02-15', NULL, 'waiting'),
-(DEFAULT, 45, 3, '2023-02-16', NULL, 'waiting');
+(DEFAULT, 44, 5, '2023-02-15', NULL, 'waiting');
 
 
 
@@ -464,38 +499,6 @@ INSERT INTO REVIEW (REVIEW_ID, BOOK_ID, USER_ID, REVIEW_TEXT, REVIEW_DATE, REVIE
 
 -- Lending
 
-
-CREATE OR REPLACE FUNCTION set_due_date() RETURNS TRIGGER AS $$
-BEGIN
-    NEW.DUE_DATE := NEW.CHECKOUT_DATE + INTERVAL '28 days';
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_set_due_date
-    BEFORE INSERT ON LENDING
-    FOR EACH ROW
-EXECUTE FUNCTION set_due_date();
-
-
-CREATE OR REPLACE FUNCTION set_return_date() RETURNS TRIGGER AS $$
-BEGIN
-    -- Wenn der Status von 'borrowed' auf 'returned' geändert wird,
-    -- setze das RETURN_DATE auf das aktuelle Datum
-    IF NEW.STATUS = 'returned' AND OLD.STATUS = 'borrowed' THEN
-        NEW.RETURN_DATE := CURRENT_DATE; -- Aktuelles Datum als Rückgabedatum
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_set_return_date
-    BEFORE UPDATE ON LENDING
-    FOR EACH ROW
-EXECUTE FUNCTION set_return_date();
-
-
--- Daten eingabe
 INSERT INTO LENDING (LENDING_ID, BOOK_ID, USER_ID_BORROWER, USER_ID_WORKER, STATUS, CHECKOUT_DATE, RETURN_DATE, DUE_DATE) VALUES
 (DEFAULT, 1, 1, 2, 'borrowed', '2023-03-01', NULL, '2023-03-29'),
 (DEFAULT, 2, 3, 2, 'returned', '2023-04-01', '2023-04-10', '2023-04-08'),

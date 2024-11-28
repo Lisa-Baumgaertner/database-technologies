@@ -1,16 +1,28 @@
 package application.config;
 
-import org.springframework.context.annotation.Configuration;
+import application.repository.BookRepository;
+import application.repository.MongoBookRepositoryImpl;
+import application.repository.PostgresBookRepositoryImpl;
+import application.util.NoSQLDatabaseConnection;
+import application.util.SQLDatabaseConnection;
 
-@Configuration(proxyBeanMethods = false)
+import java.io.IOException;
+import java.util.Properties;
+
 public class DatabaseConfig {
-    private boolean useMongoDB = false;
+    private final boolean useMongoDB;
 
-    public boolean isUseMongoDB() {
-        return useMongoDB;
+    public DatabaseConfig() throws IOException {
+        Properties properties = new Properties();
+        properties.load(getClass().getResourceAsStream("/application.properties"));
+        this.useMongoDB = Boolean.parseBoolean(properties.getProperty("database.useMongoDB", "false"));
     }
 
-    public void setUseMongoDB(boolean useMongoDB) {
-        this.useMongoDB = useMongoDB;
+    public BookRepository getBookRepository() {
+        if (useMongoDB) {
+            return new MongoBookRepositoryImpl(new NoSQLDatabaseConnection("application.properties").getDatabase());
+        } else {
+            return new PostgresBookRepositoryImpl(new SQLDatabaseConnection().getConnection());
+        }
     }
 }
