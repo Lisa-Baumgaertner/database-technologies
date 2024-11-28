@@ -8,9 +8,9 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class SQLDatabaseConnection {
-    private static Connection connection;
+    private  Connection connection;
 
-    static {
+    public SQLDatabaseConnection() {
         try {
             Properties properties = new Properties();
             properties.load(new FileInputStream("src/main/resources/application.properties"));
@@ -24,14 +24,15 @@ public class SQLDatabaseConnection {
             Class.forName(driver);
 
             // Verbindung herstellen
-            connection = DriverManager.getConnection(url, username, password);
+            this.connection = DriverManager.getConnection(url, username, password);
         } catch (IOException | ClassNotFoundException | SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Fehler beim Laden der Datenbankverbindung");
         }
     }
 
-    public static Connection getConnection() {
+
+    public  Connection getConnection() {
         return connection;
     }
 }

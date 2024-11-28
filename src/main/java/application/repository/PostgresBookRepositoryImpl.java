@@ -6,7 +6,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PostgresBookRepositoryImpl implements PostgresBookRepository {
+
+public class PostgresBookRepositoryImpl implements BookRepository {
 
     private final Connection connection;
 
@@ -24,7 +25,9 @@ public class PostgresBookRepositoryImpl implements PostgresBookRepository {
                 while (rs.next()) {
                     books.add(new Book(
                             rs.getInt("book_id"),
-                            rs.getString("isbn"),
+                            rs.getString("isbn_long"),
+                            rs.getString("isbn_short"),
+                            rs.getInt("copies"),
                             rs.getString("booktitle"),
                             rs.getString("bookauthor"),
                             rs.getString("publisher"),
@@ -41,42 +44,33 @@ public class PostgresBookRepositoryImpl implements PostgresBookRepository {
         return books;
     }
 
-    public List<Book> searchBooks(String userQuery) {
-
+    public List<Book> searchBooks(String title, String author, String isbn, String status) {
         List<Book> books = new ArrayList<>();
-        String query = "SELECT * FROM book WHERE " +
-                "(LOWER(booktitle) LIKE ?) OR " +
-                "(LOWER(bookauthor) LIKE ?) OR " +
-                "(isbn LIKE ?) OR " +
-                "(LOWER(status) LIKE ?)";
+        String query = "SELECT * FROM BOOK WHERE " +
+                "(LOWER(BOOKTITLE) LIKE ? OR ? IS NULL) AND " +
+                "(LOWER(BOOKAUTHOR) LIKE ? OR ? IS NULL) AND " +
+                "(LOWER(ISBN_LONG) LIKE ? OR LOWER(ISBN_SHORT) LIKE ? OR ? IS NULL) AND " +
+                "(LOWER(STATUS) LIKE ? OR ? IS NULL)";
+
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            String formattedQuery = "%" + userQuery.trim().toLowerCase() + "%";
-            stmt.setString(1, formattedQuery); // Für booktitle
-            stmt.setString(2, formattedQuery); // Für bookauthor
-            stmt.setString(3, query.trim());   // Exakte ISBN-Suche
-            stmt.setString(4, formattedQuery);
-            System.out.println("Parameter 4 (status): " + formattedQuery);// Für status
+            stmt.setString(1, title != null ? "%" + title.toLowerCase() + "%" : null);
+            stmt.setString(2, title);
+            stmt.setString(3, author != null ? "%" + author.toLowerCase() + "%" : null);
+            stmt.setString(4, author);
+            stmt.setString(5, isbn != null ? "%" + isbn.toLowerCase() + "%" : null);
+            stmt.setString(6, isbn != null ? "%" + isbn.toLowerCase() + "%" : null);
+            stmt.setString(7, isbn);
+            stmt.setString(8, status != null ? "%" + status.toLowerCase() + "%" : null);
+            stmt.setString(9, status);
 
             try (ResultSet resultSet = stmt.executeQuery()) {
-            while (resultSet.next()) {
-                books.add(new Book(
-                        resultSet.getInt("book_id"),
-                        resultSet.getString("isbn"),
-                        resultSet.getString("booktitle"), // Titel des Buches
-                        resultSet.getString("bookauthor"), // Autor des Buches
-                        resultSet.getString("publisher"),
-                        resultSet.getInt("year_published"),
-                        resultSet.getString("description"),
-                        resultSet.getString("status"),
-                        resultSet.getInt("keyword_id")
-                ));
+                while (resultSet.next()) {
+                    books.add(mapResultSetToBook(resultSet));
+                }
             }
-            }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("Books found: " + books.size());
         return books;
     }
 
@@ -101,18 +95,20 @@ public class PostgresBookRepositoryImpl implements PostgresBookRepository {
 
     @Override
     public Book insertBook(Book book) {
-        String query = "INSERT INTO book (isbn, booktitle, bookauthor, publisher, year_published, description, status, keyword_id) " +
+        String query = "INSERT INTO book (isbn_long, isbn_short, copies, booktitle, bookauthor, publisher, year_published, description, status, keyword_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, book.getIsbn());
-            statement.setString(2, book.getTitle());
-            statement.setString(3, book.getAuthor());
-            statement.setString(4, book.getPublisher());
-            statement.setInt(5, book.getYearPublished());
-            statement.setString(6, book.getDescription());
-            statement.setString(7, book.getStatus());
-            statement.setObject(8, book.getKeywordId(), Types.INTEGER);
+            statement.setString(1, book.getIsbnLong());
+            statement.setString(2, book.getIsbnShort());
+            statement.setObject(3, book.getCopies(), Types.INTEGER);
+            statement.setString(4, book.getTitle());
+            statement.setString(5, book.getAuthor());
+            statement.setString(6, book.getPublisher());
+            statement.setInt(7, book.getYearPublished());
+            statement.setString(8, book.getDescription());
+            statement.setString(9, book.getStatus());
+            statement.setObject(10, book.getKeywordId(), Types.INTEGER);
 
             int affectedRows = statement.executeUpdate();
             if (affectedRows > 0) {
@@ -130,19 +126,21 @@ public class PostgresBookRepositoryImpl implements PostgresBookRepository {
     }
 
     public void updateBook(Book book) {
-        String query = "UPDATE book SET isbn = ?, booktitle = ?, bookauthor = ?, publisher = ?, year_published = ?, " +
+        String query = "UPDATE book SET isbn_long = ?, isbn_short = ?, copies = ?, booktitle = ?, bookauthor = ?, publisher = ?, year_published = ?, " +
                 "description = ?, status = ?, keyword_id = ? WHERE book_id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, book.getIsbn());
-            statement.setString(2, book.getTitle());
-            statement.setString(3, book.getAuthor());
-            statement.setString(4, book.getPublisher());
-            statement.setInt(5, book.getYearPublished());
-            statement.setString(6, book.getDescription());
-            statement.setString(7, book.getStatus());
-            statement.setObject(8, book.getKeywordId(), Types.INTEGER);
-            statement.setLong(9, book.getBookId());
+            statement.setString(1, book.getIsbnLong());
+            statement.setString(2, book.getIsbnShort());
+            statement.setObject(3, book.getCopies(), Types.INTEGER);
+            statement.setString(4, book.getTitle());
+            statement.setString(5, book.getAuthor());
+            statement.setString(6, book.getPublisher());
+            statement.setInt(7, book.getYearPublished());
+            statement.setString(8, book.getDescription());
+            statement.setString(9, book.getStatus());
+            statement.setObject(10, book.getKeywordId(), Types.INTEGER);
+            statement.setLong(11, book.getBookId());
 
             statement.executeUpdate();
 
@@ -169,7 +167,9 @@ public class PostgresBookRepositoryImpl implements PostgresBookRepository {
     private Book mapResultSetToBook(ResultSet resultSet) throws SQLException {
         Book book = new Book();
         book.setBookId(resultSet.getInt("book_id"));
-        book.setIsbn(resultSet.getString("isbn"));
+        book.setIsbnLong(resultSet.getString("isbn_long"));
+        book.setIsbnShort(resultSet.getString("isbn_short"));
+        book.setCopies(resultSet.getInt("copies"));
         book.setTitle(resultSet.getString("booktitle"));
         book.setAuthor(resultSet.getString("bookauthor"));
         book.setPublisher(resultSet.getString("publisher"));

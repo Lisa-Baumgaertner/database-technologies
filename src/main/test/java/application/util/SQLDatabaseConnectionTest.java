@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+
 public class SQLDatabaseConnectionTest {
     private static final Logger logger = LoggerFactory.getLogger(SQLDatabaseConnectionTest.class);
 
@@ -16,7 +17,9 @@ public class SQLDatabaseConnectionTest {
     @Test
     public void testGetConnection() {
         logger.info("Starting SQLDatabaseConnection test to verify connectivity.");
-        try (Connection connection = SQLDatabaseConnection.getConnection()) {
+        SQLDatabaseConnection sqlDatabaseConnection = new SQLDatabaseConnection();
+
+        try (Connection connection = sqlDatabaseConnection.getConnection()) {
             assertNotNull(connection, "The SQLDatabaseConnection bean should not be null.");
             assertTrue(connection.isValid(2), "Connection should be valid!");
             logger.info("SQLDatabaseConnection test completed successfully.");
