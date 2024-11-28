@@ -8,7 +8,9 @@ import javafx.beans.property.StringProperty;
 
 public class Book {
     private IntegerProperty bookId;
-    private StringProperty isbn;
+    private StringProperty isbn_long;
+    private StringProperty isbn_short;
+    private IntegerProperty copies;
     private StringProperty title;
     private StringProperty author;
     private StringProperty publisher;
@@ -22,7 +24,9 @@ public class Book {
     // Leerer Konstruktor
     public Book() {
         this.bookId = new SimpleIntegerProperty();
-        this.isbn = new SimpleStringProperty();
+        this.isbn_long = new SimpleStringProperty();
+        this.isbn_short = new SimpleStringProperty();
+        this.copies = new SimpleIntegerProperty();
         this.title = new SimpleStringProperty();
         this.author = new SimpleStringProperty();
         this.publisher = new SimpleStringProperty();
@@ -32,10 +36,12 @@ public class Book {
         this.keywordId = new SimpleIntegerProperty();
     }
 
-    public Book(Integer bookId, String isbn, String title, String author, String publisher,
+    public Book(Integer bookId, String isbnLong, String isbnShort, Integer copies, String title, String author, String publisher,
                 Integer yearPublished, String description, String status, Integer keywordId) {
         this.bookId = new SimpleIntegerProperty(bookId);
-        this.isbn = new SimpleStringProperty(isbn);
+        this.isbn_long = new SimpleStringProperty(isValidIsbn13(isbnLong) ? isbnLong : "");
+        this.isbn_short = new SimpleStringProperty(isValidIsbn10(isbnShort) ? isbnShort : "");
+        this.copies = new SimpleIntegerProperty(copies);
         this.title = new SimpleStringProperty(title);
         this.author = new SimpleStringProperty(author);
         this.publisher = new SimpleStringProperty(publisher);
@@ -51,8 +57,16 @@ public class Book {
         return bookId;
     }
 
-    public StringProperty isbnProperty() {
-        return isbn;
+    public StringProperty isbnLongProperty() {
+        return isbn_long;
+    }
+
+    public StringProperty isbnShortProperty() {
+        return isbn_short;
+    }
+
+    public IntegerProperty copiesProperty() {
+        return copies;
     }
 
     public StringProperty titleProperty() {
@@ -93,12 +107,32 @@ public class Book {
         this.bookId.set(bookId);
     }
 
-    public String getIsbn() {
-        return isbn.get();
+    public String getIsbnLong() {
+        return isbn_long.get();
     }
 
-    public void setIsbn(String isbn) {
-        this.isbn.set(isbn);
+    public void setIsbnLong(String isbnLong) {
+        if (isbnLong != null) {
+            this.isbn_long.set(isbnLong);
+        }
+    }
+
+    public String getIsbnShort() {
+        return isbn_short.get();
+    }
+
+    public void setIsbnShort(String isbnShort) {
+        if (isbnShort != null) {
+            this.isbn_short.set(isbnShort);
+        }
+    }
+
+    public Integer getCopies() {
+        return copies.get();
+    }
+
+    public void setCopies(Integer copies) {
+        this.copies.set(copies);
     }
 
     public String getTitle() {
@@ -157,12 +191,59 @@ public class Book {
         this.keywordId.set(keywordId);
     }
 
+    public boolean isValidIsbn13(String isbn) {
+        if (isbn == null || isbn.length() != 13) return false;
+        int sum = 0;
+        for (int i = 0; i < 12; i++) {
+            int digit = Character.getNumericValue(isbn.charAt(i));
+            sum += (i % 2 == 0) ? digit : digit * 3;
+        }
+        int checksum = (10 - (sum % 10)) % 10;
+        return checksum == Character.getNumericValue(isbn.charAt(12));
+    }
+
+    public boolean isValidIsbn10(String isbn) {
+        if (isbn == null || isbn.length() != 10) return false;
+        int sum = 0;
+        for (int i = 0; i < 9; i++) {
+            sum += (i + 1) * Character.getNumericValue(isbn.charAt(i));
+        }
+        char lastChar = isbn.charAt(9);
+        int checksum = (sum % 11);
+        return (checksum == 10 && lastChar == 'X') || (checksum == Character.getNumericValue(lastChar));
+    }
+
+    private String convertToIsbn13(String isbn10) {
+        String isbn13 = "978" + isbn10.substring(0, 9);
+        int sum = 0;
+        for (int i = 0; i < isbn13.length(); i++) {
+            int digit = Character.getNumericValue(isbn13.charAt(i));
+            sum += (i % 2 == 0) ? digit : digit * 3;
+        }
+        int checksum = (10 - (sum % 10)) % 10;
+        return isbn13 + checksum;
+    }
+
+    private String convertToIsbn10(String isbn13) {
+        String isbn10 = isbn13.substring(3, 12);
+        int sum = 0;
+        for (int i = 0; i < isbn10.length(); i++) {
+            sum += (i + 1) * Character.getNumericValue(isbn10.charAt(i));
+        }
+        int checksum = sum % 11;
+        isbn10 += (checksum == 10) ? "X" : checksum;
+        return isbn10;
+    }
+
     @Override
     public String toString() {
-        return "Buch{" +
-                "Titel='" + title + '\'' +
-                ", Autor='" + author + '\'' +
-                ", Status=" + status +
+        return "Book{" +
+                "bookId=" + bookId +
+                ", title='" + title.get() + '\'' +
+                ", author='" + author.get() + '\'' +
+                ", isbn_long='" + isbn_long.get() + '\'' +
+                ", isbn_short='" + isbn_short.get() + '\'' +
+                ", status='" + status.get() + '\'' +
                 '}';
     }
 }

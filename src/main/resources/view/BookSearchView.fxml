@@ -2,21 +2,41 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.layout.HBox?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="application.controller.BookSearchController"
       spacing="10" alignment="center" style="-fx-padding: 20;">
 
-    <TextField fx:id="searchField" promptText="Titel, Autor, ISBN oder Status eingeben"/>
+    <HBox spacing="10" alignment="center">
+        <TextField fx:id="titleField" promptText="Titel eingeben" prefWidth="200"/>
+        <TextField fx:id="authorField" promptText="Autor eingeben" prefWidth="200"/>
+        <TextField fx:id="isbnField" promptText="ISBN eingeben" prefWidth="200"/>
+        <ComboBox fx:id="statusDropdown" promptText="Status auswählen" prefWidth="150">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Alle"/>
+                    <String fx:value="Verfügbar"/>
+                    <String fx:value="Ausgeliehen"/>
+                    <String fx:value="Reserviert"/>
+                </FXCollections>
+            </items>
+        </ComboBox>
+    </HBox>
 
     <Button fx:id="searchButton" text="Suchen" onAction="#searchBook"/>
 
-    <TableView fx:id="resultTable" prefHeight="400" prefWidth="600">
+    <TableView fx:id="resultTable" prefHeight="400" prefWidth="800">
         <columns>
             <TableColumn fx:id="titleColumn" text="Title" prefWidth="150"/>
             <TableColumn fx:id="authorColumn" text="Author" prefWidth="150"/>
-            <TableColumn fx:id="isbnColumn" text="ISBN" prefWidth="150"/>
+            <TableColumn fx:id="isbnColumn" text="ISBN" prefWidth="200" />
             <TableColumn fx:id="statusColumn" text="Status" prefWidth="150"/>
         </columns>
+        <style>
+            -fx-table-cell-border-color: transparent;
+        </style>
     </TableView>
 </VBox>

@@ -55,7 +55,10 @@ The configuration for the database connections is provided in the ```application
 **Note:** You must change Username and Password to your actual database credentials in the application.properties file.
 
 ```bash
-# PostgreSQL Configuration
+# Wähle die Datenbank aus (true für MongoDB, false für PostgreSQL)
+database.useMongoDB=false
+
+# PostgreSQL Datenbankverbindung
 database.driver=org.postgresql.Driver
 database.url=jdbc:postgresql://localhost:5432/library
 database.username=username

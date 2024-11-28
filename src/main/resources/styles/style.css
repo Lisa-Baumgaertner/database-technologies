@@ -24,3 +24,8 @@
     -fx-text-fill: #333;
 }
 
+.table-cell {
+    -fx-wrap-text: true;
+    -fx-alignment: TOP-LEFT;
+    -fx-padding: 5px;
+}
