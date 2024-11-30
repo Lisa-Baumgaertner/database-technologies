@@ -50,8 +50,9 @@ public class EmployeePageController {
     private void navigateToMainView() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
-            Parent bookSearchView = loader.load();
-            Scene scene = new Scene(bookSearchView, 800, 600);
+            Parent EmployeeView = loader.load();
+
+            Scene scene = new Scene(EmployeeView, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) navigateBookSearchButton.getScene().getWindow();
             stage.setScene(scene);

@@ -1,145 +1,305 @@
 package application.controller;
 import application.service.BookService;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import application.model.Book;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+
+import java.util.List;
 
 
 public class BookEditController {
     @FXML
-    private TextField title;
+    private TextField editBookIdField;
     @FXML
-    private TextField author;
+    private TextField editTitleField;
     @FXML
-    private TextField publisher;
+    private TextField editAuthorField;
     @FXML
-    private TextField year_published;
+    private TextField editIsbnLongField;
     @FXML
-    private TextField description;
+    private TextField editIsbnShortField;
     @FXML
-    private TextField status;
+    private TextField editCopiesField;
     @FXML
-    private TextField keyword_id;
+    private TextField editPublisherField;
     @FXML
-    private TextField bookIdField;
+    private TextField editYearPublisherField;
     @FXML
-    private TextField isbn_short;
+    private TextField editDescriptionField;
     @FXML
-    private TextField isbn_long;
+    private ComboBox<String> editStatusDropdown;
     @FXML
-    private TextField copies;
+    private TextField titleField;
+    @FXML
+    private TextField authorField;
+    @FXML
+    private TextField isbnField;
+    @FXML
+    private ComboBox<String> statusDropdown;
 
     @FXML
-    private Button editButton;
+    private TableColumn<Book, String> titleColumn;
+
+    @FXML
+    private TableColumn<Book, String> isbnColumn;
+
+    @FXML
+    private TableColumn<Book, String> authorColumn;
+
+    @FXML
+    private TableColumn<Book, String> statusColumn;
+
+
+    @FXML
+    private TableView<Book> resultsTable;
+    @FXML
+    private TableColumn<Book, Void> actionColumn;
+       @FXML
+    private VBox editFields;
+    private Book selectedBook;
+
+    private final ObservableList<Book> bookList = FXCollections.observableArrayList();
 
     private BookService bookService;
+
 
     public void setBookService(BookService bookService) {
         this.bookService = bookService;
     }
 
+    @FXML
+    public void initialize() {
+        titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
+        authorColumn.setCellValueFactory(cellData -> cellData.getValue().authorProperty());
+        isbnColumn.setCellFactory(cellData -> new TableCell<>() {
+            private final Text text = new Text();
+
+            {
+                text.wrappingWidthProperty().bind(this.widthProperty().subtract(10));
+                text.setStyle("-fx-text-alignment: left;");
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    Book book = getTableRow().getItem();
+                    String isbnLong = book.getIsbnLong();
+                    String isbnShort = book.getIsbnShort();
+
+                    StringBuilder displayText = new StringBuilder();
+                    if (isbnLong != null && !isbnLong.isEmpty()) {
+                        displayText.append("ISBN-13: ").append(isbnLong);
+                    }
+                    if (isbnShort != null && !isbnShort.isEmpty()) {
+                        if (displayText.length() > 0) {
+                            displayText.append("\n");
+                        }
+                        displayText.append("ISBN-10: ").append(isbnShort);
+                    }
+
+                    text.setText(displayText.toString());
+                    setGraphic(text);
+                }
+            }
+        });
+        actionColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button editButton = new Button("Bearbeiten");
+
+            {
+
+                editButton.setOnAction(event -> {
+                    Book book = getTableView().getItems().get(getIndex());
+                    loadBookDetails(book);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(editButton);
+                }
+            }
+        });
+
+        statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
+        statusColumn.setCellValueFactory(cellData -> {
+            String status = cellData.getValue().getStatus();
+            return new SimpleStringProperty(Book.translateStatusToGerman(status));
+        });
+
+        statusDropdown.setItems(FXCollections.observableArrayList("Alle", "Verfügbar", "Ausgeliehen", "Reserviert"));
+        statusDropdown.setValue("Alle");
+
+        resultsTable.setItems(bookList);
+    }
 
     @FXML
-    private void editBook(){
-
-        Book bookToEdit = new Book();
-        if (! checkTextFieldsValid()) {
-            // one or more of the text fields are empty
-            System.out.println("At least one Text Field is empty, please enter valid data into all fields.");
-            System.out.println("Double check that you are not entering characters into the fields Year published and Keyword Id");
-
-        } else {
-            bookToEdit.setBookId(Integer.valueOf(bookIdField.getText().trim()));
-            if(bookToEdit.isValidIsbn13(String.valueOf(isbn_long))!= false){
-                bookToEdit.setIsbnLong(isbn_long.getText().trim());
-            }
-            if(bookToEdit.isValidIsbn10(String.valueOf(isbn_short))!= false){
-                bookToEdit.setIsbnShort(isbn_short.getText().trim());
-            }
-            bookToEdit.setTitle(title.getText().trim());
-            bookToEdit.setAuthor(author.getText().trim());
-            bookToEdit.setAuthor(author.getText().trim());
-            bookToEdit.setPublisher(publisher.getText().trim());
-            bookToEdit.setYearPublished(Integer.valueOf(year_published.getText().trim()));
-            bookToEdit.setDescription(description.getText().trim());
-            bookToEdit.setDescription(description.getText().trim());
-            bookToEdit.setStatus(status.getText().toLowerCase().trim());
-            bookToEdit.setKeywordId(Integer.valueOf(keyword_id.getText().trim()));
-            bookToEdit.setCopies(Integer.valueOf(copies.getText().trim()));
-            bookService.updateBook(bookToEdit);
-            bookIdField.clear();
-            isbn_long.clear();
-            isbn_short.clear();
-            title.clear();
-            author.clear();
-            publisher.clear();
-            year_published.clear();
-            description.clear();
-            status.clear();
-            keyword_id.clear();
-            copies.clear();
-            System.out.println("Book was successfully updated.");
-
-        }
+    private  void searchBook() {
+        String title = titleField.getText().trim().toLowerCase();
+        String author = authorField.getText().trim().toLowerCase();
+        String isbn = isbnField.getText().trim().toLowerCase();
+        String status = statusDropdown.getValue();
+        String translatedStatus = "Alle".equals(status) ? null : Book.translateStatusToEnglish(status);
 
 
+        List<Book> results = bookService.searchBooks(
+                title.isEmpty() ? null : title,
+                author.isEmpty() ? null : author,
+                isbn.isEmpty() ? null : isbn,
+                translatedStatus
+        );
+
+        bookList.setAll(results);
     }
-
-
-
-
-
-
 
     private boolean checkTextFieldsValid() {
+        StringBuilder errorMessage = new StringBuilder();
 
-        boolean validTextFields = true;
-
-        if (bookIdField.getText().isEmpty() || !bookIdField.getText().matches("[0-9]+")) {
-            validTextFields = false;
-
-        }
-        if (isbn_long.getText().isEmpty()) {
-            validTextFields = false;
-        }
-        if (isbn_short.getText().isEmpty()) {
-            validTextFields = false;
+        if (editBookIdField.getText() == null || editBookIdField.getText().trim().isEmpty()) {
+            errorMessage.append("Buch-ID darf nicht leer sein.\n");
         }
 
-        if (title.getText().isEmpty()) {
-            validTextFields = false;
-
+        if (editTitleField.getText() == null || editTitleField.getText().trim().isEmpty()) {
+            errorMessage.append("Titel darf nicht leer sein.\n");
         }
 
-        if (author.getText().isEmpty()) {
-            validTextFields = false;
-
-        }
-        if (publisher.getText().isEmpty()) {
-            validTextFields = false;
-
-        }
-        if (year_published.getText().isEmpty() || !year_published.getText().matches("[0-9]+")) {
-            validTextFields = false;
-
-        }
-        if (description.getText().isEmpty()) {
-            validTextFields = false;
-
-        }
-        if (status.getText().isEmpty()) {
-            validTextFields = false;
-
-        }
-        if (keyword_id.getText().isEmpty()|| !keyword_id.getText().matches("[0-9]+")) {
-            validTextFields = false;
-
-        }
-        if (copies.getText().isEmpty()) {
-            validTextFields = false;
+        if (editAuthorField.getText() == null || editAuthorField.getText().trim().isEmpty()) {
+            errorMessage.append("Autor darf nicht leer sein.\n");
         }
 
-        return validTextFields;
+        String isbnLong = editIsbnLongField.getText();
+        if (isbnLong == null || isbnLong.trim().isEmpty()) {
+            errorMessage.append("ISBN-13 darf nicht leer sein.\n");
+        } else if (!new Book().isValidIsbn13(isbnLong)) {
+            errorMessage.append("Ungültige ISBN-13.\n");
+        }
+
+        String isbnShort = editIsbnShortField.getText();
+        if (isbnShort != null && !isbnShort.trim().isEmpty()) {
+            if (!new Book().isValidIsbn10(isbnShort)) {
+                errorMessage.append("Ungültige ISBN-10.\n");
+            }
+        }
+
+        try {
+            int copies = Integer.parseInt(editCopiesField.getText().trim());
+            if (copies <= 0) {
+                errorMessage.append("Exemplare müssen eine positive Zahl sein.\n");
+            }
+        } catch (NumberFormatException e) {
+            errorMessage.append("Exemplare müssen eine gültige Zahl sein.\n");
+        }
+
+        if (editPublisherField.getText() == null || editPublisherField.getText().trim().isEmpty()) {
+            errorMessage.append("Verlag darf nicht leer sein.\n");
+        }
+
+        try {
+            int year = Integer.parseInt(editYearPublisherField.getText().trim());
+            int currentYear = java.time.Year.now().getValue();
+            if (year < 1000 || year > currentYear) {
+                errorMessage.append("Jahr muss zwischen 1000 und ").append(currentYear).append(" liegen.\n");
+            }
+        } catch (NumberFormatException e) {
+            errorMessage.append("Jahr muss eine gültige Zahl sein.\n");
+        }
+
+        if (editDescriptionField.getText() == null || editDescriptionField.getText().trim().isEmpty()) {
+            errorMessage.append("Beschreibung darf nicht leer sein.\n");
+        }
+
+        if (!errorMessage.isEmpty()) {
+            showErrorDialog("Ungültige Eingaben", errorMessage.toString());
+            return false;
+        }
+
+        return true;
     }
+
+
+    private void loadBookDetails(Book book) {
+        if (book != null) {
+            selectedBook = book;
+
+            editBookIdField.setText(String.valueOf(book.getBookId()));
+            editTitleField.setText(book.getTitle());
+            editAuthorField.setText(book.getAuthor());
+            editIsbnLongField.setText(book.getIsbnLong());
+            editIsbnShortField.setText(book.getIsbnShort());
+            editCopiesField.setText(String.valueOf(book.getCopies()));
+            editPublisherField.setText(book.getPublisher());
+            editYearPublisherField.setText(String.valueOf(book.getYearPublished()));
+            editDescriptionField.setText(book.getDescription());
+            editStatusDropdown.setValue(Book.translateStatusToGerman(book.getStatus()));
+
+            editFields.setVisible(true);
+            editFields.setManaged(true);
+        }
+    }
+
+    @FXML
+    private void saveChanges() {
+        if (!checkTextFieldsValid()) {
+            return;
+        }
+
+        if (bookService.isIsbnDuplicate(
+                editIsbnLongField.getText().trim(),
+                editIsbnShortField.getText().trim(),
+                selectedBook.getBookId()
+        )) {
+            showErrorDialog("Duplikat gefunden", "ISBN-13 oder ISBN-10 existiert bereits in der Datenbank.");
+            return;
+        }
+
+        selectedBook.setTitle(editTitleField.getText());
+        selectedBook.setAuthor(editAuthorField.getText());
+        selectedBook.setIsbnLong(editIsbnLongField.getText());
+        selectedBook.setIsbnShort(editIsbnShortField.getText());
+        selectedBook.setCopies(Integer.parseInt(editCopiesField.getText()));
+        selectedBook.setPublisher(editPublisherField.getText());
+        selectedBook.setYearPublished(Integer.parseInt(editYearPublisherField.getText()));
+        selectedBook.setDescription(editDescriptionField.getText());
+
+        String germanStatus = editStatusDropdown.getValue();
+        String englishStatus = Book.translateStatusToEnglish(germanStatus);
+        selectedBook.setStatus(englishStatus);
+
+        bookService.updateBook(selectedBook);
+        resultsTable.refresh();
+        cancelEdit();
+
+        System.out.println("Änderungen wurden erfolgreich gespeichert.");
+
+    }
+
+    @FXML
+    private void cancelEdit() {
+        editFields.setVisible(false);
+        editFields.setManaged(false);
+        selectedBook = null;
+    }
+
+    private void showErrorDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+
 }
