@@ -7,7 +7,7 @@ import java.util.List;
 
 public class WaitlistService {
 
-    private WaitlistRepository waitlistRepository;
+    private final WaitlistRepository waitlistRepository;
 
     public WaitlistService(WaitlistRepository waitlistRepository) {
         this.waitlistRepository = waitlistRepository;

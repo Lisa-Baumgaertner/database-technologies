@@ -82,13 +82,7 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
             ResultSet rs = statement.executeQuery();
 
             while (rs.next()) {
-                Waitlist entry = new Waitlist();
-                entry.setWaitlistId(rs.getInt("waitlist_id"));
-                entry.setUser(new Person(rs.getString("firstname"), rs.getString("lastname"), null, ' ', null));
-                entry.setCheckoutDate(rs.getDate("checkout_date").toLocalDate());
-                entry.setReturnDate(rs.getDate("return_date") != null ? rs.getDate("return_date").toLocalDate() : null);
-                entry.setStatus(rs.getString("status"));
-
+                Waitlist entry = mapToWaitlist(rs);
                 waitlist.add(entry);
             }
 
@@ -112,22 +106,7 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         ResultSet rs = statement.executeQuery();
 
         while (rs.next()) {
-            Waitlist entry = new Waitlist();
-
-            entry.setWaitlistId(rs.getInt("waitlist_id"));
-            entry.setCheckoutDate(rs.getDate("checkout_id").toLocalDate());
-            entry.setReturnDate(rs.getDate("return_date") != null ? rs.getDate("return_date").toLocalDate() : null);
-            entry.setStatus(rs.getString("status"));
-
-            Person user = new Person();
-            user.setFirstName(rs.getString("firstname"));
-            user.setLastName(rs.getString("lastname"));
-            entry.setUser(user);
-
-            Book book = new Book();
-            book.setTitle(rs.getString("booktitle"));
-            entry.setBook(book);
-
+           Waitlist entry = mapToWaitlist(rs);
             waitlist.add(entry);
 
         }
@@ -163,5 +142,27 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         }
 
     }
+
+    private Waitlist mapToWaitlist(ResultSet rs) throws SQLException {
+        Waitlist entry = new Waitlist();
+
+        entry.setWaitlistId(rs.getInt("waitlist_id"));
+        entry.setCheckoutDate(rs.getDate("checkout_date").toLocalDate());
+        entry.setReturnDate(rs.getDate("return_date") != null ? rs.getDate("return_date").toLocalDate() : null);
+        entry.setStatus(rs.getString("status"));
+
+        Person user = new Person();
+        user.setFirstName(rs.getString("firstname"));
+        user.setLastName(rs.getString("lastname"));
+        entry.setUser(user);
+
+        Book book = new Book();
+        book.setTitle(rs.getString("booktitle"));
+        entry.setBook(book);
+
+        return entry;
+    }
+
+
 
 }

@@ -1,5 +1,6 @@
 package application.model;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -18,6 +19,7 @@ public class Person {
 
 
     public Person() {
+        this.userId = new SimpleIntegerProperty();
         this.firstName = new SimpleStringProperty();
         this.lastName = new SimpleStringProperty();
         this.birthDate = null;
@@ -25,7 +27,8 @@ public class Person {
         this.role = new SimpleStringProperty();
     }
 
-    public Person(String firstName, String lastName, LocalDate birthDate, char gender, String role) {
+    public Person(Integer userId, String firstName, String lastName, LocalDate birthDate, char gender, String role) {
+        this.userId = new SimpleIntegerProperty(userId);
         this.firstName = new SimpleStringProperty(firstName);
         this.lastName = new SimpleStringProperty(lastName);
         this.birthDate = birthDate;

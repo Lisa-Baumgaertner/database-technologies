@@ -6,12 +6,12 @@ import java.time.LocalDate;
 
 public class Waitlist {
 
-    private IntegerProperty waitlistId;
-    private ObjectProperty<Person> user;
-    private ObjectProperty<Book> book;
-    private ObjectProperty<LocalDate> checkoutDate;
-    private ObjectProperty<LocalDate> returnDate;
-    private StringProperty status;
+    private final IntegerProperty waitlistId;
+    private final ObjectProperty<Person> user;
+    private final ObjectProperty<Book> book;
+    private final ObjectProperty<LocalDate> checkoutDate;
+    private final ObjectProperty<LocalDate> returnDate;
+    private final StringProperty status;
 
 
     public Waitlist() {
