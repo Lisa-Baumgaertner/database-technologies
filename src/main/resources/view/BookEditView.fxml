@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="application.controller.BookEditController"
+      spacing="10" style="-fx-padding: 20;">
+   <!-- Sucheingabe -->
+   <HBox spacing="10">
+      <TextField fx:id="titleField" promptText="Titel eingeben" prefWidth="200"/>
+      <TextField fx:id="authorField" promptText="Autor eingeben" prefWidth="200"/>
+      <TextField fx:id="isbnField" promptText="ISBN eingeben" prefWidth="200"/>
+      <ComboBox fx:id="statusDropdown" promptText="Status auswählen" prefWidth="150">
+         <items>
+            <FXCollections fx:factory="observableArrayList">
+               <String fx:value="Alle"/>
+               <String fx:value="Verfügbar"/>
+               <String fx:value="Ausgeliehen"/>
+               <String fx:value="Reserviert"/>
+            </FXCollections>
+         </items>
+      </ComboBox>
+   </HBox>
+   <Button fx:id="searchButton" text="Suchen" onAction="#searchBook" />
+
+   <TableView fx:id="resultsTable" prefHeight="200" prefWidth="800">
+      <columns>
+         <TableColumn fx:id="titleColumn" text="Title" prefWidth="150"/>
+         <TableColumn fx:id="authorColumn" text="Author" prefWidth="150"/>
+         <TableColumn fx:id="isbnColumn" text="ISBN" prefWidth="200" />
+         <TableColumn fx:id="statusColumn" text="Status" prefWidth="150"/>
+         <TableColumn fx:id="actionColumn" text="Aktionen" prefWidth="150"/>
+      </columns>
+   </TableView>
+
+   <VBox fx:id="editFields" visible="false" managed="false" spacing="10" style="-fx-border-color: lightgrey; -fx-border-radius: 5; -fx-padding: 10;">
+      <Label text="Buch bearbeiten" style="-fx-font-weight: bold;" />
+      <HBox spacing="10">
+         <Label text="Book-ID:" prefWidth="100" />
+         <TextField fx:id="editBookIdField" promptText="Buch-ID" editable="false" />
+      </HBox>
+
+      <HBox spacing="10">
+         <Label text="Titel:" prefWidth="100" />
+         <TextField fx:id="editTitleField" promptText="Titel eingeben" />
+      </HBox>
+
+      <HBox spacing="10">
+         <Label text="Autor:" prefWidth="100" />
+         <TextField fx:id="editAuthorField" promptText="Autor eingeben" />
+      </HBox>
+
+      <HBox spacing="10">
+         <Label text="ISBN-13:" prefWidth="100" />
+         <TextField fx:id="editIsbnLongField" promptText="ISBN eingeben" />
+      </HBox>
+      <HBox spacing="10">
+         <Label text="ISBN-10:" prefWidth="100" />
+         <TextField fx:id="editIsbnShortField" promptText="ISBN eingeben" />
+      </HBox>
+      <HBox spacing="10">
+         <Label text="Exemplare:" prefWidth="100" />
+         <TextField fx:id="editCopiesField" promptText="ISBN eingeben" />
+      </HBox>
+      <HBox spacing="10">
+         <Label text="Verlag:" prefWidth="100" />
+         <TextField fx:id="editPublisherField" promptText="ISBN eingeben" />
+      </HBox>
+      <HBox spacing="10">
+         <Label text="Jahr:" prefWidth="100" />
+         <TextField fx:id="editYearPublisherField" promptText="ISBN eingeben" />
+      </HBox>
+      <HBox spacing="10">
+         <Label text="Beschreibung:" prefWidth="100" />
+         <TextField fx:id="editDescriptionField" promptText="ISBN eingeben" />
+      </HBox>
+
+      <HBox spacing="10">
+         <Label text="Status:" prefWidth="100" />
+         <ComboBox fx:id="editStatusDropdown" promptText="Status auswählen">
+            <items>
+               <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="Verfügbar"/>
+                  <String fx:value="Ausgeliehen"/>
+                  <String fx:value="Reserviert"/>
+               </FXCollections>
+            </items>
+         </ComboBox>
+      </HBox>
+
+      <HBox spacing="10">
+         <Button fx:id="updateButton" text="Speichern" onAction="#saveChanges" />
+         <Button fx:id="cancelButton" text="Abbrechen" onAction="#cancelEdit" />
+      </HBox>
+   </VBox>
+</VBox>
+

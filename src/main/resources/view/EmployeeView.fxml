@@ -11,6 +11,7 @@
             <Button onAction="#navigateToMainView" text="Zurück" />
             <Button fx:id="navigateBookSearchButton" onAction="#handleBookSearch" text="Buch Suchen" />
          <Button fx:id="addBookButton" mnemonicParsing="false" onAction="#handleBookAdd" text="Hinzufügen" />
+         <Button fx:id="editBookButton" mnemonicParsing="false" onAction="#handleBookEdit" prefHeight="25.0" prefWidth="97.0" text="Buch bearbeiten" />
         </HBox>
     </top>
 

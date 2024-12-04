@@ -6,6 +6,9 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import java.util.List;
+import java.util.Map;
+
 public class Book {
     private IntegerProperty bookId;
     private StringProperty isbn_long;
@@ -192,47 +195,33 @@ public class Book {
     }
 
     public boolean isValidIsbn13(String isbn) {
-        if (isbn == null || isbn.length() != 13) return false;
-        int sum = 0;
-        for (int i = 0; i < 12; i++) {
-            int digit = Character.getNumericValue(isbn.charAt(i));
-            sum += (i % 2 == 0) ? digit : digit * 3;
-        }
-        int checksum = (10 - (sum % 10)) % 10;
-        return checksum == Character.getNumericValue(isbn.charAt(12));
+        if (isbn == null) return false;
+        isbn = isbn.replace("-", "");
+        return isbn.length() == 13;
     }
 
     public boolean isValidIsbn10(String isbn) {
-        if (isbn == null || isbn.length() != 10) return false;
-        int sum = 0;
-        for (int i = 0; i < 9; i++) {
-            sum += (i + 1) * Character.getNumericValue(isbn.charAt(i));
-        }
-        char lastChar = isbn.charAt(9);
-        int checksum = (sum % 11);
-        return (checksum == 10 && lastChar == 'X') || (checksum == Character.getNumericValue(lastChar));
+        if (isbn == null) return false;
+
+        isbn = isbn.replace("-", "");
+       return isbn.length() == 10;
     }
 
-    private String convertToIsbn13(String isbn10) {
-        String isbn13 = "978" + isbn10.substring(0, 9);
-        int sum = 0;
-        for (int i = 0; i < isbn13.length(); i++) {
-            int digit = Character.getNumericValue(isbn13.charAt(i));
-            sum += (i % 2 == 0) ? digit : digit * 3;
-        }
-        int checksum = (10 - (sum % 10)) % 10;
-        return isbn13 + checksum;
+    private static final Map<String, String> STATUS_TRANSLATION_MAP = Map.of(
+            "Verfügbar", "available",
+            "Ausgeliehen", "borrowed",
+            "Reserviert", "reserved"
+    );
+    public static String translateStatusToEnglish(String germanStatus) {
+        return STATUS_TRANSLATION_MAP.getOrDefault(germanStatus, null);
     }
 
-    private String convertToIsbn10(String isbn13) {
-        String isbn10 = isbn13.substring(3, 12);
-        int sum = 0;
-        for (int i = 0; i < isbn10.length(); i++) {
-            sum += (i + 1) * Character.getNumericValue(isbn10.charAt(i));
-        }
-        int checksum = sum % 11;
-        isbn10 += (checksum == 10) ? "X" : checksum;
-        return isbn10;
+    public static String translateStatusToGerman(String englishStatus) {
+        return STATUS_TRANSLATION_MAP.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(englishStatus))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

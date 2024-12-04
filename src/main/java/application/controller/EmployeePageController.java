@@ -30,6 +30,8 @@ public class EmployeePageController {
     }
 
     @FXML
+    public Button editBookButton;
+    @FXML
     private void handleBookSearch() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookSearchView.fxml"));
@@ -48,8 +50,9 @@ public class EmployeePageController {
     private void navigateToMainView() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
-            Parent bookSearchView = loader.load();
-            Scene scene = new Scene(bookSearchView, 800, 600);
+            Parent EmployeeView = loader.load();
+
+            Scene scene = new Scene(EmployeeView, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) navigateBookSearchButton.getScene().getWindow();
             stage.setScene(scene);
@@ -72,17 +75,25 @@ public class EmployeePageController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookAddView.fxml"));
-            Parent bookAddView = loader.load();
 
-            Scene scene = new Scene(bookAddView, 800, 600);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
-            Stage stage = (Stage) addBookButton.getScene().getWindow();
-            stage.setScene(scene);
+
+    }
+
+    @FXML
+    private void handleBookEdit() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookEditView.fxml"));
+            Parent bookEditView = loader.load();
+
+            mainPane.setCenter(bookEditView);
+
+            BookEditController controller = loader.getController();
+            controller.setBookService(bookService);
+
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
+
 
     }
 

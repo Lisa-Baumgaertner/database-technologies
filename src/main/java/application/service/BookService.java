@@ -29,6 +29,10 @@ public class BookService {
         return bookRepository.findBookById(id);
     }
 
+    public Book findBookByIsbn(String isbnLong, String isbnShort) {
+        return bookRepository.findBookByIsbn(isbnLong, isbnShort);
+    }
+
     public Book insertBook(Book book) {
         return bookRepository.insertBook(book);
     }
@@ -40,4 +44,10 @@ public class BookService {
     public void deleteBook(Long id) {
         bookRepository.deleteBookById(id);
     }
+
+    public boolean isIsbnDuplicate(String isbnLong, String isbnShort, int bookId) {
+        Book foundBook = bookRepository.findBookByIsbn(isbnLong, isbnShort);
+        return foundBook != null && foundBook.getBookId() != bookId;
+    }
+
 }
