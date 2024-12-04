@@ -96,7 +96,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
     @Override
     public Book insertBook(Book book) {
         String query = "INSERT INTO book (isbn_long, isbn_short, copies, booktitle, bookauthor, publisher, year_published, description, status, keyword_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, book.getIsbnLong());

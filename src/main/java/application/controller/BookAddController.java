@@ -45,21 +45,18 @@ public class BookAddController {
             System.out.println("Double check that you are not entering characters into the fields Year published and Keyword Id");
 
         } else {
-            if(bookToInsert.isValidIsbn13(String.valueOf(isbn_long))!= false){
-                bookToInsert.setIsbnLong(isbn_long.getText().trim());
-            }
-            if(bookToInsert.isValidIsbn10(String.valueOf(isbn_short))!= false){
-                bookToInsert.setIsbnShort(isbn_short.getText().trim());
-            }
+
+            bookToInsert.setIsbnLong(isbn_long.getText().trim());
+            bookToInsert.setIsbnShort(isbn_short.getText().trim());
+            bookToInsert.setCopies(Integer.valueOf(copies.getText().trim()));
             bookToInsert.setTitle(title.getText().trim());
-            bookToInsert.setAuthor(author.getText().trim());
             bookToInsert.setAuthor(author.getText().trim());
             bookToInsert.setPublisher(publisher.getText().trim());
             bookToInsert.setYearPublished(Integer.valueOf(year_published.getText().trim()));
             bookToInsert.setDescription(description.getText().trim());
             bookToInsert.setStatus(status.getText().toLowerCase().trim());
             bookToInsert.setKeywordId(Integer.valueOf(keyword_id.getText().trim()));
-            bookToInsert.setCopies(Integer.valueOf(copies.getText().trim()));
+
             bookService.insertBook(bookToInsert);
             isbn_long.clear();
             isbn_short.clear();
