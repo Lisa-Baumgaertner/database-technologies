@@ -39,10 +39,11 @@ public class BookAddController {
     private void addBook(){
 
         Book bookToInsert = new Book();
-        if (! checkTextFieldsValid()) {
-            // one or more of the text fields are empty
+
+        if (! checkTextFieldsValid(bookToInsert)) {
             System.out.println("At least one Text Field is empty, please enter valid data into all fields.");
-            System.out.println("Double check that you are not entering characters into the fields Year published and Keyword Id");
+            System.out.println("Double check that you are not entering characters into the fields Year published, Keyword Id and Copies");
+            System.out.println("Also check that the isbns have the correct format");
 
         } else {
 
@@ -56,72 +57,41 @@ public class BookAddController {
             bookToInsert.setDescription(description.getText().trim());
             bookToInsert.setStatus(status.getText().toLowerCase().trim());
             bookToInsert.setKeywordId(Integer.valueOf(keyword_id.getText().trim()));
-
             bookService.insertBook(bookToInsert);
-            isbn_long.clear();
-            isbn_short.clear();
-            title.clear();
-            author.clear();
-            publisher.clear();
-            year_published.clear();
-            description.clear();
-            status.clear();
-            keyword_id.clear();
-            copies.clear();
             System.out.println("Book was successfully added.");
+            clearAllFields();
 
         }
 
     }
 
 
-    private boolean checkTextFieldsValid() {
+    private boolean checkTextFieldsValid(Book book) {
 
         boolean validTextFields = true;
 
-        if (isbn_long.getText().isEmpty()) {
+        if (isbn_long.getText().isEmpty() || isbn_short.getText().isEmpty() || title.getText().isEmpty() || author.getText().isEmpty() || publisher.getText().isEmpty() || year_published.getText().isEmpty() || !year_published.getText().matches("[0-9]+") || description.getText().isEmpty() || status.getText().isEmpty() || keyword_id.getText().isEmpty()|| !keyword_id.getText().matches("[0-9]+") || copies.getText().isEmpty()|| !copies.getText().matches("[0-9]+") || !book.isValidIsbn13(isbn_long.getText().trim()) || !book.isValidIsbn10(isbn_short.getText().trim())) {
             validTextFields = false;
-        }
-        if (isbn_short.getText().isEmpty()) {
-            validTextFields = false;
-        }
-
-        if (title.getText().isEmpty()) {
-            validTextFields = false;
-
-        }
-
-        if (author.getText().isEmpty()) {
-            validTextFields = false;
-
-        }
-        if (publisher.getText().isEmpty()) {
-            validTextFields = false;
-
-        }
-        if (year_published.getText().isEmpty() || !year_published.getText().matches("[0-9]+")) {
-            validTextFields = false;
-
-        }
-        if (description.getText().isEmpty()) {
-            validTextFields = false;
-
-        }
-        if (status.getText().isEmpty()) {
-            validTextFields = false;
-
-        }
-        if (keyword_id.getText().isEmpty()|| !keyword_id.getText().matches("[0-9]+")) {
-            validTextFields = false;
-
-        }
-        if (copies.getText().isEmpty()|| !copies.getText().matches("[0-9]+")) {
-            validTextFields = false;
-
         }
 
         return validTextFields;
     }
+
+    private void clearAllFields(){
+        isbn_long.clear();
+        isbn_short.clear();
+        title.clear();
+        author.clear();
+        publisher.clear();
+        year_published.clear();
+        description.clear();
+        status.clear();
+        keyword_id.clear();
+        copies.clear();
+
+    }
+
+
 
 
 }
