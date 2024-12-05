@@ -6,8 +6,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
 
 import java.util.List;
 
@@ -114,6 +117,17 @@ public class BookSearchController {
 
         resultTable.setItems(bookList);
         searchButton.setOnAction(event -> searchBook());
+
+        //Zeilenklick
+        resultTable.setRowFactory(tv -> {
+            TableRow<Book> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) { // Bei Doppelklick
+                    handleRowClick();
+                }
+            });
+            return row;
+        });
     }
 
     @FXML
@@ -142,5 +156,27 @@ public class BookSearchController {
 
         ObservableList<Book> filteredBooks = FXCollections.observableArrayList(results);
         resultTable.setItems(filteredBooks);
+    }
+
+    @FXML
+    private void handleRowClick() {
+        Book selectedBook = resultTable.getSelectionModel().getSelectedItem();
+
+        if (selectedBook != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookDetailsView.fxml"));
+                Scene detailsScene = new Scene(loader.load());
+
+                BookDetailsController controller = loader.getController();
+                controller.setBookDetails(selectedBook);
+
+                Stage detailsStage = new Stage();
+                detailsStage.setTitle("Buchdetails");
+                detailsStage.setScene(detailsScene);
+                detailsStage.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
