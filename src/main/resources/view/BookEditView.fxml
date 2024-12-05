@@ -1,21 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="application.controller.BookEditController"
+      spacing="10" style="-fx-padding: 20;">
+   <!-- Sucheingabe -->
+   <HBox spacing="10">
+      <TextField fx:id="titleField" promptText="Titel eingeben" prefWidth="200"/>
+      <TextField fx:id="authorField" promptText="Autor eingeben" prefWidth="200"/>
+      <TextField fx:id="isbnField" promptText="ISBN eingeben" prefWidth="200"/>
+      <ComboBox fx:id="statusDropdown" promptText="Status auswählen" prefWidth="150">
+         <items>
+            <FXCollections fx:factory="observableArrayList">
+               <String fx:value="Alle"/>
+               <String fx:value="Verfügbar"/>
+               <String fx:value="Ausgeliehen"/>
+               <String fx:value="Reserviert"/>
+            </FXCollections>
+         </items>
+      </ComboBox>
+   </HBox>
+   <Button fx:id="searchButton" text="Suchen" onAction="#searchBook" />
 
-<VBox prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controller.BookEditController">
-   <TextField fx:id="bookIdField" onAction="#editBook" promptText="Book-ID eingeben" />
-<TextField fx:id="isbn_long" onAction="#editBook" promptText="ISBN Long eingeben" />
-   <TextField fx:id="isbn_short" layoutX="10.0" layoutY="35.0" onAction="#editBook" promptText="ISBN Short eingeben" />
-<TextField fx:id="title" onAction="#editBook" promptText="Titel eingeben" />
-<TextField fx:id="author" onAction="#editBook" promptText="Autor eingeben" />
-<TextField fx:id="publisher" onAction="#editBook" promptText="Verlag eingeben" />
-<TextField fx:id="year_published" onAction="#editBook" promptText="Jahr der Veröffentlichung eingeben" />
-<TextField fx:id="description" onAction="#editBook" prefHeight="25.0" prefWidth="280.0" promptText="Beschreibung eingeben" />
-<TextField fx:id="status" onAction="#editBook" promptText="Status eingeben" />
-<TextField fx:id="keyword_id" layoutY="25.0" onAction="#editBook" prefHeight="25.0" prefWidth="149.0" promptText="Stichwort Id eingeben" />
-   <TextField fx:id="copies" layoutX="10.0" layoutY="236.0" onAction="#editBook" prefHeight="25.0" prefWidth="149.0" promptText="Anzahl Exemplare eingeben" />
-<Button fx:id="editButton" mnemonicParsing="false" onAction="#editBook" text="Update" />
+   <TableView fx:id="resultsTable" prefHeight="200" prefWidth="800">
+      <columns>
+         <TableColumn fx:id="titleColumn" text="Title" prefWidth="150"/>
+         <TableColumn fx:id="authorColumn" text="Author" prefWidth="150"/>
+         <TableColumn fx:id="isbnColumn" text="ISBN" prefWidth="200" />
+         <TableColumn fx:id="statusColumn" text="Status" prefWidth="150"/>
+         <TableColumn fx:id="actionColumn" text="Aktionen" prefWidth="150"/>
+      </columns>
+   </TableView>
 
+   <VBox fx:id="editFields" visible="false" managed="false" spacing="10" style="-fx-border-color: lightgrey; -fx-border-radius: 5; -fx-padding: 10;">
+      <Label text="Buch bearbeiten" style="-fx-font-weight: bold;" />
+      <HBox spacing="10">
+         <Label text="Book-ID:" prefWidth="100" />
+         <TextField fx:id="editBookIdField" promptText="Buch-ID" editable="false" />
+      </HBox>
 
+      <HBox spacing="10">
+         <Label text="Titel:" prefWidth="100" />
+         <TextField fx:id="editTitleField" promptText="Titel eingeben" />
+      </HBox>
+
+      <HBox spacing="10">
+         <Label text="Autor:" prefWidth="100" />
+         <TextField fx:id="editAuthorField" promptText="Autor eingeben" />
+      </HBox>
+
+      <HBox spacing="10">
+         <Label text="ISBN-13:" prefWidth="100" />
+         <TextField fx:id="editIsbnLongField" promptText="ISBN eingeben" />
+      </HBox>
+      <HBox spacing="10">
+         <Label text="ISBN-10:" prefWidth="100" />
+         <TextField fx:id="editIsbnShortField" promptText="ISBN eingeben" />
+      </HBox>
+      <HBox spacing="10">
+         <Label text="Exemplare:" prefWidth="100" />
+         <TextField fx:id="editCopiesField" promptText="ISBN eingeben" />
+      </HBox>
+      <HBox spacing="10">
+         <Label text="Verlag:" prefWidth="100" />
+         <TextField fx:id="editPublisherField" promptText="ISBN eingeben" />
+      </HBox>
+      <HBox spacing="10">
+         <Label text="Jahr:" prefWidth="100" />
+         <TextField fx:id="editYearPublisherField" promptText="ISBN eingeben" />
+      </HBox>
+      <HBox spacing="10">
+         <Label text="Beschreibung:" prefWidth="100" />
+         <TextField fx:id="editDescriptionField" promptText="ISBN eingeben" />
+      </HBox>
+
+      <HBox spacing="10">
+         <Label text="Status:" prefWidth="100" />
+         <ComboBox fx:id="editStatusDropdown" promptText="Status auswählen">
+            <items>
+               <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="Verfügbar"/>
+                  <String fx:value="Ausgeliehen"/>
+                  <String fx:value="Reserviert"/>
+               </FXCollections>
+            </items>
+         </ComboBox>
+      </HBox>
+
+      <HBox spacing="10">
+         <Button fx:id="updateButton" text="Speichern" onAction="#saveChanges" />
+         <Button fx:id="cancelButton" text="Abbrechen" onAction="#cancelEdit" />
+      </HBox>
+   </VBox>
 </VBox>
+

@@ -32,6 +32,11 @@ public class MongoBookRepositoryImpl implements BookRepository {
     }
 
     @Override
+    public Book findBookByIsbn(String isbnLong, String isbnShort) {
+        return null;
+    }
+
+    @Override
     public Book insertBook(Book book) {
         return book;
     }
