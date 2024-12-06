@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.BorderPane?>
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:id="mainPane"
-            fx:controller="application.controller.EmployeePageController">
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="mainPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controller.EmployeePageController">
 
     <!-- Top Navigation Bar -->
     <top>
-        <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #D8D8D8;" alignment="center">
-            <Button text="Zurück" onAction="#navigateToMainView"/>
-            <Button fx:id="navigateBookSearchButton"  text="Buch Suchen" onAction="#handleBookSearch"/>
+        <HBox alignment="center" prefHeight="46.0" prefWidth="317.0" spacing="10" style="-fx-padding: 10; -fx-background-color: #D8D8D8;">
+            <Button onAction="#navigateToMainView" text="Zurück" />
+            <Button fx:id="navigateBookSearchButton" onAction="#handleBookSearch" text="Buch Suchen" />
+         <Button fx:id="addBookButton" mnemonicParsing="false" onAction="#handleBookAdd" text="Hinzufügen" />
+         <Button fx:id="editBookButton" mnemonicParsing="false" onAction="#handleBookEdit" prefHeight="25.0" prefWidth="97.0" text="Buch bearbeiten" />
         </HBox>
     </top>
 

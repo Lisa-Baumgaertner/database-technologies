@@ -94,9 +94,38 @@ public class PostgresBookRepositoryImpl implements BookRepository {
     }
 
     @Override
+    public Book findBookByIsbn(String isbnLong, String isbnShort)  {
+        String query = "SELECT * FROM book WHERE isbn_long = ? OR isbn_short = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, isbnLong);
+            statement.setString(2, isbnShort);
+
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                Book book = new Book();
+                book.setBookId(resultSet.getInt("book_id"));
+                book.setTitle(resultSet.getString("booktitle"));
+                book.setAuthor(resultSet.getString("bookauthor"));
+                book.setIsbnLong(resultSet.getString("isbn_long"));
+                book.setIsbnShort(resultSet.getString("isbn_short"));
+                book.setCopies(resultSet.getInt("copies"));
+                book.setPublisher(resultSet.getString("publisher"));
+                book.setYearPublished(resultSet.getInt("year_published"));
+                book.setDescription(resultSet.getString("description"));
+                book.setStatus(resultSet.getString("status"));
+                return book;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null; // Kein Buch gefunden
+
+    }
+
+    @Override
     public Book insertBook(Book book) {
         String query = "INSERT INTO book (isbn_long, isbn_short, copies, booktitle, bookauthor, publisher, year_published, description, status, keyword_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, book.getIsbnLong());

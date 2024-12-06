@@ -19,6 +19,8 @@ public class EmployeePageController {
 
     public Button navigateBookSearchButton;
     @FXML
+    public Button addBookButton;
+    @FXML
     private BorderPane mainPane; // Bindet das BorderPane aus MainView.fxml
 
     private  BookService bookService;
@@ -27,6 +29,8 @@ public class EmployeePageController {
         this.bookService = bookService;
     }
 
+    @FXML
+    public Button editBookButton;
     @FXML
     private void handleBookSearch() {
         try {
@@ -59,5 +63,42 @@ public class EmployeePageController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    private void handleBookAdd() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookAddView.fxml"));
+            Parent bookAddView = loader.load();
+
+            mainPane.setCenter(bookAddView);
+
+            BookAddController controller = loader.getController();
+            controller.setBookService(bookService);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    @FXML
+    private void handleBookEdit() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookEditView.fxml"));
+            Parent bookEditView = loader.load();
+
+            mainPane.setCenter(bookEditView);
+
+            BookEditController controller = loader.getController();
+            controller.setBookService(bookService);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
 
 }
