@@ -5,6 +5,7 @@ import application.repository.BookRepository;
 
 
 import java.util.List;
+import java.util.Objects;
 
 
 public class BookService {
@@ -45,9 +46,9 @@ public class BookService {
         bookRepository.deleteBookById(id);
     }
 
-    public boolean isIsbnDuplicate(String isbnLong, String isbnShort, int bookId) {
+    public boolean isIsbnDuplicate(String isbnLong, String isbnShort, Long bookId) {
         Book foundBook = bookRepository.findBookByIsbn(isbnLong, isbnShort);
-        return foundBook != null && foundBook.getBookId() != bookId;
+        return foundBook != null && !Objects.equals(foundBook.getBookId(), bookId);
     }
 
 }
