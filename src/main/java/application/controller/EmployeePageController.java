@@ -32,6 +32,8 @@ public class EmployeePageController {
     @FXML
     public Button editBookButton;
     @FXML
+    public Button deleteBookButton;
+    @FXML
     private void handleBookSearch() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookSearchView.fxml"));
@@ -97,6 +99,23 @@ public class EmployeePageController {
             e.printStackTrace();
         }
 
+
+    }
+
+    @FXML
+    private void handleBookDelete() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookDeleteView.fxml"));
+            Parent bookDeleteView = loader.load();
+
+            mainPane.setCenter(bookDeleteView);
+
+            BookDeleteController controller = loader.getController();
+            controller.setBookService(bookService);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
