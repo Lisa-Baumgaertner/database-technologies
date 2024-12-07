@@ -101,7 +101,7 @@ public class Book {
 
     // Getter und Setter für Werte
 
-    public int getBookId() {
+    public long getBookId() {
         return (int) bookId.get();
     }
 
