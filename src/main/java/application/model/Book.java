@@ -6,7 +6,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-import java.util.List;
 import java.util.Map;
 
 public class Book {
@@ -102,8 +101,8 @@ public class Book {
 
     // Getter und Setter für Werte
 
-    public Long getBookId() {
-        return (long) bookId.get();
+    public long getBookId() {
+        return (int) bookId.get();
     }
 
     public void setBookId(Integer bookId) {
