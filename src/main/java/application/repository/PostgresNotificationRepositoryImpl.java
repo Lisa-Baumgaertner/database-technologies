@@ -1,0 +1,74 @@
+package application.repository;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PostgresNotificationRepositoryImpl implements NotificationRepository{
+    private final Connection connection;
+
+    public PostgresNotificationRepositoryImpl(Connection connection) {
+        this.connection = connection;
+    }
+
+    public List<String> getDueDateNotificationsForUser(Long userId) {
+        String query = """
+                    SELECT p.firstname, p.lastname, b.booktitle, l.due_date
+                    FROM lending l
+                    JOIN person p ON l.user_id_borrower = p.user_id
+                    JOIN book b ON l.book_id = b.book_id
+                    WHERE l.status = 'borrowed'
+                   AND l.due_date <= CURRENT_DATE + INTERVAL '3 days'
+                   AND p.user_id = ?;
+                                                         
+""";
+
+        List<String> notifications = new ArrayList<>();
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setLong(1, userId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    String notification = "Hallo " + rs.getString("firstname") + " " +
+                            rs.getString("lastname") + ", das Buch '" +
+                            rs.getString("booktitle") + "' muss bis zum " +
+                            rs.getDate("due_date") + " zurückgegeben werden.";
+                    notifications.add(notification);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return notifications;
+    }
+    public List<String> getAvailableBookNotificationsForUser( Long userId) {
+        String query = """
+            SELECT p.firstname, p.lastname, b.booktitle
+            FROM waitlist w
+            JOIN person p ON w.user_id = p.user_id
+            JOIN book b ON w.book_id = b.book_id
+            WHERE w.status = 'waiting'
+              AND b.status = 'available'
+              AND p.user_id = ?;
+        """;
+
+        List<String> notifications = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setLong(1, userId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    String notification = "Hallo " + rs.getString("firstname") + " " +
+                            rs.getString("lastname") + ", das Buch '" +
+                            rs.getString("booktitle") + "' ist jetzt verfügbar.";
+                    notifications.add(notification);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return notifications;
+    }
+}

@@ -1,0 +1,31 @@
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.TextField?>
+
+<GridPane fx:controller="application.controller.UserLoginController"
+          xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml"
+          alignment="center" hgap="10" vgap="10">
+
+    <!-- Überschrift -->
+    <Label text="Login" style="-fx-font-size: 20px; -fx-font-weight: bold;" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.halignment="center"/>
+
+    <!-- Benutzerfeld -->
+    <Label text="Benutzer:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <TextField fx:id="usernameField" promptText="Benutzer anzeigen" GridPane.columnIndex="1" GridPane.rowIndex="1" editable="false" minWidth="200"/>
+
+    <!-- Passwortfeld -->
+    <Label text="Passwort:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+    <TextField fx:id="passwordField" promptText="********" GridPane.columnIndex="1" GridPane.rowIndex="2" editable="false" minWidth="200"/>
+
+    <!-- Anmelden-Button -->
+    <Button text="Anmelden" fx:id="loginButton" onAction="#handleLoginButtonAction" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.halignment="center" style="-fx-background-color: #007BFF; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+    <!-- Padding -->
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+</GridPane>
+

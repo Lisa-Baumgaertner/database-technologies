@@ -6,7 +6,9 @@
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="application.controller.MainController"
            style="-fx-padding: 20;">
-
+    <VBox fx:id="notificationPane" spacing="10">
+    <!-- Benachrichtigungen -->
+    </VBox>
     <VBox spacing="20" alignment="center">
         <Button  fx:id="navigateUserViewButton" text="Nutzer" onAction="#showUserView"/>
         <Button fx:id="navigateEmployeeViewButton" text="Mitarbeiter" onAction="#showEmployeeView"/>
