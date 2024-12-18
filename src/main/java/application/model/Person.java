@@ -42,8 +42,8 @@ public class Person {
         return userId;
     }
 
-    public int getUserId() {
-        return userId.get();
+    public Long getUserId() {
+        return (long) userId.get();
     }
 
     public void setUserId(int userId) {

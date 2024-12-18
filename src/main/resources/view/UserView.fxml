@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+
+<BorderPane fx:id="mainPane" xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="application.controller.UserPageController">
+    <top>
+        <VBox fx:id="notificationPane" spacing="10" style="-fx-padding: 10;" />
+    </top>
+    <!-- Top Navigation Bar -->
+    <Label text="Willkommen in der Benutzer-Ansicht!"  />
+
+    <!-- Center Content Area -->
+    <center>
+        <Label text="Willkommen in der Benutzer-Ansicht!"  />
+        <!-- Dynamischer Inhalt wird vom Controller hier eingefügt -->
+    </center>
+
+</BorderPane>
