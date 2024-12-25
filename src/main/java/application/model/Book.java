@@ -8,6 +8,7 @@ import javafx.beans.property.StringProperty;
 
 import java.util.Map;
 
+
 public class Book {
     private IntegerProperty bookId;
     private StringProperty isbn_long;
@@ -21,7 +22,7 @@ public class Book {
     private StringProperty status;
     private IntegerProperty keywordId;
 
-
+    private StringProperty keywordName;
 
     // Leerer Konstruktor
     public Book() {
@@ -36,6 +37,7 @@ public class Book {
         this.description = new SimpleStringProperty();
         this.status = new SimpleStringProperty();
         this.keywordId = new SimpleIntegerProperty();
+        this.keywordName = new SimpleStringProperty();
     }
 
     public Book(Integer bookId, String isbnLong, String isbnShort, Integer copies, String title, String author, String publisher,
@@ -193,10 +195,24 @@ public class Book {
         this.keywordId.set(keywordId);
     }
 
+
     public boolean isValidIsbn13(String isbn) {
         if (isbn == null) return false;
         isbn = isbn.replace("-", "");
         return isbn.length() == 13;
+    }
+
+    // Setter und getter für Keyword
+    public String getKeywordName() {
+        return keywordName.get();
+    }
+
+    public void setKeywordName(String keywordName) {
+        this.keywordName.set(keywordName);
+    }
+
+    public StringProperty keywordNameProperty() {
+        return keywordName;
     }
 
     public boolean isValidIsbn10(String isbn) {

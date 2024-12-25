@@ -3,6 +3,7 @@ package application;
 import application.config.DatabaseConfig;
 import application.service.BookService;
 import application.controller.MainController;
+import application.service.LendingService;
 import application.service.UserService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -17,10 +18,12 @@ public class Main extends Application {
 
     private final BookService bookService;
     private final UserService userService;
+    private final LendingService lendingService;
 
     public Main() throws IOException {
         this.bookService = new BookService(new DatabaseConfig().getBookRepository());
         this.userService = new UserService(new DatabaseConfig().getUserRepository());
+        this.lendingService = new LendingService(new DatabaseConfig().getLendingRepository());
     }
 
     @Override
@@ -32,6 +35,7 @@ public class Main extends Application {
         MainController mainController = loader.getController();
         mainController.setBookService(bookService);
         mainController.setUserService(userService);
+        mainController.setLendingService(lendingService);
 
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/styles/style.css").toExternalForm());

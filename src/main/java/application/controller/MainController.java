@@ -2,6 +2,7 @@ package application.controller;
 
 import application.config.DatabaseConfig;
 import application.service.BookService;
+import application.service.LendingService;
 import application.service.NotificationService;
 import application.service.UserService;
 import javafx.application.Platform;
@@ -27,6 +28,7 @@ public class MainController {
     public Button navigateEmployeeViewButton;
 
     private BookService bookService;
+    private LendingService lendingService;
     private NotificationService notificationService;
     private UserService userService;
     private  NotificationController notificationController;
@@ -37,6 +39,7 @@ public class MainController {
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+    public void setLendingService(LendingService lendingService) {this.lendingService = lendingService;}
 
     @FXML
     private void showUserView() {
@@ -64,6 +67,7 @@ public class MainController {
 
             EmployeePageController controller = loader.getController();
             controller.setBookService(bookService);
+            controller.setLendingService(lendingService);
 
             Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());

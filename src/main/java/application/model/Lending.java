@@ -4,6 +4,10 @@ import javafx.beans.property.*;
 
 import java.time.LocalDate;
 
+/**
+ * Modellklasse für eine Ausleihe in der Büchereianwendung.
+ * Enthält alle relevanten Informationen wie Benutzer, Buch, Status und Termine.
+ */
 public class Lending {
 
     private final IntegerProperty lendingId;
@@ -15,6 +19,10 @@ public class Lending {
     private final StringProperty status;
 
 
+    /**
+     * Standardkonstruktor für Lending.
+     * Initialisiert alle Properties mit Standardwerten.
+     */
     public Lending() {
         this.role =new SimpleObjectProperty<>();
         this.lendingId = new SimpleIntegerProperty();
@@ -25,6 +33,16 @@ public class Lending {
         this.status = new SimpleStringProperty("borrowed");
     }
 
+    /**
+     * Konstruktor für Lending mit allen Attributen.
+     *
+     * @param user         Der Benutzer, der die Ausleihe tätigt.
+     * @param role         Die Rolle des Benutzers.
+     * @param book         Das ausgeliehene Buch.
+     * @param checkoutDate Das Datum der Ausleihe.
+     * @param returnDate   Das Datum der Rückgabe.
+     * @param status       Der Status der Ausleihe.
+     */
     public Lending(Person user, Person role, Book book, LocalDate checkoutDate, LocalDate returnDate, String status) {
         this.role = new SimpleObjectProperty<>(role);
         this.lendingId = new SimpleIntegerProperty();
@@ -41,6 +59,12 @@ public class Lending {
         return lendingId;
     }
 
+    /**
+     * Holt die ID der Ausleihe.
+     *
+     * @return Die ID der Ausleihe.
+     */
+
     public int getLendinglistId() {
         return lendingId.get();
     }
@@ -48,10 +72,15 @@ public class Lending {
     public void setLendinglistId(int waitlistId) {
         this.lendingId.set(waitlistId);
     }
-
     public ObjectProperty<Person> userProperty() {
         return user;
     }
+    /**
+     * Holt den Benutzer, der die Ausleihe tätigt.
+     *
+     * @return Der Benutzer der Ausleihe.
+     */
+
 
     public Person getUser() {
         return user.get();
@@ -60,11 +89,15 @@ public class Lending {
     public void setUser(Person user) {
         this.user.set(user);
     }
-
     public ObjectProperty<Book> bookProperty() {
         return book;
     }
 
+    /**
+     * Holt das Buch, das ausgeliehen wurde.
+     *
+     * @return Das Buch der Ausleihe.
+     */
     public Book getBook() {
         return book.get();
     }
@@ -72,7 +105,11 @@ public class Lending {
     public void setBook(Book book) {
         this.book.set(book);
     }
-
+    /**
+     * Holt das Datum der Ausleihe.
+     *
+     * @return Das Datum der Ausleihe.
+     */
     public ObjectProperty<LocalDate> checkoutDateProperty() {
         return checkoutDate;
     }
@@ -85,6 +122,11 @@ public class Lending {
         this.checkoutDate.set(checkoutDate);
     }
 
+    /**
+     * Holt das Datum der Rückgabe.
+     *
+     * @return Das Datum der Rückgabe.
+     */
     public ObjectProperty<LocalDate> returnDateProperty() {
         return returnDate;
     }
@@ -97,6 +139,11 @@ public class Lending {
         this.returnDate.set(returnDate);
     }
 
+    /**
+     * Holt den Status der Ausleihe.
+     *
+     * @return Der Status der Ausleihe.
+     */
     public StringProperty statusProperty() {
         return status;
     }
@@ -109,6 +156,10 @@ public class Lending {
         this.status.set(status);
     }
 
+    /**
+     * Holt die Role der Nutzer, der einen Buch ausgeliehen hat.
+     * @return Der Role der Nutzer.
+     */
     public Person getRole() {
         return role.get();
     }
@@ -116,5 +167,7 @@ public class Lending {
     public void setRole(Person role) {
         this.role.set(role);
     }
+
+
 
 }

@@ -13,4 +13,12 @@ public interface LendingRepository {
     List<Lending> getLendingForUser(Long userId);
     void updateStatus(Long lendingId, String status);
     void removeFromLending(Long lendingId);
+    Lending getLendingById(Long lendingId);
+    void updateDueDate(Long lendingId, LocalDate newDueDate);
+    int calculateExtensionCount(Lending lending);
+    List<Lending> getLendingForUserByName(String userName);
+    List<Lending> filterByDueDate();
+    List<Lending> filterByCategory(String category);
+    List<Lending> filterByAvailability(String availabilityStatus);
+    List<String> getAllKeywords();
 }

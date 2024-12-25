@@ -1,0 +1,68 @@
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import java.lang.String?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="application.controller.LendingController">
+    <!-- Überschrift -->
+    <top>
+        <Label text="Ausleihen verwalten" style="-fx-font-size: 20px; -fx-padding: 10px;" />
+    </top>
+
+    <!-- Such- und Filterbereich -->
+    <top>
+        <VBox spacing="10" alignment="CENTER" style="-fx-padding: 10px;">
+            <!-- Suchfeld -->
+            <HBox spacing="30">
+                <Label text="Benutzer suchen:" />
+                <TextField fx:id="searchUserField" promptText="Benutzer eingeben" />
+                <Button text="Anzeigen" fx:id="searchUserButton" onAction="#handleSearchUser" />
+            </HBox>
+            <!-- Filteroptionen -->
+            <HBox spacing="30">
+                <Label text="Filtern nach:" />
+                <ComboBox fx:id="filterComboBox" promptText="Kriterium auswählen">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Rückgabedatum" />
+                            <String fx:value="Kategorie" />
+                            <String fx:value="Verfügbarkeit" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <ComboBox fx:id="categoryComboBox" promptText="Wählen Sie eine Kategorie" visible="false"/>
+                <ComboBox fx:id="availabilityComboBox" visible="false" />
+                <Button text="Filter anwenden" fx:id="applyFilterButton" onAction="#handleFilter" />
+
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Tabelle der Ausleihen -->
+    <center>
+        <TableView fx:id="lendingTable">
+            <columns>
+                <TableColumn prefWidth="150" text="Benutzer" fx:id="userNameColumn" />
+                <TableColumn prefWidth="150" text="Buchtitel" fx:id="bookTitleColumn" />
+                <TableColumn prefWidth="150" text="Ausleihdatum"  fx:id="checkoutDateColumn"/>
+                <TableColumn  prefWidth="150" text="Rückgabedatum" fx:id="dueDateColumn" />
+                <TableColumn  prefWidth="150" text="Kategorie" fx:id="categoryColumn" />
+                <TableColumn prefWidth="150" text="Status" fx:id="statusColumn" />
+            </columns>
+        </TableView>
+    </center>
+
+    <!-- Aktionsbereich -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10px;">
+            <Button text="Frist verlängern" fx:id="extendDueDateButton" onAction="#handleExtendDueDate" />
+        </HBox>
+    </bottom>
+</BorderPane>

@@ -55,4 +55,17 @@ public class DatabaseConfig {
             return new PostgresUserRepositoryImpl(new SQLDatabaseConnection().getConnection());
         }
     }
+
+    /**
+     * Gibt ein LendingRepository zurück, abhängig von der Datenbankkonfiguration.
+     * @return LendingRepository-Instanz.
+     */
+
+    public  LendingRepository getLendingRepository() {
+        if (useMongoDB) {
+            return new MongoLendingRepositoryImpl(new NoSQLDatabaseConnection("application.properties").getDatabase());
+        } else {
+            return new PostgresLendingRepositoryImpl(new SQLDatabaseConnection().getConnection());
+        }
+    }
 }

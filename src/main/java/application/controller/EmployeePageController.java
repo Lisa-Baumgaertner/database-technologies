@@ -1,6 +1,7 @@
 package application.controller;
 
 import application.service.BookService;
+import application.service.LendingService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -24,15 +25,21 @@ public class EmployeePageController {
     private BorderPane mainPane; // Bindet das BorderPane aus MainView.fxml
 
     private  BookService bookService;
+    private LendingService lendingService;
 
     public void setBookService(BookService bookService) {
         this.bookService = bookService;
+    }
+    public void setLendingService(LendingService lendingService) {
+        this.lendingService = lendingService;
     }
 
     @FXML
     public Button editBookButton;
     @FXML
     public Button deleteBookButton;
+
+    // Wechselt zur Ansicht "BookSearchView" und initialisiert deren Controller.
     @FXML
     private void handleBookSearch() {
         try {
@@ -45,9 +52,12 @@ public class EmployeePageController {
             controller.setBookService(bookService);
 
         } catch (IOException e) {
+            System.err.println("Fehler beim Laden der BookSearchView.fxml: " + e.getMessage());
             e.printStackTrace();
         }
     }
+    // Wechselt zur Ansicht "MainView" und initialisiert deren Controller.
+    // Zurück Button
     @FXML
     private void navigateToMainView() {
         try {
@@ -62,10 +72,12 @@ public class EmployeePageController {
             Stage stage = (Stage) navigateBookSearchButton.getScene().getWindow();
             stage.setScene(scene);
         } catch (IOException e) {
+            System.err.println("Fehler beim Laden der MainView.fxml: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+    // Wechselt zur Ansicht "BookAddView" und initialisiert deren Controller.
     @FXML
     private void handleBookAdd() {
         try {
@@ -78,12 +90,14 @@ public class EmployeePageController {
             controller.setBookService(bookService);
 
         } catch (IOException e) {
+            System.err.println("Fehler beim Laden der BookAddView.fxml: " + e.getMessage());
             e.printStackTrace();
         }
 
 
     }
 
+    // Wechselt zur Ansicht "BookEditView" und initialisiert deren Controller.
     @FXML
     private void handleBookEdit() {
         try {
@@ -96,12 +110,14 @@ public class EmployeePageController {
             controller.setBookService(bookService);
 
         } catch (IOException e) {
+            System.err.println("Fehler beim Laden der BookEditView.fxml: " + e.getMessage());
             e.printStackTrace();
         }
 
 
     }
 
+    // Wechselt zur Ansicht "BookDeleteView" und initialisiert deren Controller.
     @FXML
     private void handleBookDelete() {
         try {
@@ -114,9 +130,29 @@ public class EmployeePageController {
             controller.setBookService(bookService);
 
         } catch (IOException e) {
+            System.err.println("Fehler beim Laden der BookDeleteView.fxml: " + e.getMessage());
             e.printStackTrace();
         }
 
+    }
+
+    // Wechselt zur Ansicht "LendingView" und initialisiert deren Controller.
+    @FXML
+    private void handleLendingView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LendingView.fxml"));
+            Parent lendingView = loader.load();
+
+            mainPane.setCenter(lendingView);
+
+            LendingController controller = loader.getController();
+            controller.setLendingService(lendingService);
+            System.out.println("lendingService" + lendingService);
+
+        } catch (IOException e) {
+            System.err.println("Fehler beim Laden der LendingView.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 
