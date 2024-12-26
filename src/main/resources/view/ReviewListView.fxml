@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="application.controller.ReviewListController"
+      spacing="10" alignment="center" style="-fx-padding: 20; -fx-background-color: #f4f4f4;">
+
+    <!-- Titel für die Bewertungsansicht -->
+    <Label text="Bewertungen" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <!-- Tabelle für Bewertungen -->
+    <TableView fx:id="reviewTable" prefHeight="300" prefWidth="600">
+        <columns>
+            <TableColumn fx:id="userColumn" text="Nutzer-ID" prefWidth="100"/>
+            <TableColumn fx:id="reviewColumn" text="Bewertungstext" prefWidth="300"/>
+            <TableColumn fx:id="dateColumn" text="Datum" prefWidth="100"/>
+            <TableColumn fx:id="ratingColumn" text="Bewertung" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+    <!-- Bereich zum Hinzufügen neuer Bewertungen -->
+    <VBox spacing="10" alignment="center" style="-fx-padding: 10;">
+        <HBox spacing="10" alignment="center">
+            <Label text="Bewertung (1-5):"/>
+            <TextField fx:id="ratingTextField" prefWidth="50"/>
+            <Label text="Text:"/>
+            <TextField fx:id="reviewTextField" prefWidth="300"/>
+            <Button fx:id="addButton" text="Hinzufügen"/>
+        </HBox>
+    </VBox>
+
+    <!-- Bereich für die Löschfunktion -->
+    <HBox spacing="10" alignment="center">
+        <Button fx:id="deleteButton" text="Bewertung löschen" style="-fx-padding: 10 20;"/>
+    </HBox>
+
+    <!-- Zurück-Button -->
+    <Button text="Zurück" onAction="#handleBack" style="-fx-padding: 10 20;"/>
+</VBox>
