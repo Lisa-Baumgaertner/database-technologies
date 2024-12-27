@@ -3,12 +3,15 @@ package application.controller;
 import application.service.NotificationService;
 import application.service.UserService;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Controller;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -75,4 +78,17 @@ public class UserPageController {
         // Nachricht anzeigen
         notificationPane.getChildren().add(label);
     }
+
+    public void showUserDetails() {
+        try {
+            // FXML-Datei für die Nutzerdetails laden
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/UserDetailsView.fxml"));
+            Node userDetailsView = loader.load();
+
+            mainPane.setCenter(userDetailsView);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

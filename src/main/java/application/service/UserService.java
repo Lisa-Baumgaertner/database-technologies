@@ -16,6 +16,8 @@ public class UserService {
     private static UserService instance;
     private final UserRepository userRepository;
 
+    private Person currentlyLoggedInUser;
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -47,5 +49,13 @@ public class UserService {
      */
     public Person getFirstBorrower() {
         return userRepository.getFirstBorrower();
+    }
+
+    public Person getCurrentlyLoggedInUser() {
+        return currentlyLoggedInUser;
+    }
+
+    public void setCurrentlyLoggedInUser(Person user) {
+        this.currentlyLoggedInUser = user;
     }
 }

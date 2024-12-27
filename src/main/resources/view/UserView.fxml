@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
 
 <BorderPane fx:id="mainPane" xmlns="http://javafx.com/javafx/17.0.2-ea"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -16,6 +16,7 @@
     <center>
         <Label text="Willkommen in der Benutzer-Ansicht!"  />
         <!-- Dynamischer Inhalt wird vom Controller hier eingefügt -->
+        <Button text="Meine Daten anzeigen" onAction="#showUserDetails" style="-fx-padding: 10 20;"/>
     </center>
 
 </BorderPane>
