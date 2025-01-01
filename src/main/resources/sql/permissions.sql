@@ -30,19 +30,20 @@ END $$;
 CREATE OR REPLACE FUNCTION assign_user_and_role() RETURNS TRIGGER AS $$
 BEGIN
     -- Benutzer erstellen, wenn noch nicht existiert
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = NEW.user_id::text) THEN
-            EXECUTE format('CREATE USER %I;', NEW.user_id::text);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'user_' || NEW.user_id::text) THEN
+        EXECUTE format('CREATE USER %I;', 'user_' || NEW.user_id::text);
     END IF;
 
     -- Basierend auf die Spalte 'role' die entsprechende Role zuweisen
     IF NEW.role = 'borrower' THEN
-        EXECUTE 'GRANT borrower_role TO ' || quote_ident(NEW.user_id::text);
+        EXECUTE format('GRANT borrower_role TO %I;', 'user_' || NEW.user_id::text);
     ELSIF NEW.role = 'worker' THEN
-        EXECUTE 'GRANT worker_role TO ' || quote_ident(NEW.user_id::text);
+        EXECUTE format('GRANT worker_role TO %I;', 'user_' || NEW.user_id::text);
     ELSIF NEW.role = 'admin' THEN
-        EXECUTE 'GRANT admin_role TO ' || quote_ident(NEW.user_id::text);
-END IF;
-RETURN NEW;
+        EXECUTE format('GRANT admin_role TO %I;', 'user_' || NEW.user_id::text);
+    END IF;
+
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -58,17 +59,17 @@ DECLARE
     person RECORD;
 BEGIN
     FOR person IN SELECT user_id, role FROM person LOOP
-    -- Benutzer erstellen, falls er noch nicht existiert
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = person.user_id::text) THEN
-            EXECUTE format('CREATE USER %I;', person.user_id::text);
-    END IF;
-    -- Basierend auf die Spalte 'role' die entsprechende Role zuweisen
+        -- Benutzer erstellen, falls er noch nicht existiert
+        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'user_' || person.user_id::text) THEN
+            EXECUTE format('CREATE USER %I;', 'user_' || person.user_id::text);
+        END IF;
+        -- Basierend auf die Spalte 'role' die entsprechende Role zuweisen
         IF person.role = 'worker' THEN
-            EXECUTE 'GRANT worker_role TO ' || quote_ident(person.user_id::text);
+            EXECUTE format('GRANT worker_role TO %I;', 'user_' || person.user_id::text);
         ELSIF person.role = 'borrower' THEN
-            EXECUTE 'GRANT borrower_role TO ' || quote_ident(person.user_id::text);
+            EXECUTE format('GRANT borrower_role TO %I;', 'user_' || person.user_id::text);
         ELSIF person.role = 'admin' THEN
-            EXECUTE 'GRANT admin_role TO ' || quote_ident(person.user_id::text);
+            EXECUTE format('GRANT admin_role TO %I;', 'user_' || person.user_id::text);
         END IF;
     END LOOP;
 END $$;
