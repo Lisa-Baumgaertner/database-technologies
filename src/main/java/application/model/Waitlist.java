@@ -4,6 +4,10 @@ import javafx.beans.property.*;
 
 import java.time.LocalDate;
 
+/**
+ * Modellklasse für eine Warteliste in der Büchereianwendung.
+ * Enthält alle relevanten Informationen wie Wartelisten-Id, Benutzer, Buch, Ausleihdatum,bRückgabedatum, Status.
+ */
 public class Waitlist {
 
     private final IntegerProperty waitlistId;
@@ -14,6 +18,10 @@ public class Waitlist {
     private final StringProperty status;
 
 
+    /**
+     * Standardkonstruktor für Waitlist.
+     * Initialisiert alle Properties mit Standardwerten.
+     */
     public Waitlist() {
         this.waitlistId = new SimpleIntegerProperty();
         this.user = new SimpleObjectProperty<>();
@@ -23,6 +31,15 @@ public class Waitlist {
         this.status = new SimpleStringProperty("waiting");
     }
 
+    /**
+     * Konstruktor für Waitlist mit allen Attributen.
+     *
+     * @param user
+     * @param book
+     * @param checkoutDate
+     * @param returnDate
+     * @param status
+     */
     public Waitlist(Person user, Book book, LocalDate checkoutDate, LocalDate returnDate, String status) {
         this.waitlistId = new SimpleIntegerProperty();
         this.user = new SimpleObjectProperty<>(user);
@@ -38,6 +55,10 @@ public class Waitlist {
         return waitlistId;
     }
 
+    /**
+     * Holt die Wartelisten-Id
+     * @return waitlistId
+     */
     public int getWaitlistId() {
         return waitlistId.get();
     }
@@ -50,6 +71,10 @@ public class Waitlist {
         return user;
     }
 
+    /**
+     * Holt den Nutzer
+     * @return user
+     */
     public Person getUser() {
         return user.get();
     }
@@ -62,6 +87,10 @@ public class Waitlist {
         return book;
     }
 
+    /**
+     * Holt das Buch
+     * @return book
+     */
     public Book getBook() {
         return book.get();
     }
@@ -74,6 +103,10 @@ public class Waitlist {
         return checkoutDate;
     }
 
+    /**
+     * Holt das Ausleihdatum
+     * @return checkoutDate
+     */
     public LocalDate getCheckoutDate() {
         return checkoutDate.get();
     }
@@ -86,6 +119,10 @@ public class Waitlist {
         return returnDate;
     }
 
+    /**
+     * Holt das Rückgabedatum
+     * @return returnDate
+     */
     public LocalDate getReturnDate() {
         return returnDate.get();
     }
@@ -98,6 +135,10 @@ public class Waitlist {
         return status;
     }
 
+    /**
+     * Holt den Status des Buches
+     * @return status
+     */
     public String getStatus() {
         return status.get();
     }
