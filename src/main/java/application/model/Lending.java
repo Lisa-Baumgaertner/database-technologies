@@ -75,13 +75,12 @@ public class Lending {
     public ObjectProperty<Person> userProperty() {
         return user;
     }
+
     /**
      * Holt den Benutzer, der die Ausleihe tätigt.
      *
      * @return Der Benutzer der Ausleihe.
      */
-
-
     public Person getUser() {
         return user.get();
     }
@@ -105,6 +104,7 @@ public class Lending {
     public void setBook(Book book) {
         this.book.set(book);
     }
+
     /**
      * Holt das Datum der Ausleihe.
      *

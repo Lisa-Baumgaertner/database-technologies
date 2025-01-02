@@ -24,7 +24,10 @@ public class Book {
 
     private StringProperty keywordName;
 
-    // Leerer Konstruktor
+
+    /**
+     * Leerer Konstruktor
+     */
     public Book() {
         this.bookId = new SimpleIntegerProperty();
         this.isbn_long = new SimpleStringProperty();
@@ -40,6 +43,20 @@ public class Book {
         this.keywordName = new SimpleStringProperty();
     }
 
+    /**
+     * Konstruktor mit Parametern
+     * @param bookId
+     * @param isbnLong
+     * @param isbnShort
+     * @param copies
+     * @param title
+     * @param author
+     * @param publisher
+     * @param yearPublished
+     * @param description
+     * @param status
+     * @param keywordId
+     */
     public Book(Integer bookId, String isbnLong, String isbnShort, Integer copies, String title, String author, String publisher,
                 Integer yearPublished, String description, String status, Integer keywordId) {
         this.bookId = new SimpleIntegerProperty(bookId);
@@ -239,6 +256,10 @@ public class Book {
                 .orElse(null);
     }
 
+    /**
+     * To String Funktion für Book
+     * @return
+     */
     @Override
     public String toString() {
         return "Book{" +

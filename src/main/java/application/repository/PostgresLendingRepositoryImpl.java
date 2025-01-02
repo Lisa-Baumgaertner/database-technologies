@@ -256,6 +256,9 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
         return lendingList;
     }
 
+    /**
+     * Filtert ausgeliehene Bücher nach Fälligkeitsdatum
+     */
     @Override
     public List<Lending> filterByDueDate() {
         List<Lending> lendingList = new ArrayList<>();
@@ -283,6 +286,9 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
         return lendingList;
     }
 
+    /**
+     * Filtert ausgeliehene Bücher nach Buchkategorie basierend auf Keyword
+     */
     @Override
     public List<Lending> filterByCategory(String category) {
         List<Lending> lendingList = new ArrayList<>();
@@ -312,6 +318,9 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
         return lendingList;
     }
 
+    /**
+     * Filtert insgesamt ausgeliehene Bücher nach aktueller Verfügbarkeit
+     */
     @Override
     public List<Lending> filterByAvailability(String availabilityStatus) {
         List<Lending> lendingList = new ArrayList<>();
@@ -340,6 +349,11 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
         }
         return lendingList;
     }
+
+
+    /**
+     * Returniert alle Keywords
+     */
     @Override
     public  List<String> getAllKeywords() {
         List<String> keywords = new ArrayList<>();

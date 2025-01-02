@@ -7,6 +7,10 @@ import javafx.beans.property.StringProperty;
 import java.time.LocalDate;
 
 
+/**
+ * Modellklasse für eine Person in der Büchereianwendung.
+ * Enthält alle relevanten Informationen wie Nutzer-Id, Namen, Geschlecht und Rolle.
+ */
 public class Person {
 
     private IntegerProperty userId;
@@ -17,7 +21,10 @@ public class Person {
     private StringProperty role;
 
 
-
+    /**
+     * Standardkonstruktor für Person.
+     * Initialisiert alle Properties mit Standardwerten.
+     */
     public Person() {
         this.userId = new SimpleIntegerProperty();
         this.firstName = new SimpleStringProperty();
@@ -27,6 +34,15 @@ public class Person {
         this.role = new SimpleStringProperty();
     }
 
+    /**
+     * Konstruktor für Person mit allen Attributen.
+     * @param userId
+     * @param firstName
+     * @param lastName
+     * @param birthDate
+     * @param gender
+     * @param role
+     */
     public Person(Integer userId, String firstName, String lastName, LocalDate birthDate, char gender, String role) {
         this.userId = new SimpleIntegerProperty(userId);
         this.firstName = new SimpleStringProperty(firstName);
@@ -42,6 +58,10 @@ public class Person {
         return userId;
     }
 
+    /**
+     * Holt die Nutzer-Id
+     * @return userId
+     */
     public Long getUserId() {
         return (long) userId.get();
     }
@@ -53,6 +73,11 @@ public class Person {
     public StringProperty firstNameProperty() {
         return firstName;
     }
+
+    /**
+     * Holt den Vornamen
+     * @return firstName
+     */
     public String getFirstName() {
         return firstName.get();
     }
@@ -66,6 +91,10 @@ public class Person {
         return lastName;
     }
 
+    /**
+     * Holt den Nachnamen
+     * @return lastName
+     */
     public String getLastName() {
         return lastName.get();
     }
@@ -74,6 +103,10 @@ public class Person {
         this.lastName.set(lastName);
     }
 
+    /**
+     * Holt das Geburtsdatum
+     * @return bithDate
+     */
     public LocalDate getBirthDate() {
         return birthDate;
     }
@@ -82,6 +115,10 @@ public class Person {
         this.birthDate = birthDate;
     }
 
+    /**
+     * Holt das Geschlecht
+     * @return gender
+     */
     public char getGender() {
         return gender;
     }
@@ -97,6 +134,10 @@ public class Person {
         return role;
     }
 
+    /**
+     * Holt die Rolle
+     * @return role
+     */
     public String getRole() {
         return role.get();
     }

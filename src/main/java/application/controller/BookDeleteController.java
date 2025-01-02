@@ -4,6 +4,9 @@ import application.service.BookService;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
+/**
+ * Controller-Klasse für das Löschen eines Buches
+ */
 public class BookDeleteController {
 
     @FXML
@@ -16,6 +19,9 @@ public class BookDeleteController {
     }
 
 
+    /**
+     * Löschung eines Buches, in dem Id des Book-Objektes zuerst gesetzt wird
+     */
     @FXML
     private void deleteBook(){
 
@@ -37,6 +43,11 @@ public class BookDeleteController {
     }
 
 
+    /**
+     * Prüfung, ob das Feld einen Wert enthält / nicht leer ist
+     * und, ob dieser Wert numerisch ist
+     * @return
+     */
     private boolean checkTextFieldsValid() {
 
         boolean validTextFields = true;
