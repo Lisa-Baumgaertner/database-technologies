@@ -7,14 +7,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.scene.Scene;
 
 import java.util.List;
 
-public class BookSearchController {
+
+public class UserBookSearchController {
 
     @FXML
     private TextField titleField;
@@ -45,15 +46,14 @@ public class BookSearchController {
 
     private final ObservableList<Book> bookList = FXCollections.observableArrayList();
 
-    private BookService bookService; // Service-Instanz
-
+    private BookService bookService;
     public void setBookService(BookService bookService) {
         this.bookService = bookService;
     }
 
     @FXML
     public void initialize() {
-        // Spalten mit Daten binden , wenn nötig
+        // Spalten mit Daten binden, wenn nötig
         titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
         authorColumn.setCellValueFactory(cellData -> cellData.getValue().authorProperty());
 
@@ -152,7 +152,7 @@ public class BookSearchController {
                 isbn.isEmpty() ? null : isbn,
                 status
         );
-    System.out.println("results: " + results.size());
+        System.out.println("results: " + results.size());
 
         ObservableList<Book> filteredBooks = FXCollections.observableArrayList(results);
         resultTable.setItems(filteredBooks);
