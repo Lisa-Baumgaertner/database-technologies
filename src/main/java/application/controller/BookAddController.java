@@ -35,6 +35,9 @@ public class BookAddController {
         this.bookService = bookService;
     }
 
+    /**
+     * Funktion, um Felder zu prüfen und anschließend die Informationen zum Book-Objekt hinzuzufügen
+     */
     @FXML
     private void addBook(){
 
@@ -66,6 +69,12 @@ public class BookAddController {
     }
 
 
+    /**
+     * Prüfung, ob alle Textfelder gefüllt sind
+     * und, ob die Felder, die numerische Werte enthalten müssen, diese tatsächlich enthalten
+     * @param book
+     * @return boolean validTextFields
+     */
     private boolean checkTextFieldsValid(Book book) {
 
         boolean validTextFields = true;
@@ -77,6 +86,9 @@ public class BookAddController {
         return validTextFields;
     }
 
+    /**
+     * Löschung aller Inhalte in den Textfeldern
+     */
     private void clearAllFields(){
         isbn_long.clear();
         isbn_short.clear();
