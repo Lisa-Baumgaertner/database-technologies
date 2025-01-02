@@ -53,7 +53,7 @@ public class EmployeeBookSearchController {
 
     @FXML
     public void initialize() {
-        // Spalten mit Daten binden , wenn nötig
+        // Spalten mit Daten binden, wenn nötig
         titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
         authorColumn.setCellValueFactory(cellData -> cellData.getValue().authorProperty());
 

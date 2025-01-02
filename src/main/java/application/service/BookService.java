@@ -1,9 +1,12 @@
 package application.service;
 
+import application.config.DatabaseConfig;
 import application.model.Book;
 import application.repository.BookRepository;
+import application.repository.UserRepository;
 
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,7 +15,7 @@ import java.util.Objects;
  * Diese Klasse enthält Methoden zum Abrufen, Suchen, Hinzufügen, Aktualisieren und Löschen von Büchern.
  */
 public class BookService {
-
+    private static BookService instance;
     private final BookRepository bookRepository;
 
 
@@ -85,4 +88,23 @@ public class BookService {
         return foundBook != null && !Objects.equals(foundBook.getBookId(), bookId);
     }
 
+    /**
+     * Singleton-Methode: Initialisiert BookService und stellt sicher, dass nur eine Instanz existiert.
+     * @return Eine Instanz von BookService.
+     */
+    public static BookService getInstance() {
+        if (instance == null) {
+            try {
+                // Erstelle eine neue Instanz von DatabaseConfig
+                DatabaseConfig config = new DatabaseConfig();
+
+                // Verwende die Methode getBookRepository() der Instanz
+                BookRepository repository = config.getBookRepository();
+                instance = new BookService(repository);
+            } catch (IOException e) {
+                throw new RuntimeException("Fehler bei der Initialisierung des BookService", e);
+            }
+        }
+        return instance;
+    }
 }

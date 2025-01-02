@@ -49,7 +49,7 @@ public class MainController {
 
             UserLoginController controller = loader.getController();
             controller.setUserService(UserService.getInstance());
-
+           // controller.setBookService(bookService);
             Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) navigateUserViewButton.getScene().getWindow();
