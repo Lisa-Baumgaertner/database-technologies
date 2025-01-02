@@ -4,6 +4,9 @@ import application.service.BookService;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
+/**
+ * Controller-Klasse für das Löschen eines Buches
+ */
 public class BookDeleteController {
 
     @FXML

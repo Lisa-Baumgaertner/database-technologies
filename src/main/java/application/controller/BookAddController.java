@@ -5,6 +5,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
+/**
+ * Controller-Klasse für das Hinzufügen eines Buches
+ */
 public class BookAddController {
 
     @FXML
