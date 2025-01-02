@@ -43,16 +43,16 @@ public class EmployeePageController {
     @FXML
     private void handleBookSearch() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BookSearchView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/EmployeeBookSearchView.fxml"));
             Parent bookSearchView = loader.load();
 
             mainPane.setCenter(bookSearchView);
 
-            BookSearchController controller = loader.getController();
+            EmployeeBookSearchController controller = loader.getController();
             controller.setBookService(bookService);
 
         } catch (IOException e) {
-            System.err.println("Fehler beim Laden der BookSearchView.fxml: " + e.getMessage());
+            System.err.println("Fehler beim Laden der EmployeeBookSearchView.fxml: " + e.getMessage());
             e.printStackTrace();
         }
     }

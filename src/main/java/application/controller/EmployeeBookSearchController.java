@@ -14,7 +14,7 @@ import javafx.scene.Scene;
 
 import java.util.List;
 
-public class BookSearchController {
+public class EmployeeBookSearchController {
 
     @FXML
     private TextField titleField;
