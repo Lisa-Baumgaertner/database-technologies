@@ -16,7 +16,6 @@ import java.util.List;
 
 /**
  * Controller-Klasse für Buchsuche eines Nutzers.
- *
  */
 public class UserBookSearchController {
 
