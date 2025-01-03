@@ -20,7 +20,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-
+/**
+ * Controller-Klasse des Hauptcontrollers.
+ * Steuert Anzeige der Nutzeransicht und Mitarbeiteransicht.
+ */
 public class MainController {
     @FXML
     private VBox notificationPane;
@@ -41,6 +44,9 @@ public class MainController {
     }
     public void setLendingService(LendingService lendingService) {this.lendingService = lendingService;}
 
+    /**
+     * Anzeige der Nutzeransicht.
+     */
     @FXML
     private void showUserView() {
         try {
@@ -59,6 +65,10 @@ public class MainController {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Anzeige der Mitarbeiteransicht.
+     */
     @FXML
     private void showEmployeeView() {
         try {

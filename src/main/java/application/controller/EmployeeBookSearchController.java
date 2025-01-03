@@ -14,6 +14,9 @@ import javafx.scene.Scene;
 
 import java.util.List;
 
+/**
+ * Controller-Klasse für die Buchsuche aus Sicht eines Mitarbeiters
+ */
 public class EmployeeBookSearchController {
 
     @FXML
@@ -51,6 +54,9 @@ public class EmployeeBookSearchController {
         this.bookService = bookService;
     }
 
+    /**
+     * Initialisierung.
+     */
     @FXML
     public void initialize() {
         // Spalten mit Daten binden, wenn nötig
@@ -130,6 +136,9 @@ public class EmployeeBookSearchController {
         });
     }
 
+    /**
+     * Funktion, um ein Buch zu suchen.
+     */
     @FXML
     private void searchBook() {
         String title = titleField.getText().trim().toLowerCase();
@@ -158,6 +167,10 @@ public class EmployeeBookSearchController {
         resultTable.setItems(filteredBooks);
     }
 
+    /**
+     * Funktion für das Handling eines Klicks.
+     * Lädt die Detailansicht.
+     */
     @FXML
     private void handleRowClick() {
         Book selectedBook = resultTable.getSelectionModel().getSelectedItem();
