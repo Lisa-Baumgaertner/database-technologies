@@ -6,6 +6,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
+/**
+ * Controller-Klasse für Details eines Buches
+ */
 public class BookDetailsController {
 
     @FXML
@@ -33,6 +36,10 @@ public class BookDetailsController {
 
     private Stage stage;
 
+    /**
+     * Setzen der Details eines Buches, um sie dem Nutzer anzuzeigen
+     * @param book
+     */
     public void setBookDetails(Book book) {
         bookIdLabel.setText(String.valueOf(book.getBookId()));
         titleLabel.setText(book.getTitle());
@@ -47,6 +54,9 @@ public class BookDetailsController {
         descriptionArea.setText(book.getDescription());
     }
 
+    /**
+     * Funktion für die Handhabung des Zurückgehens
+     */
     @FXML
     private void handleBack() {
         if (stage != null) {
