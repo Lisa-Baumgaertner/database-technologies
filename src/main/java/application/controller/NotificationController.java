@@ -4,6 +4,10 @@ import application.service.NotificationService;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+/**
+ * Controller-Klasse für Benachrichtigungen.
+ * Steuert die ANzeige von Benachrichtigungen für Nutzer.
+ */
 public class NotificationController {
     private final NotificationService notificationService;
 
@@ -11,6 +15,11 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
+    /**
+     * Anzeige von Benachrichtigungen für Fälligkeitsdatum und Verfügbarkeit eines Buches.
+     * @param notificationPane
+     * @param userId
+     */
     public void showNotificationsForUser(VBox notificationPane, Long userId) {
         notificationPane.getChildren().clear();
 
