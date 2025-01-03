@@ -14,6 +14,9 @@ import org.springframework.stereotype.Controller;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * Controller-Klasse für die Mitarbeiteransicht
+ */
 @Controller
 public class EmployeePageController {
 
@@ -39,7 +42,10 @@ public class EmployeePageController {
     @FXML
     public Button deleteBookButton;
 
-    // Wechselt zur Ansicht "BookSearchView" und initialisiert deren Controller.
+
+    /**
+     * Wechselt zur Ansicht "BookSearchView" und initialisiert deren Controller.
+     */
     @FXML
     private void handleBookSearch() {
         try {
@@ -56,8 +62,12 @@ public class EmployeePageController {
             e.printStackTrace();
         }
     }
-    // Wechselt zur Ansicht "MainView" und initialisiert deren Controller.
-    // Zurück Button
+
+
+    /**
+     * Wechselt zur Ansicht "MainView" und initialisiert deren Controller.
+     * Zurück Button wird bereitgestellt.
+     */
     @FXML
     private void navigateToMainView() {
         try {
@@ -77,7 +87,10 @@ public class EmployeePageController {
         }
     }
 
-    // Wechselt zur Ansicht "BookAddView" und initialisiert deren Controller.
+
+    /**
+     * Wechselt zur Ansicht "BookAddView" und initialisiert deren Controller.
+     */
     @FXML
     private void handleBookAdd() {
         try {
@@ -97,7 +110,10 @@ public class EmployeePageController {
 
     }
 
-    // Wechselt zur Ansicht "BookEditView" und initialisiert deren Controller.
+
+    /**
+     * Wechselt zur Ansicht "BookEditView" und initialisiert deren Controller.
+     */
     @FXML
     private void handleBookEdit() {
         try {
@@ -117,7 +133,10 @@ public class EmployeePageController {
 
     }
 
-    // Wechselt zur Ansicht "BookDeleteView" und initialisiert deren Controller.
+
+    /**
+     * Wechselt zur Ansicht "BookDeleteView" und initialisiert deren Controller.
+     */
     @FXML
     private void handleBookDelete() {
         try {
@@ -136,7 +155,10 @@ public class EmployeePageController {
 
     }
 
-    // Wechselt zur Ansicht "LendingView" und initialisiert deren Controller.
+
+    /**
+     * Wechselt zur Ansicht "LendingView" und initialisiert deren Controller.
+     */
     @FXML
     private void handleLendingView() {
         try {
