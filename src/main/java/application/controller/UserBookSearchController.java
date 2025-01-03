@@ -14,7 +14,10 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
-
+/**
+ * Controller-Klasse für Buchsuche eines Nutzers.
+ *
+ */
 public class UserBookSearchController {
 
     @FXML
@@ -51,6 +54,9 @@ public class UserBookSearchController {
         this.bookService = bookService;
     }
 
+    /**
+     * Initialisierung.
+     */
     @FXML
     public void initialize() {
         // Spalten mit Daten binden, wenn nötig
@@ -130,6 +136,9 @@ public class UserBookSearchController {
         });
     }
 
+    /**
+     * Funktion zur Suche eines Buches.
+     */
     @FXML
     private void searchBook() {
         String title = titleField.getText().trim().toLowerCase();
@@ -158,6 +167,10 @@ public class UserBookSearchController {
         resultTable.setItems(filteredBooks);
     }
 
+    /**
+     * Funktion zur Handhabung eines Klicks auf eine Zeile.
+     * Führt zur Detailanzeige der Buchinformationen.
+     */
     @FXML
     private void handleRowClick() {
         Book selectedBook = resultTable.getSelectionModel().getSelectedItem();
