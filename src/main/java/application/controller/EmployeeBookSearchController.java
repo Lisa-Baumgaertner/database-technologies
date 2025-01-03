@@ -55,7 +55,7 @@ public class EmployeeBookSearchController {
     }
 
     /**
-     * Initialisierung
+     * Initialisierung.
      */
     @FXML
     public void initialize() {
@@ -137,7 +137,7 @@ public class EmployeeBookSearchController {
     }
 
     /**
-     * Funktion, um ein Buch zu suchen
+     * Funktion, um ein Buch zu suchen.
      */
     @FXML
     private void searchBook() {
@@ -168,8 +168,8 @@ public class EmployeeBookSearchController {
     }
 
     /**
-     * Funktion für das Handling eines Klicks
-     * Lädt die Detailansicht
+     * Funktion für das Handling eines Klicks.
+     * Lädt die Detailansicht.
      */
     @FXML
     private void handleRowClick() {
