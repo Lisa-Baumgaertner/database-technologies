@@ -21,6 +21,9 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * Controller-Klasse für Login eines Nutzers.
+ */
 public class UserLoginController {
     @FXML
     private BorderPane mainPane;
@@ -35,12 +38,19 @@ public class UserLoginController {
     private UserService userService;
     NotificationRepository notificationRepository;
 
+    /**
+     * Setter für UserService.
+     * @param userService
+     */
     public void setUserService(UserService userService) {
         this.userService = userService;
         System.out.println(userService + "UserService nicht initialisiert.");
         loadFirstBorrower();
     }
 
+    /**
+     * Funktion zum Laden des ersten Benutzers mit der Rolle "Borrower".
+     */
     private void loadFirstBorrower() {
         if (userService == null) {
             System.out.println("UserService nicht initialisiert.");
@@ -67,6 +77,9 @@ public class UserLoginController {
         }
     }
 
+    /**
+     * Funktion zur Handhabung von Klick auf den Login-Button.
+     */
     @FXML
     private void handleLoginButtonAction() {
         try {

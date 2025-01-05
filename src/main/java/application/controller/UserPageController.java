@@ -86,6 +86,9 @@ public class UserPageController {
         notificationPane.getChildren().add(label);
     }
 
+    /**
+     * Funktion zur Navigation zur Loginansicht.
+     */
     @FXML
     private void navigateToLoginView() {
         try {
@@ -105,6 +108,9 @@ public class UserPageController {
         }
     }
 
+    /**
+     * Funktion zum Laden der Buchsuchenansicht für Nutzer.
+     */
     @FXML
     private void handleBookSearch() {
         try {

@@ -12,6 +12,9 @@ import javafx.scene.text.Text;
 import java.util.List;
 
 
+/**
+ * Controller-Klasse für die Bearbeitung eines Buches.
+ */
 public class BookEditController {
     @FXML
     private TextField editBookIdField;
@@ -72,6 +75,9 @@ public class BookEditController {
         this.bookService = bookService;
     }
 
+    /**
+     * Initialisierung.
+     */
     @FXML
     public void initialize() {
         titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
@@ -146,6 +152,9 @@ public class BookEditController {
         resultsTable.setItems(bookList);
     }
 
+    /**
+     * Funktion zur Suche des Buches, das bearbeitet werden soll.
+     */
     @FXML
     private  void searchBook() {
         String title = titleField.getText().trim().toLowerCase();
@@ -165,6 +174,10 @@ public class BookEditController {
         bookList.setAll(results);
     }
 
+    /**
+     * Validierung der Textfelder für die Bearbeitung.
+     * @return boolean
+     */
     private boolean checkTextFieldsValid() {
         StringBuilder errorMessage = new StringBuilder();
 
@@ -230,6 +243,10 @@ public class BookEditController {
     }
 
 
+    /**
+     * Funktion zum Laden der Buchdetails.
+     * @param book
+     */
     private void loadBookDetails(Book book) {
         if (book != null) {
             selectedBook = book;
@@ -250,6 +267,9 @@ public class BookEditController {
         }
     }
 
+    /**
+     * Speichern der Bearbeitungen.
+     */
     @FXML
     private void saveChanges() {
         if (!checkTextFieldsValid()) {
@@ -286,6 +306,9 @@ public class BookEditController {
 
     }
 
+    /**
+     * Funktion zum Abbruch des Bearbeitungsvorganges.
+     */
     @FXML
     private void cancelEdit() {
         editFields.setVisible(false);
@@ -293,6 +316,11 @@ public class BookEditController {
         selectedBook = null;
     }
 
+    /**
+     * Funktion zur Anzeige eines Fehlerdialoges
+     * @param title
+     * @param message
+     */
     private void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);

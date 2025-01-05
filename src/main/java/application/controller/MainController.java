@@ -15,7 +15,10 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
 
-
+/**
+ * Controller-Klasse des Hauptcontrollers.
+ * Steuert Anzeige der Nutzeransicht und Mitarbeiteransicht.
+ */
 public class MainController {
     @FXML
     private VBox notificationPane;
@@ -34,6 +37,9 @@ public class MainController {
     public void setUserService(UserService userService) {this.userService = userService;}
     public void setLendingService(LendingService lendingService) {this.lendingService = lendingService;}
 
+    /**
+     * Anzeige der Nutzeransicht.
+     */
     @FXML
     private void showUserView() {
         try {
@@ -52,6 +58,10 @@ public class MainController {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Anzeige der Mitarbeiteransicht.
+     */
     @FXML
     private void showEmployeeView() {
         try {

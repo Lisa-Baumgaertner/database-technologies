@@ -8,7 +8,11 @@ import javafx.beans.property.StringProperty;
 
 import java.util.Map;
 
-
+/**
+ * Modellklasse für ein Buch in der Büchereianwendung.
+ * Enthält alle relevanten Informationen wie Buch-Id, ISBNs, Anzahl der Ausgaben, Titel, Autor, Verlag, Jahr der Veröffentlichung,
+ * Beschreibung, Keyword-Id, Status.
+ */
 public class Book {
     private IntegerProperty bookId;
     private StringProperty isbn_long;
@@ -26,7 +30,8 @@ public class Book {
 
 
     /**
-     * Leerer Konstruktor
+     * Standardkonstruktor für Book.
+     * Initialisiert alle Properties mit Standardwerten.
      */
     public Book() {
         this.bookId = new SimpleIntegerProperty();
@@ -72,8 +77,10 @@ public class Book {
         this.keywordId = new SimpleIntegerProperty(keywordId);
     }
 
-    // Getter und Setter für Properties
 
+    /**
+     * Getter und Setter für Properties
+     */
     public IntegerProperty bookIdProperty() {
         return bookId;
     }
@@ -118,8 +125,14 @@ public class Book {
         return keywordId;
     }
 
-    // Getter und Setter für Werte
 
+    /**
+     * Getter und Setter für Werte
+     */
+
+    /**
+     * Holt die Buch-Id
+     */
     public long getBookId() {
         return (int) bookId.get();
     }
@@ -128,6 +141,9 @@ public class Book {
         this.bookId.set(bookId);
     }
 
+    /**
+     * Holt die lange Version der ISBN (13-stellig)
+     */
     public String getIsbnLong() {
         return isbn_long.get();
     }
@@ -138,6 +154,9 @@ public class Book {
         }
     }
 
+    /**
+     * Holt die kurze Version der ISBN (10-stellig)
+     */
     public String getIsbnShort() {
         return isbn_short.get();
     }
@@ -148,6 +167,9 @@ public class Book {
         }
     }
 
+    /**
+     * Holt die Anzahl der Exemplare eines Buches, die in der Bücherei vorhanden sind
+     */
     public Integer getCopies() {
         return copies.get();
     }
@@ -156,6 +178,9 @@ public class Book {
         this.copies.set(copies);
     }
 
+    /**
+     * Holt den Titel des Buches
+     */
     public String getTitle() {
         return title.get();
     }
@@ -164,6 +189,9 @@ public class Book {
         this.title.set(title);
     }
 
+    /**
+     * Holt den Autor des Buches
+     */
     public String getAuthor() {
         return author.get();
     }
@@ -172,6 +200,9 @@ public class Book {
         this.author.set(author);
     }
 
+    /**
+     * Holt den Verlag
+     */
     public String getPublisher() {
         return publisher.get();
     }
@@ -180,6 +211,9 @@ public class Book {
         this.publisher.set(publisher);
     }
 
+    /**
+     * Holt das Jahr der Veröffentlichung
+     */
     public Integer getYearPublished() {
         return yearPublished.get();
     }
@@ -188,6 +222,9 @@ public class Book {
         this.yearPublished.set(yearPublished);
     }
 
+    /**
+     * Holt die Beschreibung des Buches
+     */
     public String getDescription() {
         return description.get();
     }
@@ -196,6 +233,9 @@ public class Book {
         this.description.set(description);
     }
 
+    /**
+     * Holt den Status des Buches
+     */
     public String getStatus() {
         return status.get();
     }
@@ -204,6 +244,9 @@ public class Book {
         this.status.set(status);
     }
 
+    /**
+     * Holt die Id des Keywords, welches dem Buch zugeordnet wurde
+     */
     public Integer getKeywordId() {
         return keywordId.get();
     }
@@ -212,14 +255,20 @@ public class Book {
         this.keywordId.set(keywordId);
     }
 
-
+    /**
+     * Prüft die Validität der long ISBN
+     * @param isbn
+     * @return length
+     */
     public boolean isValidIsbn13(String isbn) {
         if (isbn == null) return false;
         isbn = isbn.replace("-", "");
         return isbn.length() == 13;
     }
 
-    // Setter und getter für Keyword
+    /**
+     * Holt Keyword Namen
+     */
     public String getKeywordName() {
         return keywordName.get();
     }
@@ -232,6 +281,11 @@ public class Book {
         return keywordName;
     }
 
+    /**
+     * Prüft die Validität der short ISBN
+     * @param isbn
+     * @return length
+     */
     public boolean isValidIsbn10(String isbn) {
         if (isbn == null) return false;
 
@@ -239,6 +293,9 @@ public class Book {
        return isbn.length() == 10;
     }
 
+    /**
+     * Funktionen, um den Status eines Buches zu übersetzen
+     */
     private static final Map<String, String> STATUS_TRANSLATION_MAP = Map.of(
             "Verfügbar", "available",
             "Ausgeliehen", "borrowed",
