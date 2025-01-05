@@ -6,15 +6,24 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Diese Klasse implementiert das BookRepository-Interface für PostgreSQL.
+ * Sie enthält Methoden zum Abrufen, Hinzufügen, Aktualisieren und Löschen von Büchern aus der Datenbank.
+ */
 public class PostgresBookRepositoryImpl implements BookRepository {
 
     private final Connection connection;
 
+    /**
+     * Konstruktor zur Initialisierung der Datenbankverbindung.
+     */
     public PostgresBookRepositoryImpl(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * Holt alle Bücher aus der Datenbank.
+     */
     @Override
     public List<Book> getAllBooks() {
         List<Book> books = new ArrayList<>();
@@ -44,6 +53,10 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         return books;
     }
 
+
+    /**
+     * Sucht Bücher basierend auf Titel, Autor, ISBN oder Status.
+     */
     public List<Book> searchBooks(String title, String author, String isbn, String status) {
         List<Book> books = new ArrayList<>();
         String query = "SELECT * FROM BOOK WHERE " +
@@ -74,6 +87,9 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         return books;
     }
 
+    /**
+     * Findet ein Buch anhand der ID.
+     */
     @Override
     public Book findBookById(Long id) {
         String query = "SELECT * FROM book WHERE book_id = ?";
@@ -93,6 +109,9 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         return book;
     }
 
+    /**
+     * Findet ein Buch anhand der ISBN.
+     */
     @Override
     public Book findBookByIsbn(String isbnLong, String isbnShort)  {
         String query = "SELECT * FROM book WHERE isbn_long = ? OR isbn_short = ?";
@@ -122,6 +141,9 @@ public class PostgresBookRepositoryImpl implements BookRepository {
 
     }
 
+    /**
+     * Fügt ein neues Buch zur Datenbank hinzu.
+     */
     @Override
     public Book insertBook(Book book) {
         String query = "INSERT INTO book (isbn_long, isbn_short, copies, booktitle, bookauthor, publisher, year_published, description, status, keyword_id) " +
@@ -154,6 +176,9 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         return book;
     }
 
+    /**
+     * Aktualisiert ein bestehendes Buch in der Datenbank.
+     */
     public void updateBook(Book book) {
         String query = "UPDATE book SET isbn_long = ?, isbn_short = ?, copies = ?, booktitle = ?, bookauthor = ?, publisher = ?, year_published = ?, " +
                 "description = ?, status = ?, keyword_id = ? WHERE book_id = ?";
@@ -178,7 +203,10 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         }
     }
 
-
+    /**
+     * Löscht ein Buch anhand der ID.
+     * @param id Buch-ID.
+     */
     @Override
     public void deleteBookById(Long id) {
         String query = "DELETE FROM book WHERE book_id = ?";
@@ -192,7 +220,9 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         }
     }
 
-    // Hilfsmethode zum Konvertieren des ResultSet in ein Book-Objekt
+    /**
+     * Hilfsmethode zur Umwandlung eines ResultSet in ein Book-Objekt.
+     */
     private Book mapResultSetToBook(ResultSet resultSet) throws SQLException {
         Book book = new Book();
         book.setBookId(resultSet.getInt("book_id"));

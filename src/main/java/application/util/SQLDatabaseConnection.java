@@ -7,12 +7,21 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * Utility-Klasse für die Verwaltung der Verbindung zur SQL-Datenbank.
+ * Die Verbindungseinstellungen werden aus einer `application.properties`-Datei geladen.
+ */
 public class SQLDatabaseConnection {
     private  Connection connection;
 
+    /**
+     * Konstruktor, der eine Verbindung zur SQL-Datenbank herstellt.
+     * Liest die Datenbankkonfiguration aus einer Properties-Datei ein.
+     */
     public SQLDatabaseConnection() {
         try {
             Properties properties = new Properties();
+            // Lese die Eigenschaften aus der Properties-Datei
             properties.load(new FileInputStream("src/main/resources/application.properties"));
 
             String driver = properties.getProperty("database.driver");
@@ -20,7 +29,7 @@ public class SQLDatabaseConnection {
             String username = properties.getProperty("database.username");
             String password = properties.getProperty("database.password");
 
-            // Treiber laden
+            // JDBC-Treiber laden
             Class.forName(driver);
 
             // Verbindung herstellen
@@ -31,7 +40,9 @@ public class SQLDatabaseConnection {
         }
     }
 
-
+    /**
+     * Gibt die aktuelle Datenbankverbindung zurück.
+     */
     public  Connection getConnection() {
         return connection;
     }

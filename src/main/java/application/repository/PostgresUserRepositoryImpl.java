@@ -9,17 +9,24 @@ import java.time.LocalDate;
 
 /**
  * Diese Klasse bietet Methode zum Zugriff auf die Person-Tabelle
+ * Sie implementiert das Interface `UserRepository` für PostgreSQL.
  */
 
 public class PostgresUserRepositoryImpl implements UserRepository {
 
     private final Connection connection;
 
+    /**
+     * Konstruktor zur Initialisierung der Verbindung.
+     */
     public PostgresUserRepositoryImpl(Connection connection) {
         this.connection = connection;
     }
 
-    // Lädt den ersten Benutzer mit der Rolle 'Borrower' aus der Datenbank
+    /**
+     * Lädt den ersten Benutzer mit der Rolle 'borrower' aus der Datenbank.
+     * @return Ein `Person`-Objekt oder `null`, falls kein Nutzer gefunden wurde.
+     */
     public Person getFirstBorrower(){
         String query = """
         SELECT * FROM person WHERE LOWER(role) = 'borrower'
@@ -39,6 +46,9 @@ public class PostgresUserRepositoryImpl implements UserRepository {
         return null; // Kein Benutzer gefunden oder Fehler aufgetreten
     }
 
+    /**
+     * Hilfsmethode zur Konvertierung eines ResultSets in ein `Person`-Objekt.
+     */
     private Person mapToPerson(ResultSet rs) throws SQLException {
         int userId = rs.getInt("user_id");
         String firstName = rs.getString("firstname");

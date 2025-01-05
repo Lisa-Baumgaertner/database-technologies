@@ -8,14 +8,24 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementierung des WaitlistRepository für PostgreSQL-Datenbank.
+ * Diese Klasse bietet CRUD-Operationen für die Warteliste an.
+ */
 public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
 
     private final Connection connection;
 
+    /**
+     * Konstruktor zur Initialisierung der Datenbankverbindung.
+     */
     public PostgresWaitlistRepositoryImpl(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * Gibt alle Einträge der Warteliste zurück.
+     */
     @Override
     public List<Waitlist> getAllWaitlistEntries() {
         List<Waitlist> waitlist = new ArrayList<>();
@@ -53,6 +63,9 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         return waitlist;
     }
 
+    /**
+     * Fügt einen Eintrag in die Warteliste hinzu.
+     */
     @Override
     public void addToWaitlist(Long userId, Long bookId, String status) {
         String query = "INSERT INTO WAITLIST (user_id, book_id, checkout_date, status) VALUES (?, ?, CURRENT_DATE, ?)";
@@ -68,6 +81,9 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         }
     }
 
+    /**
+     * Gibt die Wartelisteinträge für ein bestimmtes Buch zurück.
+     */
     @Override
     public List<Waitlist> getWaitlistForBook(Long bookId) {
         List<Waitlist> waitlist = new ArrayList<>();
@@ -92,6 +108,9 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         return waitlist;
     }
 
+    /**
+     * Gibt die Wartelisteinträge für einen bestimmten Benutzer zurück.
+     */
     @Override
     public List<Waitlist> getWaitlistForUser(Long userId) {
         List<Waitlist> waitlist = new ArrayList<>();
@@ -116,6 +135,9 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         return waitlist;
     }
 
+    /**
+     * Aktualisiert den Status eines Eintrags in der Warteliste.
+     */
     @Override
     public void updateStatus(Long waitlistId, String status) {
         String query = "UPDATE WAITLIST SET status = ? WHERE waitlist_id = ?";
@@ -129,6 +151,9 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         }
     }
 
+    /**
+     * Entfernt einen Eintrag aus der Warteliste.
+     */
     @Override
     public void removeFromWaitlist(Long waitlistId) {
         String query = "DELETE FROM waitlist WHERE waitlist_id = ?";
@@ -143,6 +168,9 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
 
     }
 
+    /**
+     * Hilfsmethode zur Konvertierung eines ResultSet in ein `Waitlist`-Objekt.
+     */
     private Waitlist mapToWaitlist(ResultSet rs) throws SQLException {
         Waitlist entry = new Waitlist();
 

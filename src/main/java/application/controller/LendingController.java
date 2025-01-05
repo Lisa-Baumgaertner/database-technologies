@@ -232,7 +232,9 @@ public class LendingController {
 
     }
 
-    // Lade alle Keywords in die Kategorie-Dropdown-Liste
+    /**
+     * Lade alle Keywords in die Kategorie-Dropdown-Liste
+     */
     private void loadCategoryDropdown() {
         if (lendingService == null) {
             showAlert("Fehler", "Der LendingService wurde nicht initialisiert.");

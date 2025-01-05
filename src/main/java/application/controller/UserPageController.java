@@ -19,6 +19,10 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Controller-Klasse für die Benutzeransicht
+ */
+
 @Controller
 public class UserPageController {
 

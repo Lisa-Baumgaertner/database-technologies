@@ -7,13 +7,23 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Diese Klasse implementiert das NotificationRepository-Interface für PostgreSQL.
+ * Sie enthält Methoden, um Benachrichtigungen für fällige Rückgaben und verfügbare Bücher zu generieren.
+ */
 public class PostgresNotificationRepositoryImpl implements NotificationRepository{
     private final Connection connection;
 
+    /**
+     * Konstruktor zur Initialisierung der Datenbankverbindung.
+     */
     public PostgresNotificationRepositoryImpl(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * Gibt Benachrichtigungen für Bücher zurück, die in Kürze zurückgegeben werden müssen.
+     */
     public List<String> getDueDateNotificationsForUser(Long userId) {
         String query = """
                     SELECT p.firstname, p.lastname, b.booktitle, l.due_date
@@ -44,6 +54,10 @@ public class PostgresNotificationRepositoryImpl implements NotificationRepositor
         }
         return notifications;
     }
+
+    /**
+     * Gibt Benachrichtigungen für verfügbare Bücher zurück, für die ein Nutzer auf der Warteliste steht.
+     */
     public List<String> getAvailableBookNotificationsForUser( Long userId) {
         String query = """
             SELECT p.firstname, p.lastname, b.booktitle
