@@ -12,5 +12,6 @@
     <VBox spacing="20" alignment="center">
         <Button  fx:id="navigateUserViewButton" text="Nutzer" onAction="#showUserView"/>
         <Button fx:id="navigateEmployeeViewButton" text="Mitarbeiter" onAction="#showEmployeeView"/>
+        <Button fx:id="navigateAdminViewButton" text="Admin" onAction="#showAdminView"/>
     </VBox>
 </StackPane>

@@ -24,6 +24,7 @@ public class MainController {
     private VBox notificationPane;
     public Button navigateUserViewButton;
     public Button navigateEmployeeViewButton;
+    public Button navigateAdminViewButton;
 
     private BookService bookService;
     private LendingService lendingService;
@@ -75,6 +76,29 @@ public class MainController {
             Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) navigateEmployeeViewButton.getScene().getWindow();
+            stage.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Anzeige der Adminansicht.
+     */
+    @FXML
+    private void showAdminView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminView.fxml"));
+            Parent root = loader.load();
+
+          //  AdminPageController controller = loader.getController();
+          //  controller.setBookService(BookService.getInstance());
+         //   controller.setLendingService(LendingService.getInstance());
+
+            Scene scene = new Scene(root, 800, 600);
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
+            Stage stage = (Stage) navigateAdminViewButton.getScene().getWindow();
             stage.setScene(scene);
         } catch (IOException e) {
             e.printStackTrace();
