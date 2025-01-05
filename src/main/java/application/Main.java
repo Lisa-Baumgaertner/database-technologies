@@ -33,9 +33,9 @@ public class Main extends Application {
         Parent root = loader.load();
 
         MainController mainController = loader.getController();
-        mainController.setBookService(bookService);
-        mainController.setUserService(userService);
-        mainController.setLendingService(lendingService);
+        mainController.setBookService(BookService.getInstance());
+        mainController.setUserService(UserService.getInstance());
+        mainController.setLendingService(LendingService.getInstance());
 
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/styles/style.css").toExternalForm());

@@ -30,7 +30,7 @@ public class EmployeePageController {
     public void setBookService(BookService bookService) {
         this.bookService = bookService;
     }
-    public void setLendingService(LendingService lendingService) {
+     public void setLendingService(LendingService lendingService) {
         this.lendingService = lendingService;
     }
 
@@ -146,8 +146,7 @@ public class EmployeePageController {
             mainPane.setCenter(lendingView);
 
             LendingController controller = loader.getController();
-            controller.setLendingService(lendingService);
-            System.out.println("lendingService" + lendingService);
+            controller.setLendingService(LendingService.getInstance());
 
         } catch (IOException e) {
             System.err.println("Fehler beim Laden der LendingView.fxml: " + e.getMessage());

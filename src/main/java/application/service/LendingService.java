@@ -1,8 +1,11 @@
 package application.service;
 
+import application.config.DatabaseConfig;
 import application.model.Lending;
+import application.repository.BookRepository;
 import application.repository.LendingRepository;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -11,6 +14,7 @@ import java.util.List;
  * die Klasse bietet Methoden zur Manipulation und Abfrage von Ausleihdaten.
  */
 public class LendingService {
+    private static LendingService instance;
 
     // Repository für den Zugriff auf Ausleihe-Daten
     private final LendingRepository lendingRepository;
@@ -148,5 +152,25 @@ public class LendingService {
      */
     public  List<String> getAllKeywords() {
         return lendingRepository.getAllKeywords();
+    }
+
+    /**
+     * Singleton-Methode: Initialisiert LendingService und stellt sicher, dass nur eine Instanz existiert.
+     * @return Eine Instanz von LendingService.
+     */
+    public static LendingService getInstance() {
+        if (instance == null) {
+            try {
+                // Erstelle eine neue Instanz von DatabaseConfig
+                DatabaseConfig config = new DatabaseConfig();
+
+                // Verwende die Methode getBookRepository() der Instanz
+                LendingRepository repository = config.getLendingRepository();
+                instance = new LendingService(repository);
+            } catch (IOException e) {
+                throw new RuntimeException("Fehler bei der Initialisierung des LendingService", e);
+            }
+        }
+        return instance;
     }
 }

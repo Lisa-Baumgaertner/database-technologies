@@ -1,11 +1,9 @@
 package application.controller;
 
-import application.config.DatabaseConfig;
 import application.service.BookService;
 import application.service.LendingService;
 import application.service.NotificationService;
 import application.service.UserService;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,9 +14,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 
 public class MainController {
@@ -36,9 +31,7 @@ public class MainController {
     public void setBookService(BookService bookService) {
         this.bookService = bookService;
     }
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
+    public void setUserService(UserService userService) {this.userService = userService;}
     public void setLendingService(LendingService lendingService) {this.lendingService = lendingService;}
 
     @FXML
@@ -49,7 +42,7 @@ public class MainController {
 
             UserLoginController controller = loader.getController();
             controller.setUserService(UserService.getInstance());
-           // controller.setBookService(bookService);
+           // controller.setBookService(BookService.getInstance());
             Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) navigateUserViewButton.getScene().getWindow();
@@ -66,8 +59,8 @@ public class MainController {
             Parent root = loader.load();
 
             EmployeePageController controller = loader.getController();
-            controller.setBookService(bookService);
-            controller.setLendingService(lendingService);
+            controller.setBookService(BookService.getInstance());
+            controller.setLendingService(LendingService.getInstance());
 
             Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
