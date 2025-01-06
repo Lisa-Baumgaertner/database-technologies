@@ -85,6 +85,10 @@ CREATE OR REPLACE FUNCTION set_due_date() RETURNS TRIGGER AS $$
 BEGIN
     NEW.DUE_DATE := NEW.CHECKOUT_DATE + INTERVAL '28 days';
     RETURN NEW;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Fehler beim Setzen des Fälligkeitsdatums: %', SQLERRM;
+        RETURN NEW; -- oder RETURN NULL, um das Einfügen zu verhindern
 END;
 $$ LANGUAGE plpgsql;
 
@@ -100,6 +104,10 @@ BEGIN
         NEW.RETURN_DATE := CURRENT_DATE;
     END IF;
     RETURN NEW;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Fehler beim Setzen des Rückgabedatums: %', SQLERRM;
+        RETURN NEW; -- oder RETURN NULL, um die Aktualisierung zu verhindern,
 END;
 $$ LANGUAGE plpgsql;
 

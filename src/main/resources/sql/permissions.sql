@@ -17,13 +17,16 @@ BEGIN
     END IF;
 
     -- Rolle für Admin
-    -- Diese Rolle hat Vollzugriff auf alle Tabellen
+    -- Rolle hat Vollzugriff auf alle Tabellen
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'admin_role') THEN
         CREATE ROLE admin_role;
         GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin_role;
         GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO admin_role;
         GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO admin_role;
     END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ein Fehler ist aufgetreten: %', SQLERRM;
 END $$;
 
 -- Funktion, die Benutzer und Rollen automatisch erstellt und zuweist
@@ -44,6 +47,10 @@ BEGIN
     END IF;
 
     RETURN NEW;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Fehler bei der Zuweisung der Rolle: %', SQLERRM;
+        RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -59,18 +66,23 @@ DECLARE
     person RECORD;
 BEGIN
     FOR person IN SELECT user_id, role FROM person LOOP
-        -- Benutzer erstellen, falls er noch nicht existiert
-        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'user_' || person.user_id::text) THEN
-            EXECUTE format('CREATE USER %I;', 'user_' || person.user_id::text);
-        END IF;
-        -- Basierend auf die Spalte 'role' die entsprechende Role zuweisen
-        IF person.role = 'worker' THEN
-            EXECUTE format('GRANT worker_role TO %I;', 'user_' || person.user_id::text);
-        ELSIF person.role = 'borrower' THEN
-            EXECUTE format('GRANT borrower_role TO %I;', 'user_' || person.user_id::text);
-        ELSIF person.role = 'admin' THEN
-            EXECUTE format('GRANT admin_role TO %I;', 'user_' || person.user_id::text);
-        END IF;
+        BEGIN
+            -- Benutzer erstellen, falls er noch nicht existiert
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'user_' || person.user_id::text) THEN
+                EXECUTE format('CREATE USER %I;', 'user_' || person.user_id::text);
+            END IF;
+            -- Basierend auf die Spalte 'role' die entsprechende Role zuweisen
+            IF person.role = 'worker' THEN
+                EXECUTE format('GRANT worker_role TO %I;', 'user_' || person.user_id::text);
+            ELSIF person.role = 'borrower' THEN
+                EXECUTE format('GRANT borrower_role TO %I;', 'user_' || person.user_id::text);
+            ELSIF person.role = 'admin' THEN
+                EXECUTE format('GRANT admin_role TO %I;', 'user_' || person.user_id::text);
+            END IF;
+        EXCEPTION
+            WHEN OTHERS THEN
+                RAISE NOTICE 'Fehler bei der Zuweisung einer Rolle zu %: %', person.user_id, SQLERRM;
+        END;
     END LOOP;
 END $$;
 
