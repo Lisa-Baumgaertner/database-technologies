@@ -54,6 +54,21 @@ public class MongoBookRepositoryImpl implements BookRepository {
     }
 
     /**
+     * Findet ein Buch Titel anhand Id.
+     */
+    @Override
+    public String getBookTitleById(int bookId) {
+        return null;
+    }
+
+    /**
+     * Holt Keywords ein Buch Titel anhand Id.
+     */
+    @Override
+    public String getCategoryByBookId(int bookId) {
+        return null;
+    }
+    /**
      * Fügt ein neues Buch in die MongoDB-Collection ein.
      */
     @Override

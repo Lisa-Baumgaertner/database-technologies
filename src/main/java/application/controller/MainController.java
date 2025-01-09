@@ -30,6 +30,7 @@ public class MainController {
     private LendingService lendingService;
     private NotificationService notificationService;
     private UserService userService;
+
     private  NotificationController notificationController;
 
     public void setBookService(BookService bookService) {
@@ -72,6 +73,7 @@ public class MainController {
             EmployeePageController controller = loader.getController();
             controller.setBookService(BookService.getInstance());
             controller.setLendingService(LendingService.getInstance());
+            controller.setUserService(UserService.getInstance());
 
             Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());

@@ -3,7 +3,6 @@ package application.service;
 import application.config.DatabaseConfig;
 import application.model.Book;
 import application.repository.BookRepository;
-import application.repository.UserRepository;
 
 
 import java.io.IOException;
@@ -54,6 +53,14 @@ public class BookService {
     }
 
     /**
+     * Findet ein Buchtitel anhand bookId.
+     */
+    public String getBookTitleById(int bookId) {
+        return bookRepository.getBookTitleById(bookId);
+    }
+
+
+    /**
      * Fügt ein neues Buch in die Datenbank ein.
      **/
     public Book insertBook(Book book) {
@@ -76,6 +83,14 @@ public class BookService {
      */
     public void deleteBook(Long id) {
         bookRepository.deleteBookById(id);
+    }
+
+
+    /**
+     * holt Keyword liste anhand bookId
+     */
+    public String getCategoryByBookId(int bookId) {
+        return bookRepository.getCategoryByBookId(bookId);
     }
 
     /**

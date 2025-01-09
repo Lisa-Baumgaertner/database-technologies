@@ -12,4 +12,8 @@ public class MongoUserRepositoryImpl implements UserRepository {
     public Person getFirstBorrower() {
         return null;
     }
+
+    public  String getUserNameById(int userId) {
+        return "Benutzername";
+    }
 }

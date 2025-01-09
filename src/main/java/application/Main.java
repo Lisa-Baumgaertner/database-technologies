@@ -47,6 +47,7 @@ public class Main extends Application {
 
         // Hole den MainController und setze die Services
         MainController mainController = loader.getController();
+
         mainController.setBookService(BookService.getInstance());
         mainController.setUserService(UserService.getInstance());
         mainController.setLendingService(LendingService.getInstance());

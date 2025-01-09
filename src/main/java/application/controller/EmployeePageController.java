@@ -2,6 +2,7 @@ package application.controller;
 
 import application.service.BookService;
 import application.service.LendingService;
+import application.service.UserService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -29,6 +30,7 @@ public class EmployeePageController {
 
     private  BookService bookService;
     private LendingService lendingService;
+    private UserService userService;
 
     public void setBookService(BookService bookService) {
         this.bookService = bookService;
@@ -36,6 +38,7 @@ public class EmployeePageController {
      public void setLendingService(LendingService lendingService) {
         this.lendingService = lendingService;
     }
+     public void setUserService(UserService userService) { this.userService = userService; }
 
     @FXML
     public Button editBookButton;
@@ -169,6 +172,8 @@ public class EmployeePageController {
 
             LendingController controller = loader.getController();
             controller.setLendingService(LendingService.getInstance());
+            controller.setUserService(UserService.getInstance());
+            controller.setBookService(BookService.getInstance());
 
         } catch (IOException e) {
             System.err.println("Fehler beim Laden der LendingView.fxml: " + e.getMessage());

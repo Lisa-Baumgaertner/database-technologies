@@ -141,6 +141,24 @@ public class PostgresBookRepositoryImpl implements BookRepository {
 
     }
 
+    @Override
+    public String getBookTitleById(int bookId) {
+        String query = "SELECT booktitle FROM book WHERE book_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, bookId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("booktitle");
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Fehler beim Abrufen des Buchtitels: " + e.getMessage());
+        }
+        return null;
+    }
+
     /**
      * Fügt ein neues Buch zur Datenbank hinzu.
      */
@@ -201,6 +219,14 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Holt Keywords ein Buch Titel anhand Id.
+     */
+    @Override
+    public String getCategoryByBookId(int bookId) {
+        return null;
     }
 
     /**

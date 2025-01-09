@@ -2,8 +2,12 @@ package application.repository;
 
 import application.model.Lending;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import org.bson.Document;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,7 +29,22 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
     /**
      * Holt alle Ausleiheinträge aus der Datenbank.
      */
-    public List<Lending> getAllLendinglistEntries() {return null;}
+    public List<Lending> getAllLendinglistEntries() {
+        List<Lending> lendings = new ArrayList<>();
+        MongoCollection<Document> collection = database.getCollection("Person");
+        try (MongoCursor<Document> cursor = collection.find().iterator()) {
+            while (cursor.hasNext()) {
+                Document personDoc = cursor.next();
+                List<Document> lendingDocs = personDoc.getList("lendings", Document.class);
+                if (lendingDocs != null) {
+                    for (Document lendingDoc : lendingDocs) {
+                        lendings.add(documentToLending(lendingDoc));
+                    }
+                }
+            }
+        }
+        return lendings;
+    }
 
     /**
      * Fügt einen neuen Ausleiheintrag hinzu.
@@ -96,4 +115,20 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
      * Holt alle Schlüsselwörter Keywords.
      */
     public List<String> getAllKeywords(){return null;}
+
+
+
+    private Lending documentToLending(Document doc) {
+        Lending lending = new Lending();
+        lending.setLendingId(doc.getInteger("lendingId"));
+        lending.setBookId(doc.getInteger("lendingId"));
+        lending.setUserIdBorrower(doc.getInteger("userId"));
+        lending.setBookId(doc.getInteger("bookId"));
+        lending.setStatus(doc.getString("status"));
+        lending.setCheckoutDate(LocalDate.parse(doc.getString("checkoutDate")));
+        lending.setReturnDate(LocalDate.parse(doc.getString("returnDate")));
+        lending.setDueDate(LocalDate.parse(doc.getString("dueDate")));
+        return lending;
+    }
+
 }

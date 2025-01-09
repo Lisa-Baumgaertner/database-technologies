@@ -46,6 +46,23 @@ public class PostgresUserRepositoryImpl implements UserRepository {
         return null; // Kein Benutzer gefunden oder Fehler aufgetreten
     }
 
+    public  String getUserNameById(int userId) {
+        String query = "SELECT firstname, lastname FROM person WHERE user_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String firstname = rs.getString("firstname");
+                    String lastname = rs.getString("lastname");
+                    return firstname + " " + lastname;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Fehler beim Abrufen des Benutzernamens: " + e.getMessage());
+        }
+        return null; // Rückgabe null, falls kein Benutzer gefunden oder ein Fehler aufgetreten ist.
+    }
     /**
      * Hilfsmethode zur Konvertierung eines ResultSets in ein `Person`-Objekt.
      */

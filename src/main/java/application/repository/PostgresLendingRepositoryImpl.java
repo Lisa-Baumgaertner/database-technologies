@@ -6,6 +6,7 @@ import application.model.Lending;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,18 +39,7 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 while (rs.next()) {
-                    Lending entry = new Lending();
-
-                    Person user = new Person();
-                    user.setFirstName(rs.getString("firstname"));
-                    user.setLastName(rs.getString("lastname"));
-                    entry.setUser(user);
-
-                    Book book = new Book();
-                    book.setTitle(rs.getString("booktitle"));
-                    entry.setBook(book);
-
-                    lendingList.add(entry);
+                    lendingList.add(mapToLending(rs));
                 }
             }
         } catch (SQLException e) {
@@ -73,6 +63,7 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
             statement.executeUpdate();
 
         } catch (SQLException e) {
+            System.err.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -83,21 +74,22 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
     @Override
     public List<Lending> getLendingForBook(Long bookId) {
         List<Lending> lending = new ArrayList<>();
-        String query = "SELECT b.booktitle, p.firstname, p.lastname FROM LENDING AS l " +
-                "JOIN BOOK AS b ON l.book_id = b.book_id " +
-                "JOIN PERSON AS p ON l.user_id_borrower = p.user_id " +
-                "WHERE w.book_id = ?";
+        String query = "SELECT l.lending_id, b.book_id, p.user_id, l.status, l.checkout_date, " +
+                "l.return_date, l.due_date, b.booktitle, p.firstname, p.lastname " +
+                "FROM LENDING l " +
+                "JOIN BOOK b ON l.book_id = b.book_id " +
+                "JOIN PERSON p ON l.user_id_borrower = p.user_id " +
+                "WHERE b.book_id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setLong(1, bookId);
             ResultSet rs = statement.executeQuery();
-
             while (rs.next()) {
-                Lending entry = mapToLending(rs);
-                lending.add(entry);
+                lending.add(mapToLending(rs));
             }
 
         } catch (SQLException e) {
+            System.err.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
         }
         return lending;
@@ -108,26 +100,26 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
      */
     @Override
     public List<Lending> getLendingForUser(Long userId) {
-        List<Lending> waitlist = new ArrayList<>();
-        String query = "SELECT w.waitlist_id, w,user_id, w.book_id, w.checkout_date, w.return_date, w.status, " +
-                "p.firstname, p.lastname, b.booktitle " +
-                "FROM waitlist w " +
-                "JOIN person p ON w.user_id = p.user_id " +
-                "JOIN book b ON w.book_id = b.book_id " +
-                "WHERE w.user_id = ?";
+        List<Lending> lending = new ArrayList<>();
+        String query = "SELECT l.lending_id, b.book_id, p.user_id, l.status, l.checkout_date, " +
+                "l.return_date, l.due_date, b.booktitle, p.firstname, p.lastname " +
+                "FROM LENDING l " +
+                "JOIN BOOK b ON l.book_id = b.book_id " +
+                "JOIN PERSON p ON l.user_id_borrower = p.user_id " +
+                "WHERE p.user_id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setLong(1, userId);
             ResultSet rs = statement.executeQuery();
 
             while (rs.next()) {
-                Lending entry = mapToLending(rs);
-                waitlist.add(entry);
+                lending.add(mapToLending(rs));
 
             }
         } catch (SQLException e) {
+            System.err.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
         }
-        return waitlist;
+        return lending;
     }
 
 
@@ -135,15 +127,15 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
      * Aktualisiert den Status eines Lending-Eintrags in der Datenbank.
      */
     @Override
-    public void updateStatus(Long lendingId, String status) {
-        String query = "UPDATE LENDING AS l SET status = ?, return_date = CURRENT_DATE " +
-                       "WHERE l.lending_id = ?";
+    public void updateStatus(Long lendingId, String newStatus) {
+        String query = "UPDATE LENDING SET status = ?, return_date = CURRENT_DATE WHERE lending_id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, status);
+            statement.setString(1, newStatus);
             statement.setLong(2, lendingId);
             statement.executeUpdate();
 
         } catch (SQLException e) {
+            System.err.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -159,6 +151,7 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
             statement.executeUpdate();
 
         }  catch (SQLException e) {
+            System.err.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -168,8 +161,8 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
     @Override
     public Lending getLendingById(Long lendingId) {
         String query = """
-    SELECT l.lending_id, l.status, l.checkout_date, l.return_date, l.due_date,
-           p.firstname, p.lastname, b.booktitle, k.keyword AS keywordName
+    SELECT l.lending_id, l.status, l.checkout_date, l.return_date, l.due_date, p.firstname, p.lastname,
+                l.book_id, b.booktitle, l.user_id_borrower, l.user_id_worker, k.keyword AS keywordName
     FROM lending l
     JOIN person p ON l.user_id_borrower = p.user_id
     JOIN book b ON l.book_id = b.book_id
@@ -192,18 +185,22 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
         return null;
     }
 
+
     /**
      * Berechnet die Anzahl der Verlängerungen eines Lending-Eintrags anhand der Fristverlängerungen.
      */
     @Override
     public int calculateExtensionCount(Lending lending) {
         LocalDate originalDueDate = lending.getCheckoutDate().plusDays(28); // Standardfrist: 28 Tage
-        LocalDate currentDueDate = lending.getReturnDate();
-        if (currentDueDate.isAfter(originalDueDate)) {
+        LocalDate currentDate = LocalDate.now(); // Heutiges Datum für den Vergleich verwenden, wenn returnDate null ist
+        LocalDate effectiveReturnDate = lending.getReturnDate() != null ? lending.getReturnDate() : currentDate;
+
+        // Berechnen, wie viele 4-Wochen-Intervalle hinzugefügt wurden
+        if (effectiveReturnDate.isAfter(originalDueDate)) {
             // Berechnen, wie viele 4-Wochen-Intervalle hinzugefügt wurden
-            return (int) (java.time.temporal.ChronoUnit.DAYS.between(originalDueDate, currentDueDate) / 28);
+            return (int) (java.time.temporal.ChronoUnit.DAYS.between(originalDueDate, effectiveReturnDate) / 28);
         }
-      return 0;
+      return 0; // Keine Verlängerungen, wenn das Rückgabedatum vor oder am ursprünglichen Fälligkeitsdatum liegt
     }
 
     /**
@@ -227,8 +224,8 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
     @Override
     public List<Lending> getLendingForUserByName(String name) {
         String query = """
-        SELECT l.lending_id, l.status, l.checkout_date, l.due_date, p.firstname, p.lastname,
-           b.booktitle, k.keyword AS keywordName
+        SELECT l.lending_id, l.status, l.checkout_date, l.return_date, l.due_date, p.firstname, p.lastname,
+           l.book_id, b.booktitle, l.user_id_borrower, l.user_id_worker, k.keyword AS keywordName
         FROM lending l
         JOIN person p ON l.user_id_borrower = p.user_id
         JOIN book b ON l.book_id = b.book_id
@@ -244,7 +241,7 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
             statement.setString(3, likePattern);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-
+    System.out.println("Eintrag gefunden: " + resultSet.getInt("lending_id"));
                     Lending lending = mapToLending(resultSet);
 
                     lendingList.add(lending);
@@ -262,10 +259,11 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
     @Override
     public List<Lending> filterByDueDate() {
         List<Lending> lendingList = new ArrayList<>();
+
         String query = """
         SELECT  l.lending_id, l.status, l.checkout_date, l.due_date, l.return_date,
                b.book_id, b.booktitle,
-               p.user_id AS user_id_borrower, p.firstname, p.lastname,
+              l.user_id_borrower, l.user_id_worker, p.firstname, p.lastname,
                k.keyword AS keywordName
         FROM lending l
         JOIN book b ON l.book_id = b.book_id
@@ -292,10 +290,11 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
     @Override
     public List<Lending> filterByCategory(String category) {
         List<Lending> lendingList = new ArrayList<>();
+
         String query = """
         SELECT l.lending_id, l.status, l.checkout_date, l.due_date, l.return_date,
-               b.book_id, b.booktitle,
-               p.user_id AS user_id_borrower, p.firstname, p.lastname,
+               b.book_id, b.booktitle, 
+               l.user_id_borrower, l.user_id_worker, p.firstname, p.lastname,
                k.keyword AS keywordName
         FROM lending l
         JOIN book b ON l.book_id = b.book_id
@@ -327,8 +326,8 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
         String query = """
         SELECT l.lending_id, l.status, l.checkout_date, l.due_date, l.return_date,
                b.book_id, b.booktitle,
-               p.user_id AS user_id_borrower, p.firstname, p.lastname,
-               k.keyword AS keywordName
+             l.user_id_borrower, l.user_id_worker, p.firstname, p.lastname,
+                            k.keyword AS keywordName
         FROM lending l
         JOIN book b ON l.book_id = b.book_id
         JOIN person p ON l.user_id_borrower = p.user_id
@@ -375,23 +374,26 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
     private Lending mapToLending(ResultSet rs) throws SQLException {
         Lending lending = new Lending();
 
-        // Mapping der Spalten in das Lending-Objekt
-        lending.setLendinglistId(rs.getInt("lending_id"));
-        lending.setStatus(rs.getString("status"));
-        lending.setReturnDate(rs.getDate("due_date").toLocalDate());
-        lending.setCheckoutDate(rs.getDate("checkout_date").toLocalDate());
+        lending.setLendingId(rs.getInt("lending_id"));
+        lending.setBookId(rs.getInt("book_id")); // Setzt die Buch-ID
+        lending.setUserIdBorrower(rs.getInt("user_id_borrower")); // Setzt die Benutzer-ID des Entleihers
+        lending.setUserIdWorker(rs.getInt("user_id_worker")); // Setzt die Benutzer-ID des Arbeiters
+        lending.setStatus(rs.getString("status")); // Setzt den Status der Ausleihe
 
-        // Benutzer-Objekt setzen
-        Person user = new Person();
-        user.setFirstName(rs.getString("firstname"));
-        user.setLastName(rs.getString("lastname"));
-        lending.setUser(user);
+        Date checkoutDate = rs.getDate("checkout_date");
+        if (checkoutDate != null) {
+            lending.setCheckoutDate(checkoutDate.toLocalDate()); // Setzt das Ausleihdatum
+        }
 
-        // Buch-Objekt setzen
-        Book book = new Book();
-        book.setTitle(rs.getString("booktitle"));
-        book.setKeywordName(rs.getString("keywordName"));
-        lending.setBook(book);
+        Date returnDate = rs.getDate("return_date");
+        if (returnDate != null) {
+            lending.setReturnDate(returnDate.toLocalDate());
+        }
+
+        Date dueDate = rs.getDate("due_date");
+        if (dueDate != null) {
+            lending.setDueDate(dueDate.toLocalDate());
+        }
 
         return lending;
     }

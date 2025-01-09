@@ -48,4 +48,8 @@ public class UserService {
     public Person getFirstBorrower() {
         return userRepository.getFirstBorrower();
     }
+
+    public  String getUserNameById(int id) {
+        return userRepository.getUserNameById(id);
+    }
 }

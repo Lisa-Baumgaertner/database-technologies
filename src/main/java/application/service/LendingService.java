@@ -15,8 +15,6 @@ import java.util.List;
  */
 public class LendingService {
     private static LendingService instance;
-
-    // Repository für den Zugriff auf Ausleihe-Daten
     private final LendingRepository lendingRepository;
 
     /**
@@ -104,7 +102,7 @@ public class LendingService {
             System.out.println("Die Rückgabefrist wurde bereits dreimal verlängert.");
             return false;
         }
-        LocalDate newDueDate = lending.getReturnDate().plusWeeks(4);
+        LocalDate newDueDate = lending.getDueDate().plusWeeks(4);
         lendingRepository.updateDueDate(lendingId, newDueDate);
         System.out.println("Die Rückgabefrist wurde erfolgreich verlängert.");
         return true;

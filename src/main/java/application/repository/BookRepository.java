@@ -10,6 +10,8 @@ public interface BookRepository {
     List<Book> searchBooks(String title, String author, String isbn, String status);
     Book findBookById(Long id);
     Book findBookByIsbn(String isbnLong, String isbnShort);
+    String getBookTitleById(int bookId);
+    String getCategoryByBookId(int bookId);
     Book insertBook(Book book);
     void updateBook(Book book);
     void deleteBookById(Long id);

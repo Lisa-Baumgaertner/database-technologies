@@ -1,7 +1,9 @@
 package application.controller;
 
 import application.model.Lending;
+import application.service.BookService;
 import application.service.LendingService;
+import application.service.UserService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -17,7 +19,10 @@ import java.util.List;
  */
 
 public class LendingController {
+
     private LendingService lendingService;
+    private UserService userService;
+    private BookService bookService;
 
     @FXML
     private TableView<Lending> lendingTable;
@@ -49,39 +54,50 @@ public class LendingController {
     @FXML
     private ComboBox<String> availabilityComboBox;
 
-    private ObservableList<Lending> lendingData = FXCollections.observableArrayList();
+    private final ObservableList<Lending> lendingData = FXCollections.observableArrayList();
 
 
     public void setLendingService(LendingService lendingService) {
         this.lendingService = lendingService;
     }
 
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    public void setBookService(BookService bookService) {
+        this.bookService = bookService;
+    }
+
+
     /**
      * Initialisiert die Spalten in der Tabelle.
      */
     @FXML
     private void initialize() {
-
         // Benutzername (firstname + lastname) anzeigen
-        userNameColumn.setCellValueFactory(cellData -> {
-            if (cellData.getValue().userProperty().get() != null) {
-                String firstName = cellData.getValue().getUser().getFirstName();
-                String lastName = cellData.getValue().getUser().getLastName();
-                return new SimpleStringProperty(firstName + " " + lastName);
-            }
-            return null;
-        });
-        // Buchtitel anzeigen (book -> title)
-        bookTitleColumn.setCellValueFactory(cellData -> {
-            if (cellData.getValue().bookProperty().get() != null) {
+        if (userNameColumn == null) {
+            System.out.println("userNameColumn ist null");
+        } else {
+            userNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(userService.getUserNameById(cellData.getValue().getUserIdBorrower())));
+        }
+       // Buchtitel anzeigen (book -> title)
 
-                return new SimpleStringProperty(cellData.getValue().getBook().getTitle());
-            }
-            return null;
-        });
+        if (bookTitleColumn == null) {
+            System.out.println("bookTitleColumn ist null");
+        } else {
+            bookTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(bookService.getBookTitleById(cellData.getValue().getBookId())));
+        }
+
 
         // Status direkt anzeigen
-        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        if (statusColumn == null) {
+            System.out.println("statusColumn ist null");
+        } else {
+            statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        }
+
+
 
         // Ausleihdatum anzeigen
         checkoutDateColumn.setCellValueFactory(cellData -> {
@@ -99,12 +115,12 @@ public class LendingController {
             return null;
         });
 
-        categoryColumn.setCellValueFactory(cellData -> {
-            if (cellData.getValue().getBook() != null) {
-                return new SimpleStringProperty(cellData.getValue().getBook().getKeywordName());
-            }
-            return null;
-        });
+        if (categoryColumn == null) {
+            System.out.println("categoryColumn ist null");
+        } else {
+            categoryColumn.setCellValueFactory(cellData -> new SimpleStringProperty(bookService.getCategoryByBookId(cellData.getValue().getBookId())));
+        }
+
         // Kategorie-Dropdown anzeigen
         filterComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ("Kategorie".equals(newValue)) {
@@ -127,6 +143,63 @@ public class LendingController {
         lendingTable.setItems(lendingData);
     }
 
+    /**
+     * Initialisiert die Spalten in der Tabelle.
+     */
+   /* @FXML
+    private void initialize() {
+        // Benutzername (firstname + lastname) anzeigen
+        userNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
+                userService.getUserNameById(cellData.getValue().getUserIdBorrower())));
+
+        // Buchtitel anzeigen (book -> title)
+        bookTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
+                bookService.getBookTitleById(cellData.getValue().getBookId())));
+
+        // Status direkt anzeigen
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+        // Ausleihdatum anzeigen
+        checkoutDateColumn.setCellValueFactory(cellData -> {
+            if (cellData.getValue().getCheckoutDate() != null) {
+                return new SimpleStringProperty(cellData.getValue().getCheckoutDate().toString());
+            }
+            return null;
+        });
+
+        // Rückgabedatum anzeigen
+        dueDateColumn.setCellValueFactory(cellData -> {
+            if (cellData.getValue().getReturnDate() != null) {
+                return new SimpleStringProperty(cellData.getValue().getReturnDate().toString());
+            }
+            return null;
+        });
+
+        categoryColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
+                bookService.getCategoryByBookId(cellData.getValue().getBookId())));
+
+        // Kategorie-Dropdown anzeigen
+        filterComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if ("Kategorie".equals(newValue)) {
+                // Zeige die Kategorie-Dropdown-Liste an und lade Keywords
+                categoryComboBox.setVisible(true);
+                loadCategoryDropdown();
+            } else {
+                categoryComboBox.setVisible(false);
+            }
+
+            // Zeige die Kategorie-Dropdown-Liste an und lade Keywords
+            if ("Verfügbarkeit".equals(newValue)) {
+                categoryComboBox.setVisible(false);
+                availabilityComboBox.setVisible(true);
+                availabilityComboBox.setItems(FXCollections.observableArrayList("borrowed", "returned"));
+            }
+
+        });
+        // Verfügbarkeit-Dropdown anzeigen
+        lendingTable.setItems(lendingData);
+    }
+*/
     /**
      * Wird aufgerufen, wenn der Mitarbeiter den "Anzeigen"-Button klickt.
      * Ruft die Ausleihen eines Benutzers aus der Datenbank ab und zeigt sie in der Tabelle an.
@@ -172,7 +245,7 @@ public class LendingController {
         }
 
         try {
-            boolean extended = lendingService.extendDueDate(selectedLending.getLendinglistId());
+            boolean extended = lendingService.extendDueDate(selectedLending.getLendingId());
             if (extended) {
                 showAlert("Erfolg", "Die Rückgabefrist wurde erfolgreich verlängert.");
                lendingTable.refresh();
