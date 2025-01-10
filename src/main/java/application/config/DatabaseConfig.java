@@ -68,4 +68,16 @@ public class DatabaseConfig {
             return new PostgresLendingRepositoryImpl(new SQLDatabaseConnection().getConnection());
         }
     }
+
+    /**
+     * Gibt das ReviewRepository zurück, um auf Bewertungen zuzugreifen.
+     * @return das ReviewRepository
+     */
+    public ReviewRepository getReviewRepository() {
+        if (useMongoDB) {
+            return new MongoReviewRepositoryImpl(new NoSQLDatabaseConnection("application.properties").getDatabase());
+        } else {
+            return new PostgresReviewRepositoryImpl(new SQLDatabaseConnection().getConnection());
+        }
+    }
 }

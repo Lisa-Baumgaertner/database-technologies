@@ -14,6 +14,8 @@ import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
+import application.service.ReviewService;
+
 
 /**
  * Controller-Klasse für Details eines Buches
@@ -44,6 +46,11 @@ public class BookDetailsController {
     private TextArea descriptionArea;
 
     private int bookId;
+
+    private final ReviewService reviewService;
+    public BookDetailsController() {
+        this.reviewService = ReviewService.getInstance(); // Singleton-Instanz des ReviewService
+    }
 
     private Stage stage;
 
@@ -82,13 +89,13 @@ public class BookDetailsController {
     @FXML
     private void showReviews() {
         try {
-            // Bewertungsansicht
+            // Bewertungsansicht laden
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ReviewListView.fxml"));
             Parent reviewsView = loader.load();
 
             // Konfigurieren des ReviewListController
             ReviewListController reviewController = loader.getController();
-            reviewController.setReviewRepository(new ReviewRepository(new SQLDatabaseConnection().getConnection()));
+            reviewController.setReviewService(reviewService); // Service übergeben
             reviewController.setBookId(bookId); // Buch-ID übergeben
             reviewController.loadReviews();    // Bewertungen laden
 
@@ -100,7 +107,6 @@ public class BookDetailsController {
             e.printStackTrace();
         }
     }
-
 
     public void setStage(Stage stage) {
         this.stage = stage;
