@@ -76,6 +76,9 @@ public class BookDetailsController {
         }
     }
 
+    /**
+     * Funktion für das Anzeigen der Bewertungen
+     */
     @FXML
     private void showReviews() {
         try {

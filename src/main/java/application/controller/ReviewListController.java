@@ -13,6 +13,11 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Controller-Klasse für Bewertungen.
+ * Ermöglicht Laden, Hinzufügen und Löschen von Bewertungen.
+ */
+
 public class ReviewListController {
 
     @FXML
@@ -57,6 +62,9 @@ public class ReviewListController {
         this.bookId = bookId;
     }
 
+    /**
+     * Initialisiert die Zellen in der Tabellen-Ansicht.
+     */
     @FXML
     public void initialize() {
         userColumn.setCellValueFactory(cellData -> cellData.getValue().userIdProperty().asString());
@@ -70,6 +78,9 @@ public class ReviewListController {
         deleteButton.setOnAction(event -> handleDeleteReview());
     }
 
+    /**
+     * Läd die Bewertungen des ausgewählten Buches
+     */
     public void loadReviews() {
         try {
             List<Review> reviewList = reviewRepository.getReviewsByBookId(bookId);
@@ -79,6 +90,9 @@ public class ReviewListController {
         }
     }
 
+    /**
+     * Funktion zum Hinzufügen von Bewertungen
+     */
     private void handleAddReview() {
         try {
             String reviewText = reviewTextField.getText().trim();
@@ -106,6 +120,9 @@ public class ReviewListController {
         }
     }
 
+    /**
+     * Funktion zum Löschen einer Bewertung
+     */
     private void handleDeleteReview() {
         Review selectedReview = reviewTable.getSelectionModel().getSelectedItem();
 
@@ -125,6 +142,9 @@ public class ReviewListController {
         }
     }
 
+    /**
+     * Funktion für den Zurück Button
+     */
     @FXML
     private void handleBack() {
         if (stage != null) {
@@ -132,6 +152,9 @@ public class ReviewListController {
         }
     }
 
+    /**
+     * Öffnen eines Alert Dialog
+     */
     private void showAlert(Alert.AlertType alertType, String title, String content) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);

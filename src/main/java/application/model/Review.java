@@ -4,6 +4,10 @@ package application.model;
 import javafx.beans.property.*;
 import java.time.LocalDate;
 
+/**
+ * Modellklasse für eine Bewertung in der Büchereianwendung.
+ * Enthält alle relevanten Informationen wie Bewertungs-Id, Bewertungstext, Bewertungsdatum und Rating.
+ */
 public class Review {
     private IntegerProperty reviewId;
     private IntegerProperty bookId;
@@ -12,6 +16,10 @@ public class Review {
     private ObjectProperty<LocalDate> reviewDate;
     private StringProperty reviewRating;
 
+    /**
+     * Standardkonstruktor für Bewertungen.
+     * Initialisiert alle Properties mit Standardwerten.
+     */
     public Review() {
         this.reviewId = new SimpleIntegerProperty();
         this.bookId = new SimpleIntegerProperty();
@@ -21,6 +29,13 @@ public class Review {
         this.reviewRating = new SimpleStringProperty();
     }
 
+    // Getter und Setter für Properties
+
+    /**
+     * Holt die ID der Bewertung.
+     *
+     * @return Die ID der Bewertung.
+     */
     public int getReviewId() {
         return reviewId.get();
     }
@@ -33,6 +48,11 @@ public class Review {
         return reviewId;
     }
 
+    /**
+     * Holt die ID des Buches.
+     *
+     * @return Die ID der Buches.
+     */
     public int getBookId() {
         return bookId.get();
     }
@@ -45,6 +65,11 @@ public class Review {
         return bookId;
     }
 
+    /**
+     * Holt die ID des Nutzers.
+     *
+     * @return Die ID des Nutzers.
+     */
     public int getUserId() {
         return userId.get();
     }
@@ -57,6 +82,11 @@ public class Review {
         return userId;
     }
 
+    /**
+     * Holt den Text der Bewertung.
+     *
+     * @return Den Text der Bewertung.
+     */
     public String getReviewText() {
         return reviewText.get();
     }
@@ -69,6 +99,11 @@ public class Review {
         return reviewText;
     }
 
+    /**
+     * Holt das Datum der Bewertung.
+     *
+     * @return Das Datum der Bewertung.
+     */
     public LocalDate getReviewDate() {
         return reviewDate.get();
     }
@@ -81,6 +116,11 @@ public class Review {
         return reviewDate;
     }
 
+    /**
+     * Holt das Rating der Bewertung.
+     *
+     * @return Das Rating der Bewertung.
+     */
     public String getReviewRating() {
         return reviewRating.get();
     }
