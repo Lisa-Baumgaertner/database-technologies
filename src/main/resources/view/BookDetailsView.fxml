@@ -1,73 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="application.controller.BookDetailsController"
       spacing="10" alignment="center" style="-fx-padding: 20; -fx-background-color: #f4f4f4;">
 
+    <!-- Titel -->
     <Label text="Buchdetails" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="Buch ID:"/>
-        <Label fx:id="bookIdLabel"/>
-    </HBox>
+    <!-- Container für dynamischen Inhalt -->
+    <StackPane fx:id="contentPane" style="-fx-padding: 10;" alignment="center" prefWidth="600" prefHeight="400">
+        <!-- Standardinhalt (Buchdetails) -->
+        <VBox fx:id="bookDetailsView" spacing="10" alignment="center">
+            <HBox spacing="10" alignment="center">
+                <Label text="Buch ID:"/>
+                <Label fx:id="bookIdLabel"/>
+            </HBox>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="Titel:"/>
-        <Label fx:id="titleLabel"/>
-    </HBox>
+            <HBox spacing="10" alignment="center">
+                <Label text="Titel:"/>
+                <Label fx:id="titleLabel"/>
+            </HBox>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="Autor:"/>
-        <Label fx:id="authorLabel"/>
-    </HBox>
+            <HBox spacing="10" alignment="center">
+                <Label text="Autor:"/>
+                <Label fx:id="authorLabel"/>
+            </HBox>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="ISBN Lang:"/>
-        <Label fx:id="isbnLongLabel"/>
-    </HBox>
+            <HBox spacing="10" alignment="center">
+                <Label text="ISBN Lang:"/>
+                <Label fx:id="isbnLongLabel"/>
+            </HBox>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="ISBN Kurz:"/>
-        <Label fx:id="isbnShortLabel"/>
-    </HBox>
+            <HBox spacing="10" alignment="center">
+                <Label text="ISBN Kurz:"/>
+                <Label fx:id="isbnShortLabel"/>
+            </HBox>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="Verlag:"/>
-        <Label fx:id="publisherLabel"/>
-    </HBox>
+            <HBox spacing="10" alignment="center">
+                <Label text="Verlag:"/>
+                <Label fx:id="publisherLabel"/>
+            </HBox>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="Erscheinungsjahr:"/>
-        <Label fx:id="yearPublishedLabel"/>
-    </HBox>
+            <HBox spacing="10" alignment="center">
+                <Label text="Erscheinungsjahr:"/>
+                <Label fx:id="yearPublishedLabel"/>
+            </HBox>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="Beschreibung:"/>
-    </HBox>
-    <TextArea fx:id="descriptionArea" editable="false" wrapText="true" prefWidth="400" prefHeight="100"/>
+            <HBox spacing="10" alignment="center">
+                <Label text="Beschreibung:"/>
+            </HBox>
+            <TextArea fx:id="descriptionArea" editable="false" wrapText="true" prefWidth="400" prefHeight="100"/>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="Status:"/>
-        <Label fx:id="statusLabel"/>
-    </HBox>
+            <HBox spacing="10" alignment="center">
+                <Label text="Status:"/>
+                <Label fx:id="statusLabel"/>
+            </HBox>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="Kopien:"/>
-        <Label fx:id="copiesLabel"/>
-    </HBox>
+            <HBox spacing="10" alignment="center">
+                <Label text="Kopien:"/>
+                <Label fx:id="copiesLabel"/>
+            </HBox>
 
-    <HBox spacing="10" alignment="center">
-        <Label text="Keyword ID:"/>
-        <Label fx:id="keywordIdLabel"/>
-    </HBox>
+            <HBox spacing="10" alignment="center">
+                <Label text="Keyword ID:"/>
+                <Label fx:id="keywordIdLabel"/>
+            </HBox>
+        </VBox>
+    </StackPane>
 
-    <Button text="Zurück" onAction="#handleBack" style="-fx-padding: 10 20;"/>
+    <!-- Buttons -->
+    <HBox spacing="10" alignment="center">
+        <Button text="Bewertungen anzeigen" onAction="#showReviews" style="-fx-padding: 10 20;"/>
+        <Button text="Zurück" onAction="#handleBack" style="-fx-padding: 10 20;"/>
+    </HBox>
 </VBox>
