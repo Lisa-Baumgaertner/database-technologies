@@ -113,23 +113,31 @@ public class ReviewListController {
                 return;
             }
 
+            // Test ob die Bewertung im gültigen Bereich (1-5) liegt
+            if (!isValidRating(rating)) {
+                showAlert(Alert.AlertType.ERROR, "Ungültige Bewertung", "Die Bewertung muss zwischen 1 und 5 liegen.");
+                return;
+            }
+
             Review review = new Review();
             review.setBookId(bookId);
-            review.setUserId(1);  // Benutzer-ID fest auf 1 gesetzt
+            review.setUserId(1);  // TODO: Benutzer-ID noch fest auf 1 gesetzt
             review.setReviewText(reviewText);
             review.setReviewDate(LocalDate.now());
             review.setReviewRating(rating);
 
-            // Prüfen, ob die Bewertung erfolgreich hinzugefügt wurde
+            // Prüfen ob die Bewertung erfolgreich hinzugefügt wurde
             if (reviewService.addReview(review)) {
                 loadReviews();
                 showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Bewertung hinzugefügt.");
             }
+
         } catch (Exception e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Fehler", "Bewertung konnte nicht hinzugefügt werden.");
         }
     }
+
 
     /**
      * Funktion zum Löschen einer Bewertung.
