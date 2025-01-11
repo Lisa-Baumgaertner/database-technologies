@@ -1,8 +1,11 @@
 package application.service;
 
+import application.config.DatabaseConfig;
 import application.model.Waitlist;
+import application.repository.ReviewRepository;
 import application.repository.WaitlistRepository;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -10,8 +13,42 @@ import java.util.List;
  * Diese Klasse bietet Methoden, um Wartelisten für Bücher und Nutzer zu verwalten, Einträge hinzuzufügen, zu aktualisieren oder zu entfernen.
  */
 public class WaitlistService {
-
+    private static WaitlistService instance;
     private final WaitlistRepository waitlistRepository;
+
+
+
+//    /**
+//     * Konstruktor, der das ReviewRepository initialisiert.
+//     *
+//     * @param WaitlistRepository das Repository für Rezensionsdaten
+//     */
+//    public WaitlistService(WaitlistRepository waitlistRepository) {
+//        this.waitlistRepository = waitlistRepository;
+//    }
+//
+//    /**
+//     * Singleton-Methode: Initialisiert ReviewService und stellt sicher, dass nur eine Instanz existiert.
+//     *
+//     * @return Eine Instanz von ReviewService.
+//     */
+//    public static ReviewService getInstance() {
+//        if (instance == null) {
+//            try {
+//                // Erstelle eine neue Instanz von DatabaseConfig
+//                DatabaseConfig config = new DatabaseConfig();
+//
+//                // Hole das ReviewRepository aus der Konfiguration
+//                ReviewRepository repository = config.getReviewRepository();
+//                instance = new WaitlistService(repository);
+//            } catch (IOException e) {
+//                throw new RuntimeException("Fehler bei der Initialisierung des ReviewService", e);
+//            }
+//        }
+//        return instance;
+//    }
+
+    //private final WaitlistRepository waitlistRepository;
     /**
      * Konstruktor zur Initialisierung des WaitlistService mit einem WaitlistRepository.
      */
@@ -20,10 +57,31 @@ public class WaitlistService {
     }
 
     /**
+     * Singleton-Methode: Initialisiert ReviewService und stellt sicher, dass nur eine Instanz existiert.
+     *
+     * @return Eine Instanz von ReviewService.
+     */
+    public static WaitlistService getInstance() {
+        if (instance == null) {
+            try {
+                // Erstelle eine neue Instanz von DatabaseConfig
+                DatabaseConfig config = new DatabaseConfig();
+
+                // Hole das ReviewRepository aus der Konfiguration
+                WaitlistRepository repository = config.getWaitlistRepository();
+                instance = new WaitlistService(repository);
+            } catch (IOException e) {
+                throw new RuntimeException("Fehler bei der Initialisierung des ReviewService", e);
+            }
+        }
+        return instance;
+    }
+
+    /**
      * Ruft alle Wartelisteneinträge für ein spezifisches Buch ab.
      */
     public List<Waitlist> getWaitlistForBook(long id) {
-      return waitlistRepository.getWaitlistForBook(id);
+        return waitlistRepository.getWaitlistForBook(id);
     }
 
     /**
@@ -43,8 +101,8 @@ public class WaitlistService {
     /**
      * Fügt einen Benutzer zu der Warteliste für ein bestimmtes Buch hinzu.
      */
-    public void addToWaitlist(Long userId, Long bookId, String status) {
-         waitlistRepository.addToWaitlist(userId, bookId, status);
+    public boolean addToWaitlist(Long userId, Long bookId, String status) {
+        return waitlistRepository.addToWaitlist(userId, bookId, status);
     }
 
     /**

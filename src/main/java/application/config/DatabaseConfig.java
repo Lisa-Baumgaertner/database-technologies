@@ -80,4 +80,16 @@ public class DatabaseConfig {
             return new PostgresReviewRepositoryImpl(new SQLDatabaseConnection().getConnection());
         }
     }
+
+    /**
+     * Gibt das WaitlistRepository zurück, um auf Waitlist zuzugreifen.
+     * @return das WaitlistRepository
+     */
+    public WaitlistRepository getWaitlistRepository() {
+        if (useMongoDB) {
+            return new MongoWaitlistRepositoryImpl(new NoSQLDatabaseConnection("application.properties").getDatabase());
+        } else {
+            return new PostgresWaitlistRepositoryImpl(new SQLDatabaseConnection().getConnection());
+        }
+    }
 }

@@ -32,8 +32,10 @@ public class UserPageController {
     @FXML
     private BorderPane mainPane;
     private NotificationService notificationService;
-    private Long currentUserId;
+    private static Long currentUserId;
     private final Set<String> dismissedNotifications = new HashSet<>(); // Geschlossene Benachrichtigungen
+
+    private Long userId;
 
     /**
      * Setter für den NotificationService und Benutzer-ID.
@@ -41,8 +43,15 @@ public class UserPageController {
     public void initializeUser(NotificationService notificationService, Long userId) {
         this.notificationService = notificationService;
         this.currentUserId = userId;
+        System.out.println("In UserPageController Initialize" + currentUserId);
         loadNotifications(); // Lade Benachrichtigungen beim Initialisieren
     }
+
+    public Long getUserId() {
+        System.out.println("In UserPageController " + currentUserId);
+        return currentUserId;
+    }
+
 
     /**
      * Lädt und zeigt Benachrichtigungen für den aktuellen Benutzer an.
@@ -104,8 +113,8 @@ public class UserPageController {
 
             Scene scene = new Scene(loginView, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
-           Stage stage = (Stage) navigateBookSearchButton.getScene().getWindow();
-           stage.setScene(scene);
+            Stage stage = (Stage) navigateBookSearchButton.getScene().getWindow();
+            stage.setScene(scene);
         } catch (IOException e) {
             System.err.println("Fehler beim Laden der MainView.fxml: " + e.getMessage());
             e.printStackTrace();

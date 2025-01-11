@@ -38,6 +38,7 @@ public class UserLoginController {
     private UserService userService;
     NotificationRepository notificationRepository;
 
+
     /**
      * Setter für UserService.
      * @param userService
@@ -58,7 +59,7 @@ public class UserLoginController {
         }
 
         Person borrower = userService.getFirstBorrower();
-    System.out.println(borrower);
+        System.out.println(borrower);
         if (borrower != null) {
             // Benutzername anzeigen
             String fullName = borrower.getFirstName() + " " + borrower.getLastName();
@@ -87,9 +88,10 @@ public class UserLoginController {
             Parent root = loader.load();
 
             // Zeige die neue Ansicht im Center-Bereich
-          //  mainPane.setCenter(root);
+            //  mainPane.setCenter(root);
 
-             UserPageController userPageController = loader.getController();
+            UserPageController userPageController = loader.getController();
+
 
             // NotificationRepository aus DatabaseConfig laden
             DatabaseConfig databaseConfig = new DatabaseConfig();
@@ -101,7 +103,7 @@ public class UserLoginController {
             // Übergabe der NotificationService-Instanz und der Benutzer-ID
             Long userId = userService.getFirstBorrower().getUserId(); // Testperson
             userPageController.initializeUser(notificationService, userId);
-
+            System.out.println("In handleLoginButtonAction " + userId);
             Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) loginButton.getScene().getWindow();
