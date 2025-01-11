@@ -6,11 +6,11 @@ import java.time.LocalDate;
 
 /**
  * Modellklasse für eine Warteliste in der Büchereianwendung.
- * Enthält alle relevanten Informationen wie Wartelisten-Id, Benutzer, Buch, Ausleihdatum,bRückgabedatum, Status.
+ * Enthält alle relevanten Informationen wie Wartelisten-Id, Benutzer, Buch, Ausleihdatum, Rückgabedatum, Status.
  */
 public class Waitlist {
 
-    private final IntegerProperty waitlistId;
+    private final LongProperty waitlistId;
     private final ObjectProperty<Person> user;
     private final ObjectProperty<Book> book;
     private final ObjectProperty<LocalDate> checkoutDate;
@@ -23,7 +23,7 @@ public class Waitlist {
      * Initialisiert alle Properties mit Standardwerten.
      */
     public Waitlist() {
-        this.waitlistId = new SimpleIntegerProperty();
+        this.waitlistId = new SimpleLongProperty();
         this.user = new SimpleObjectProperty<>();
         this.book = new SimpleObjectProperty<>();
         this.checkoutDate = new SimpleObjectProperty<>();
@@ -34,14 +34,15 @@ public class Waitlist {
     /**
      * Konstruktor für Waitlist mit allen Attributen.
      *
+     * @param waitlistId
      * @param user
      * @param book
      * @param checkoutDate
      * @param returnDate
      * @param status
      */
-    public Waitlist(Person user, Book book, LocalDate checkoutDate, LocalDate returnDate, String status) {
-        this.waitlistId = new SimpleIntegerProperty();
+    public Waitlist(Long waitlistId, Person user, Book book, LocalDate checkoutDate, LocalDate returnDate, String status) {
+        this.waitlistId = new SimpleLongProperty();
         this.user = new SimpleObjectProperty<>(user);
         this.book = new SimpleObjectProperty<>(book);
         this.checkoutDate = new SimpleObjectProperty<>(checkoutDate);
@@ -51,7 +52,7 @@ public class Waitlist {
 
     // Getter und Setter für Properties
 
-    public IntegerProperty waitlistIdProperty() {
+    public LongProperty waitlistIdProperty() {
         return waitlistId;
     }
 
@@ -59,7 +60,7 @@ public class Waitlist {
      * Holt die Wartelisten-Id
      * @return waitlistId
      */
-    public int getWaitlistId() {
+    public Long getWaitlistId() {
         return waitlistId.get();
     }
 

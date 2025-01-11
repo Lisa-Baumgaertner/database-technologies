@@ -1,9 +1,6 @@
 package application.controller;
 
-import application.service.BookService;
-import application.service.LendingService;
-import application.service.NotificationService;
-import application.service.UserService;
+import application.service.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -30,6 +27,7 @@ public class MainController {
     private LendingService lendingService;
     private NotificationService notificationService;
     private UserService userService;
+    private WaitlistService waitlistService;
 
     private  NotificationController notificationController;
 
@@ -38,6 +36,7 @@ public class MainController {
     }
     public void setUserService(UserService userService) {this.userService = userService;}
     public void setLendingService(LendingService lendingService) {this.lendingService = lendingService;}
+    public void setWaitlistService(WaitlistService waitlistService) {this.waitlistService = waitlistService;}
 
     /**
      * Anzeige der Nutzeransicht.
@@ -74,6 +73,7 @@ public class MainController {
             controller.setBookService(BookService.getInstance());
             controller.setLendingService(LendingService.getInstance());
             controller.setUserService(UserService.getInstance());
+            controller.setWaitlistService(WaitlistService.getInstance());
 
             Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());

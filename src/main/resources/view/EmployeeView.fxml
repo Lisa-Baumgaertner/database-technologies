@@ -14,6 +14,7 @@
          <Button fx:id="editBookButton" mnemonicParsing="false" onAction="#handleBookEdit" prefHeight="25.0" prefWidth="97.0" text="Buch Bearbeiten" />
          <Button fx:id="deleteBookButton" mnemonicParsing="false" onAction="#handleBookDelete" text="Büch Löschen" />
          <Button  mnemonicParsing="false" onAction="#handleLendingView" text="Ausleihen verwalten" />
+         <Button  mnemonicParsing="false" onAction="#handleWaitlistView" text="Warteliste verwalten" />
         </HBox>
     </top>
 

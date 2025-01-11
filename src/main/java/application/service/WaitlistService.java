@@ -1,8 +1,11 @@
 package application.service;
 
+import application.config.DatabaseConfig;
 import application.model.Waitlist;
 import application.repository.WaitlistRepository;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -10,7 +13,7 @@ import java.util.List;
  * Diese Klasse bietet Methoden, um Wartelisten für Bücher und Nutzer zu verwalten, Einträge hinzuzufügen, zu aktualisieren oder zu entfernen.
  */
 public class WaitlistService {
-
+    private static WaitlistService instance;
     private final WaitlistRepository waitlistRepository;
     /**
      * Konstruktor zur Initialisierung des WaitlistService mit einem WaitlistRepository.
@@ -59,5 +62,32 @@ public class WaitlistService {
      */
     public void removeFromWaitlist(long waitlistId) {
         waitlistRepository.removeFromWaitlist(waitlistId);
+    }
+
+    /**
+    * Aktualisiert der CheckoutDate
+     */
+    public void updateCheckoutDate(Long waitlistId, LocalDate newCheckoutDate) {
+        waitlistRepository.updateCheckoutDate(waitlistId, newCheckoutDate);
+    }
+    /**
+     * Singleton-Methode: Initialisiert WaitlistService und stellt sicher, dass nur eine Instanz existiert.
+     * @return Eine Instanz von WaitlistService.
+     */
+    public static WaitlistService getInstance() {
+        if (instance == null) {
+            try {
+                // Erstelle eine neue Instanz von DatabaseConfig
+                DatabaseConfig config = new DatabaseConfig();
+
+                // Verwende die Methode getWaitlistRepository() der Instanz
+                WaitlistRepository repository = config.getWaitlistRepository();
+                System.out.println("Waitlist Repository: " + repository);
+                instance = new WaitlistService(repository);
+            } catch (IOException e) {
+                throw new RuntimeException("Fehler bei der Initialisierung des WaitlistService", e);
+            }
+        }
+        return instance;
     }
 }

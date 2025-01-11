@@ -3,6 +3,7 @@ package application.controller;
 import application.service.BookService;
 import application.service.LendingService;
 import application.service.UserService;
+import application.service.WaitlistService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -29,17 +30,19 @@ public class EmployeePageController {
     private BorderPane mainPane; // Bindet das BorderPane aus MainView.fxml
 
     private  BookService bookService;
-    private LendingService lendingService;
     private UserService userService;
+    private LendingService lendingService;
+    private WaitlistService waitlistService;
 
     public void setBookService(BookService bookService) {
         this.bookService = bookService;
     }
-     public void setLendingService(LendingService lendingService) {
-        this.lendingService = lendingService;
-    }
+
      public void setUserService(UserService userService) { this.userService = userService; }
 
+    public void setLendingService(LendingService lendingService) {  this.lendingService = lendingService;}
+
+    public void setWaitlistService(WaitlistService waitlistService) {  this.waitlistService = waitlistService;}
     @FXML
     public Button editBookButton;
     @FXML
@@ -181,5 +184,27 @@ public class EmployeePageController {
         }
     }
 
+    /**
+     * Wechselt zur Ansicht "WaitlistView" und initialisiert deren Controller.
+     */
+    @FXML
+    private void  handleWaitlistView() {
+        try {
 
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/WaitlistView.fxml"));
+            Parent waitlistView = loader.load();
+
+            mainPane.setCenter(waitlistView);
+
+            WaitlistController controller = loader.getController();
+            controller.setWaitlistService(WaitlistService.getInstance());
+            controller.setUserService(UserService.getInstance());
+            controller.setBookService(BookService.getInstance());
+
+
+        } catch (IOException e) {
+            System.err.println("Fehler beim Laden der WaitlistView.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

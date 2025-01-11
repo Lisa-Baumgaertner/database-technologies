@@ -144,63 +144,6 @@ public class LendingController {
     }
 
     /**
-     * Initialisiert die Spalten in der Tabelle.
-     */
-   /* @FXML
-    private void initialize() {
-        // Benutzername (firstname + lastname) anzeigen
-        userNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
-                userService.getUserNameById(cellData.getValue().getUserIdBorrower())));
-
-        // Buchtitel anzeigen (book -> title)
-        bookTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
-                bookService.getBookTitleById(cellData.getValue().getBookId())));
-
-        // Status direkt anzeigen
-        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-
-        // Ausleihdatum anzeigen
-        checkoutDateColumn.setCellValueFactory(cellData -> {
-            if (cellData.getValue().getCheckoutDate() != null) {
-                return new SimpleStringProperty(cellData.getValue().getCheckoutDate().toString());
-            }
-            return null;
-        });
-
-        // Rückgabedatum anzeigen
-        dueDateColumn.setCellValueFactory(cellData -> {
-            if (cellData.getValue().getReturnDate() != null) {
-                return new SimpleStringProperty(cellData.getValue().getReturnDate().toString());
-            }
-            return null;
-        });
-
-        categoryColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
-                bookService.getCategoryByBookId(cellData.getValue().getBookId())));
-
-        // Kategorie-Dropdown anzeigen
-        filterComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if ("Kategorie".equals(newValue)) {
-                // Zeige die Kategorie-Dropdown-Liste an und lade Keywords
-                categoryComboBox.setVisible(true);
-                loadCategoryDropdown();
-            } else {
-                categoryComboBox.setVisible(false);
-            }
-
-            // Zeige die Kategorie-Dropdown-Liste an und lade Keywords
-            if ("Verfügbarkeit".equals(newValue)) {
-                categoryComboBox.setVisible(false);
-                availabilityComboBox.setVisible(true);
-                availabilityComboBox.setItems(FXCollections.observableArrayList("borrowed", "returned"));
-            }
-
-        });
-        // Verfügbarkeit-Dropdown anzeigen
-        lendingTable.setItems(lendingData);
-    }
-*/
-    /**
      * Wird aufgerufen, wenn der Mitarbeiter den "Anzeigen"-Button klickt.
      * Ruft die Ausleihen eines Benutzers aus der Datenbank ab und zeigt sie in der Tabelle an.
      */

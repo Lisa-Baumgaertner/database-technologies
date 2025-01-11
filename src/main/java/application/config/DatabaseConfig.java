@@ -80,4 +80,16 @@ public class DatabaseConfig {
             return new PostgresReviewRepositoryImpl(new SQLDatabaseConnection().getConnection());
         }
     }
+
+    /**
+     * Gibt das ReviewRepository zurück, um auf Bewertungen zuzugreifen.
+     * @return das ReviewRepository
+     */
+    public WaitlistRepository getWaitlistRepository() {
+        if (useMongoDB) {
+            return new MongoWaitlistRepositoryImpl(new NoSQLDatabaseConnection("application.properties").getDatabase());
+        } else {
+            return new PostgresWaitlistRepositoryImpl(new SQLDatabaseConnection().getConnection());
+        }
+    }
 }
