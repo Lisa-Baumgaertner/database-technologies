@@ -31,16 +31,7 @@ public class UserService {
         this.addressRepository = addressRepository;
         this.contactRepository = contactRepository;
     }
-
-
-    /**
-     * Findet den ersten Benutzer mit der Rolle "Borrower".
-     *
-     * @return Die erste Person mit der Rolle "Borrower", falls vorhanden.
-     */
-    public Person getFirstBorrower() {
-        return userRepository.getFirstBorrower();
-    }
+    
 
     public  String getUserNameById(int id) {
         return userRepository.getUserNameById(id);
@@ -107,10 +98,6 @@ public class UserService {
         p.setContact(contact);
 
         return p;
-    }
-
-    public String getUserNameById(int id) {
-        return userRepository.getUserNameById(id);
     }
 
 }
