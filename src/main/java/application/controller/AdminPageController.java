@@ -33,7 +33,7 @@ public class AdminPageController {
             MainController controller = loader.getController();
          //   controller.setBookService(bookService);
 
-            Scene scene = new Scene(bookSearchView, 800, 600);
+            Scene scene = new Scene(bookSearchView, 1100, 1000);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) addWorkerButton.getScene().getWindow();
             stage.setScene(scene);

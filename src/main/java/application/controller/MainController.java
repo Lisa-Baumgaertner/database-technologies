@@ -50,7 +50,7 @@ public class MainController {
             UserLoginController controller = loader.getController();
             controller.setUserService(UserService.getInstance());
            // controller.setBookService(BookService.getInstance());
-            Scene scene = new Scene(root, 800, 600);
+            Scene scene = new Scene(root, 1100, 1000);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) navigateUserViewButton.getScene().getWindow();
             stage.setScene(scene);
@@ -75,7 +75,7 @@ public class MainController {
             controller.setUserService(UserService.getInstance());
             controller.setWaitlistService(WaitlistService.getInstance());
 
-            Scene scene = new Scene(root, 800, 600);
+            Scene scene = new Scene(root, 1100, 1000);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) navigateEmployeeViewButton.getScene().getWindow();
             stage.setScene(scene);
@@ -98,7 +98,7 @@ public class MainController {
           //  controller.setBookService(BookService.getInstance());
          //   controller.setLendingService(LendingService.getInstance());
 
-            Scene scene = new Scene(root, 800, 600);
+            Scene scene = new Scene(root, 1100, 1000);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) navigateAdminViewButton.getScene().getWindow();
             stage.setScene(scene);

@@ -56,8 +56,8 @@ public class Main extends Application {
         mainController.setLendingService(LendingService.getInstance());
         mainController.setWaitlistService(WaitlistService.getInstance());
 
-        // Erstelle die Szene mit einer Größe von 800x600 Pixeln
-        Scene scene = new Scene(root, 800, 600);
+        // Erstelle die Szene mit einer Größe von 1100 x 1000 Pixeln
+        Scene scene = new Scene(root, 1100, 1000);
         scene.getStylesheets().add(getClass().getResource("/styles/style.css").toExternalForm());
 
         primaryStage.setTitle("Library Management");

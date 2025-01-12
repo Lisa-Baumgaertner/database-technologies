@@ -109,7 +109,7 @@ public class UserPageController {
             UserLoginController controller = loader.getController();
             controller.setUserService(UserService.getInstance());
 
-            Scene scene = new Scene(loginView, 800, 600);
+            Scene scene = new Scene(loginView, 1100, 1000);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
            Stage stage = (Stage) navigateBookSearchButton.getScene().getWindow();
            stage.setScene(scene);

@@ -106,7 +106,7 @@ public class UserLoginController {
             Long userId = userService.getFirstBorrower().getUserId(); // Testperson
             userPageController.initializeUser(notificationService, userService, userId);
 
-            Scene scene = new Scene(root, 800, 600);
+            Scene scene = new Scene(root, 1100, 1000);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);
