@@ -11,5 +11,14 @@
     <Label fx:id="birthDateLabel" layoutX="20" layoutY="60" text="Geburtsdatum: " />
     <Label fx:id="genderLabel" layoutX="20" layoutY="100" text="Geschlecht: " />
     <Label fx:id="roleLabel" layoutX="20" layoutY="140" text="Rolle: " />
+
+    <Label fx:id="streetLabel"       layoutX="20" layoutY="180" text="Straße: " />
+    <Label fx:id="houseNumberLabel"  layoutX="20" layoutY="220" text="Hausnummer: " />
+    <Label fx:id="cityLabel"         layoutX="20" layoutY="260" text="Stadt: " />
+    <Label fx:id="zipCodeLabel"      layoutX="20" layoutY="300" text="PLZ: " />
+
+    <Label fx:id="emailLabel"        layoutX="20" layoutY="340" text="Email: " />
+    <Label fx:id="phoneLabel"        layoutX="20" layoutY="380" text="Telefon: " />
+    <Label fx:id="mobileLabel"       layoutX="20" layoutY="420" text="Mobil: " />
 </AnchorPane>
 
