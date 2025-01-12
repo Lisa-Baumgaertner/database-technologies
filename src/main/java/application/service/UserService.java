@@ -31,7 +31,11 @@ public class UserService {
         this.addressRepository = addressRepository;
         this.contactRepository = contactRepository;
     }
+    
 
+    public  String getUserNameById(int id) {
+        return userRepository.getUserNameById(id);
+    }
 
     /**
      * Fügt Person hinzu.
@@ -94,10 +98,6 @@ public class UserService {
         p.setContact(contact);
 
         return p;
-    }
-
-    public String getUserNameById(int id) {
-        return userRepository.getUserNameById(id);
     }
 
 }
