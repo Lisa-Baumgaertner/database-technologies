@@ -32,6 +32,42 @@ public class UserService {
         this.contactRepository = contactRepository;
     }
 
+
+    /**
+     * Findet den ersten Benutzer mit der Rolle "Borrower".
+     *
+     * @return Die erste Person mit der Rolle "Borrower", falls vorhanden.
+     */
+    public Person getFirstBorrower() {
+        return userRepository.getFirstBorrower();
+    }
+
+    public  String getUserNameById(int id) {
+        return userRepository.getUserNameById(id);
+    }
+
+    /**
+     * Fügt Person hinzu.
+     */
+    public  Person insertPerson(Person Person) {
+        return userRepository.insertPerson(Person);
+    }
+
+    /**
+     * Aktualisiert Person
+     */
+    public  void updatePerson(Person Person) {
+        userRepository.updatePerson(Person);
+    }
+
+    /**
+     * Löscht Person
+     */
+    public  void deletePerson(Integer userId) {
+        userRepository.deletePerson(userId);
+    }
+
+
     /**
      * Singleton-Methode: Initialisiert UserService und stellt sicher, dass nur eine Instanz existiert.
      * @return Eine Instanz von UserService.
@@ -73,7 +109,8 @@ public class UserService {
         return p;
     }
 
-    public  String getUserNameById(int id) {
+    public String getUserNameById(int id) {
         return userRepository.getUserNameById(id);
     }
+
 }
