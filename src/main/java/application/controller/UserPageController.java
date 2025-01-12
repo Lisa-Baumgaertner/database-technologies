@@ -1,5 +1,6 @@
 package application.controller;
 
+import application.model.Person;
 import application.service.BookService;
 import application.service.NotificationService;
 import application.service.UserService;
@@ -31,6 +32,10 @@ public class UserPageController {
     private VBox notificationPane; // Bereich für Benachrichtigungen
     @FXML
     private BorderPane mainPane;
+    @FXML
+    private Button showDetailsButton;  // Button für die Anzeige der Details
+
+    private UserService userService;
     private NotificationService notificationService;
     private Long currentUserId;
     private final Set<String> dismissedNotifications = new HashSet<>(); // Geschlossene Benachrichtigungen
@@ -38,11 +43,13 @@ public class UserPageController {
     /**
      * Setter für den NotificationService und Benutzer-ID.
      */
-    public void initializeUser(NotificationService notificationService, Long userId) {
+    public void initializeUser(NotificationService notificationService, UserService userService, Long userId) {
         this.notificationService = notificationService;
+        this.userService = userService; // UserService wird initialisiert
         this.currentUserId = userId;
         loadNotifications(); // Lade Benachrichtigungen beim Initialisieren
     }
+
 
     /**
      * Lädt und zeigt Benachrichtigungen für den aktuellen Benutzer an.
@@ -130,5 +137,39 @@ public class UserPageController {
             System.err.println("Fehler beim Laden der EmployeeBookSearchView.fxml: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+    /**
+     * Zeigt die User-Details an.
+     */
+    @FXML
+    private void showUserDetails() {
+        try {
+            if (userService == null) {
+                System.out.println("userService ist null, showUserDetails() abgebrochen.");
+                return;
+            }
+
+            Person currentUser = userService.getFirstBorrower();
+            if (currentUser != null) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/UserDetailsView.fxml"));
+                Parent detailsRoot = loader.load();
+
+                UserDetailsController detailsController = loader.getController();
+                detailsController.initialize(currentUser);
+                
+                mainPane.setCenter(detailsRoot);
+            } else {
+                System.out.println("Kein currentUser gefunden!");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Fehler beim Laden der UserDetailsView.");
+        }
+    }
+
+    // Methode zum Zurückkehren zur Benachrichtigungsansicht
+    private void navigateBack() {
+        loadNotifications(); // Lade Benachrichtigungen erneut
+        mainPane.setCenter(notificationPane); // Setze den Benachrichtigungsbereich ins Center
     }
 }
