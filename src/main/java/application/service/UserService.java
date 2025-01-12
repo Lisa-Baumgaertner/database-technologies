@@ -34,19 +34,6 @@ public class UserService {
 
 
     /**
-     * Findet den ersten Benutzer mit der Rolle "Borrower".
-     *
-     * @return Die erste Person mit der Rolle "Borrower", falls vorhanden.
-     */
-    public Person getFirstBorrower() {
-        return userRepository.getFirstBorrower();
-    }
-
-    public  String getUserNameById(int id) {
-        return userRepository.getUserNameById(id);
-    }
-
-    /**
      * Fügt Person hinzu.
      */
     public  Person insertPerson(Person Person) {

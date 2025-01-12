@@ -1,8 +1,5 @@
 package application.repository;
 
-
-
-import application.model.Book;
 import application.model.Person;
 
 

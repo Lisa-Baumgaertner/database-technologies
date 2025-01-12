@@ -62,7 +62,7 @@ public class UserLoginController {
         }
 
         Person borrower = userService.getFirstBorrower();
-    System.out.println(borrower);
+       System.out.println(borrower);
         if (borrower != null) {
             // Benutzername anzeigen
             String fullName = borrower.getFirstName() + " " + borrower.getLastName();
@@ -103,8 +103,8 @@ public class UserLoginController {
             NotificationService notificationService = new NotificationService(notificationRepository);
 
             // Übergabe der NotificationService-Instanz und der Benutzer-ID
-            Long userId = userService.getFirstBorrower().getUserId(); // Testperson
-            userPageController.initializeUser(notificationService, userService, userId);
+            Long userId = UserService.getInstance().getFirstBorrower().getUserId(); // Testperson
+            userPageController.initializeUser(notificationService, UserService.getInstance(), userId);
 
             Scene scene = new Scene(root, 1100, 1000);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
