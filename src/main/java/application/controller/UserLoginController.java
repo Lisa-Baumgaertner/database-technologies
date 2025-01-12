@@ -44,7 +44,11 @@ public class UserLoginController {
      */
     public void setUserService(UserService userService) {
         this.userService = userService;
-        System.out.println(userService + "UserService nicht initialisiert.");
+        if (userService == null) {
+            System.out.println("UserService ist tatsächlich null!");
+        } else {
+            System.out.println("UserService ist nicht null: " + userService);
+        }
         loadFirstBorrower();
     }
 
@@ -100,7 +104,7 @@ public class UserLoginController {
 
             // Übergabe der NotificationService-Instanz und der Benutzer-ID
             Long userId = userService.getFirstBorrower().getUserId(); // Testperson
-            userPageController.initializeUser(notificationService, userId);
+            userPageController.initializeUser(notificationService, userService, userId);
 
             Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());

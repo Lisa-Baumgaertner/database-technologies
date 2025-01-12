@@ -30,7 +30,7 @@ public class Person {
         this.firstName = new SimpleStringProperty();
         this.lastName = new SimpleStringProperty();
         this.birthDate = null;
-        this.gender = 'M';;
+        this.gender = 'M';
         this.role = new SimpleStringProperty();
     }
 
