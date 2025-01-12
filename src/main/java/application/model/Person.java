@@ -20,6 +20,9 @@ public class Person {
     private char gender;
     private StringProperty role;
 
+    private Address address;
+    private Contact contact;
+
 
     /**
      * Standardkonstruktor für Person.
@@ -144,5 +147,27 @@ public class Person {
 
     public void setRole(String role) {
         this.role.set(role);
+    }
+
+    /**
+     * Holt die Addresse
+     * @return address
+     */
+    public Address getAddress() {
+        return address;
+    }
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    /**
+     * Holt die Kontaktdaten
+     * @return contact
+     */
+    public Contact getContact() {
+        return contact;
+    }
+    public void setContact(Contact contact) {
+        this.contact = contact;
     }
 }

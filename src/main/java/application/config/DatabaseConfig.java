@@ -92,4 +92,28 @@ public class DatabaseConfig {
             return new PostgresWaitlistRepositoryImpl(new SQLDatabaseConnection().getConnection());
         }
     }
+
+    /**
+     * Gibt das AddressRepository zurück, um auf Addressen zuzugreifen.
+     * @return das AddressRepository
+     */
+    public AddressRepository getAddressRepository() {
+        if (useMongoDB) {
+            return new MongoAddressRepositoryImpl(new NoSQLDatabaseConnection("application.properties").getDatabase());
+        } else {
+            return new PostgresAddressRepositoryImpl(new SQLDatabaseConnection().getConnection());
+        }
+    }
+
+    /**
+     * Gibt das ContactRepository zurück, um auf Kontaktdaten zuzugreifen.
+     * @return das ContactRepository
+     */
+    public ContactRepository getContactRepository() {
+        if (useMongoDB) {
+            return new MongoContactRepositoryImpl(new NoSQLDatabaseConnection("application.properties").getDatabase());
+        } else {
+            return new PostgresContactRepositoryImpl(new SQLDatabaseConnection().getConnection());
+        }
+    }
 }

@@ -16,6 +16,23 @@ public class UserDetailsController {
     @FXML
     private Label roleLabel;       // Label für die Rolle
 
+    @FXML
+    private Label streetLabel;
+    @FXML
+    private Label houseNumberLabel;
+    @FXML
+    private Label cityLabel;
+    @FXML
+    private Label zipCodeLabel;
+
+    @FXML
+    private Label emailLabel;
+    @FXML
+    private Label phoneLabel;
+    @FXML
+    private Label mobileLabel;
+
+
     private UserService userService;
 
     /**
@@ -28,6 +45,21 @@ public class UserDetailsController {
                     + (person.getBirthDate() != null ? person.getBirthDate().toString() : "-"));
             genderLabel.setText("Geschlecht: " + (person.getGender() == 'M' ? "Männlich" : "Weiblich"));
             roleLabel.setText("Rolle: " + person.getRole());
+
+            // Adresse
+            if (person.getAddress() != null) {
+                streetLabel.setText("Straße: " + person.getAddress().getStreet());
+                houseNumberLabel.setText("Hausnummer: " + person.getAddress().getHouseNumber());
+                cityLabel.setText("Stadt: " + person.getAddress().getCity());
+                zipCodeLabel.setText("PLZ: " + person.getAddress().getZipCode());
+            }
+
+            // Kontaktdaten
+            if (person.getContact() != null) {
+                emailLabel.setText("Email: " + person.getContact().getEmail());
+                phoneLabel.setText("Telefon: " + person.getContact().getPhone());
+                mobileLabel.setText("Mobil: " + person.getContact().getMobile());
+            }
         } else {
             // Falls kein user da ist
             nameLabel.setText("Name: -");
