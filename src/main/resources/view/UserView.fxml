@@ -12,6 +12,7 @@
         <HBox alignment="center" prefHeight="46.0" prefWidth="505.0" spacing="10" style="-fx-padding: 10; -fx-background-color: #D8D8D8;">
         <Button onAction="#navigateToLoginView" text="Zurück" />
         <Button fx:id="navigateBookSearchButton" onAction="#handleBookSearch" text="Buch Suchen" />
+        <Button fx:id="showDetailsButton" text="Nutzerdetails anzeigen" onAction="#showUserDetails"/>
         </HBox>
     </top>
     <!-- Top Navigation Bar -->

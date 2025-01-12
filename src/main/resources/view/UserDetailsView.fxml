@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="application.controller.UserDetailsController">
+    <Label fx:id="nameLabel" layoutX="20" layoutY="20" text="Name: " />
+    <Label fx:id="birthDateLabel" layoutX="20" layoutY="60" text="Geburtsdatum: " />
+    <Label fx:id="genderLabel" layoutX="20" layoutY="100" text="Geschlecht: " />
+    <Label fx:id="roleLabel" layoutX="20" layoutY="140" text="Rolle: " />
+</AnchorPane>
+
