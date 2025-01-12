@@ -1,6 +1,7 @@
 package application.controller;
 
 import application.service.UserService;
+import application.service.BackupService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -8,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.scene.control.Alert;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -16,7 +18,14 @@ public class AdminPageController {
     @FXML
     private BorderPane mainPane;
     public Button addWorkerButton;
+    @FXML
+    private Button backupPostgresButton;
+    @FXML
+    private Button backupMongoButton;
+
     private UserService userService;
+
+    private final BackupService backupService = new BackupService();
 
     public void setUserService(UserService userService) { this.userService = userService; }
 
@@ -58,5 +67,34 @@ public class AdminPageController {
             System.err.println("Fehler beim Laden der MainView.fxml: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Führt das PostgreSQL Backup aus.
+     */
+    @FXML
+    private void handlePostgresBackup() {
+        backupService.backupPostgres();
+        showAlert("PostgreSQL Backup", "Das PostgreSQL Backup wurde erfolgreich durchgeführt.");
+    }
+
+    /**
+     * Führt das MongoDB Backup aus.
+     */
+    @FXML
+    private void handleMongoBackup() {
+        backupService.backupMongoDB();
+        showAlert("MongoDB Backup", "Das MongoDB Backup wurde erfolgreich durchgeführt.");
+    }
+
+    /**
+     * Zeigt eine einfache Informationsmeldung.
+     */
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
