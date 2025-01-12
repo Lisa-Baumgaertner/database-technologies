@@ -16,4 +16,10 @@ public class MongoUserRepositoryImpl implements UserRepository {
     public  String getUserNameById(int userId) {
         return "Benutzername";
     }
+
+    public Person insertPerson(Person person) {
+        return null;
+    }
+    public void deletePerson(Integer userId) {}
+    public void updatePerson(Person Person) {}
 }

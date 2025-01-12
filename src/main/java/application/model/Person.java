@@ -123,9 +123,9 @@ public class Person {
         return gender;
     }
 
-    public void setGender(char gender) {
-        if (gender == 'M' || gender == 'F') {
-            this.gender = gender;
+    public void setGender(String gender) {
+        if (gender != null && (gender.equalsIgnoreCase("M") || gender.equalsIgnoreCase("F"))) {
+            this.gender = gender.toUpperCase().charAt(0);  // Konvertiere String in char
         } else {
             throw new IllegalArgumentException("Gender must be 'M' or 'F'.");
         }
