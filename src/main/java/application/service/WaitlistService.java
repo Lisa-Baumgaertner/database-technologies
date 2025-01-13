@@ -130,7 +130,7 @@ public class WaitlistService {
      * Singleton-Methode: Initialisiert WaitlistService und stellt sicher, dass nur eine Instanz existiert.
      * @return Eine Instanz von WaitlistService.
      */
-    public static WaitlistService getInstance() {
+    /*public static WaitlistService getInstance() {
         if (instance == null) {
             try {
                 // Erstelle eine neue Instanz von DatabaseConfig
@@ -145,5 +145,5 @@ public class WaitlistService {
             }
         }
         return instance;
-    }
+    }*/
 }
