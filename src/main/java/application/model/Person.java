@@ -20,6 +20,9 @@ public class Person {
     private char gender;
     private StringProperty role;
 
+    private Address address;
+    private Contact contact;
+
 
     /**
      * Standardkonstruktor für Person.
@@ -30,7 +33,7 @@ public class Person {
         this.firstName = new SimpleStringProperty();
         this.lastName = new SimpleStringProperty();
         this.birthDate = null;
-        this.gender = 'M';;
+        this.gender = 'M';
         this.role = new SimpleStringProperty();
     }
 
@@ -123,9 +126,9 @@ public class Person {
         return gender;
     }
 
-    public void setGender(char gender) {
-        if (gender == 'M' || gender == 'F') {
-            this.gender = gender;
+    public void setGender(String gender) {
+        if (gender != null && (gender.equalsIgnoreCase("M") || gender.equalsIgnoreCase("F"))) {
+            this.gender = gender.toUpperCase().charAt(0);  // Konvertiere String in char
         } else {
             throw new IllegalArgumentException("Gender must be 'M' or 'F'.");
         }
@@ -144,5 +147,27 @@ public class Person {
 
     public void setRole(String role) {
         this.role.set(role);
+    }
+
+    /**
+     * Holt die Addresse
+     * @return address
+     */
+    public Address getAddress() {
+        return address;
+    }
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    /**
+     * Holt die Kontaktdaten
+     * @return contact
+     */
+    public Contact getContact() {
+        return contact;
+    }
+    public void setContact(Contact contact) {
+        this.contact = contact;
     }
 }

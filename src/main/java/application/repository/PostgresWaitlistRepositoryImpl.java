@@ -5,6 +5,7 @@ import application.model.Person;
 import application.model.Waitlist;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,30 +30,49 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
     @Override
     public List<Waitlist> getAllWaitlistEntries() {
         List<Waitlist> waitlist = new ArrayList<>();
+
         String query = "SELECT w.waitlist_id, w.user_id, w.book_id, w.checkout_date, w.return_date, w.status, " +
-                "p.firstname, p.nachname, b.booktitle " +
-                "FROM waitlist w " +
+                "p.firstname, p.lastname, b.booktitle " +
+                "FROM waitlist AS w " +
                 "JOIN person p ON w.user_id = p.user_id " +
-                "JOIN book b ON w.book:id = b.book_id";
+                "JOIN book b ON w.book_id = b.book_id " +
+                "WHERE w.status = 'waiting'";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 while (rs.next()) {
-                    Waitlist entry = new Waitlist();
-                    entry.setWaitlistId(rs.getInt("waitlist_id"));
 
-                    Person user = new Person();
-                    user.setFirstName(rs.getString("firstname"));
-                    user.setLastName(rs.getString("lastname"));
-                    entry.setUser(user);
+                    Waitlist entry = mapToWaitlist(rs);
+                    System.out.println(entry);
+                    waitlist.add(entry);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return waitlist;
+    }
 
-                    Book book = new Book();
-                    book.setTitle(rs.getString("booktitle"));
-                    entry.setBook(book);
+    /**
+     * zur Priorisierung nach Checkoutdate
+     */
+    @Override
+    public  List<Waitlist>  getPrioritizedWaitlistEntries() {
+        List<Waitlist> waitlist = new ArrayList<>();
+        String query = "SELECT w.waitlist_id, w.user_id, w.book_id, w.checkout_date, w.return_date, w.status, " +
+                "p.firstname, p.lastname, b.booktitle, " +
+                "DATE_PART('day', CURRENT_DATE - w.checkout_date) AS priority " +  // Berechnung der Priorität
+                "FROM waitlist AS w " +
+                "JOIN person p ON w.user_id = p.user_id " +
+                "JOIN book b ON w.book_id = b.book_id " +
+                "WHERE w.status = 'waiting' " +
+                "ORDER BY priority DESC";  // Nach Priorität sortieren
 
-                    entry.setCheckoutDate(rs.getDate("checkout_dtae").toLocalDate());
-                    entry.setReturnDate(rs.getDate("return_date") != null ? rs.getDate("RETURN_DATE").toLocalDate() : null);
-                    entry.setStatus(rs.getString("status"));
-
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                while (rs.next()) {
+                    Waitlist entry = mapToWaitlist(rs);
+                    System.out.println("Priorität " + rs.getInt("priority") + ": " + entry.getUser().getFirstName() + " - " + entry.getBook().getTitle());
                     waitlist.add(entry);
                 }
             }
@@ -167,11 +187,14 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
     @Override
     public List<Waitlist> getWaitlistForBook(Long bookId) {
         List<Waitlist> waitlist = new ArrayList<>();
+
         String query = "SELECT w.waitlist_id, w.user_id, w.book_id, w.checkout_date, w.return_date, w.status, " +
-                "p.firstname, p.lastname " +
+                "p.firstname, p.lastname, b.booktitle " +
                 "FROM waitlist w " +
                 "JOIN person p ON w.user_id = p.user_id " +
-                "WHERE w.book_id = ?";
+                "JOIN book b ON w.book_id = b.book_id " +
+                "WHERE w.book_id = ? AND w.status = 'waiting'";
+
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setLong(1, bookId);
@@ -194,12 +217,11 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
     @Override
     public List<Waitlist> getWaitlistForUser(Long userId) {
         List<Waitlist> waitlist = new ArrayList<>();
-        String query = "SELECT w.waitlist_id, w,user_id, w.book_id, w.checkout_date, w.return_date, w.status, " +
+        String query = "SELECT w.waitlist_id, w.user_id, w.book_id, w.checkout_date, w.return_date, w.status, " +
                 "p.firstname, p.lastname, b.booktitle " +
                 "FROM waitlist w " +
                 "JOIN person p ON w.user_id = p.user_id " +
-                "JOIN book b ON w.book_id = b.book_id " +
-                "WHERE w.user_id = ?";
+                "JOIN book b ON w.book_id = b.book_id";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
         statement.setLong(1, userId);
         ResultSet rs = statement.executeQuery();
@@ -249,6 +271,22 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
     }
 
     /**
+     * Aktualisierung des checkout_date: erhöhung oder verringern der Periorität
+     */
+    @Override
+    public void updateCheckoutDate(Long waitlistId, LocalDate newCheckoutDate) {
+        String query = "UPDATE waitlist SET checkout_date = ? WHERE waitlist_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setDate(1, Date.valueOf(newCheckoutDate));
+            statement.setLong(2, waitlistId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
      * Hilfsmethode zur Konvertierung eines ResultSet in ein `Waitlist`-Objekt.
      */
     private Waitlist mapToWaitlist(ResultSet rs) throws SQLException {
@@ -265,6 +303,7 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         entry.setUser(user);
 
         Book book = new Book();
+        book.setBookId(rs.getInt("book_id"));
         book.setTitle(rs.getString("booktitle"));
         entry.setBook(book);
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="application.controller.WaitlistController" alignment="CENTER" style="-fx-padding: 10;">
+
+    <TableView fx:id="waitlistTable" prefHeight="300" prefWidth="600">
+        <columns>
+            <TableColumn fx:id="columnWaitlistId" text="Wartelisten-ID" prefWidth="100" />
+            <TableColumn fx:id="columnBookTitle" text="Buchtitel" prefWidth="200" />
+            <TableColumn fx:id="columnUserName" text="Benutzername" prefWidth="150" />
+            <TableColumn fx:id="columnCheckoutDate" text="Checkout Date" prefWidth="150"/>
+            <TableColumn fx:id="columnPriority" text="Priorität" prefWidth="100" />
+            <TableColumn fx:id="columnStatus" text="Status" prefWidth="100" />
+        </columns>
+    </TableView>
+
+    <HBox spacing="10">
+        <Button fx:id="btnRemoveUser" text="Benutzer entfernen" onAction="#removeUserFromWaitlist" />
+        <Button fx:id="btnIncreasePriority" text="Priorität erhöhen" onAction="#increasePriority" />
+        <Button fx:id="btnDecreasePriority" text="Priorität verringern" onAction="#decreasePriority" />
+    </HBox>
+</VBox>

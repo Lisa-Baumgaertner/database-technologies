@@ -45,7 +45,11 @@ public class UserLoginController {
      */
     public void setUserService(UserService userService) {
         this.userService = userService;
-        System.out.println(userService + "UserService nicht initialisiert.");
+        if (userService == null) {
+            System.out.println("UserService ist tatsächlich null!");
+        } else {
+            System.out.println("UserService ist nicht null: " + userService);
+        }
         loadFirstBorrower();
     }
 
@@ -59,7 +63,7 @@ public class UserLoginController {
         }
 
         Person borrower = userService.getFirstBorrower();
-        System.out.println(borrower);
+       System.out.println(borrower);
         if (borrower != null) {
             // Benutzername anzeigen
             String fullName = borrower.getFirstName() + " " + borrower.getLastName();
@@ -88,7 +92,7 @@ public class UserLoginController {
             Parent root = loader.load();
 
             // Zeige die neue Ansicht im Center-Bereich
-            //  mainPane.setCenter(root);
+          //  mainPane.setCenter(root);
 
             UserPageController userPageController = loader.getController();
 
@@ -101,10 +105,10 @@ public class UserLoginController {
             NotificationService notificationService = new NotificationService(notificationRepository);
 
             // Übergabe der NotificationService-Instanz und der Benutzer-ID
-            Long userId = userService.getFirstBorrower().getUserId(); // Testperson
-            userPageController.initializeUser(notificationService, userId);
-            System.out.println("In handleLoginButtonAction " + userId);
-            Scene scene = new Scene(root, 800, 600);
+            Long userId = UserService.getInstance().getFirstBorrower().getUserId(); // Testperson
+            userPageController.initializeUser(notificationService, UserService.getInstance(), userId);
+
+            Scene scene = new Scene(root, 1100, 1000);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);

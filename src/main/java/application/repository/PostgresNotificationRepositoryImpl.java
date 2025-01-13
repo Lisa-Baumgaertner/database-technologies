@@ -52,6 +52,7 @@ public class PostgresNotificationRepositoryImpl implements NotificationRepositor
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        System.out.println("notifications" + notifications);
         return notifications;
     }
 

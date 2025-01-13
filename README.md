@@ -66,7 +66,7 @@ database.password=password
 
 # MongoDB Datenbankverbindung
 mongodb.uri=mongodb+srv://<username>:<password>@librarymanagement.nogaz.mongodb.net/?retryWrites=true&w=majority&appName=librarymanagement
-mongodb.database=librarymanagement
+mongodb.database=Library
 
 ```
 ## ➕ Add to ``` .gitignore ```

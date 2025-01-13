@@ -31,8 +31,13 @@ public class Main extends Application {
      * Konstruktor, der die Services initialisiert, indem die Repositories über die Datenbankkonfiguration abgerufen werden.
      */
     public Main() throws IOException {
+        DatabaseConfig config = new DatabaseConfig();
         this.bookService = new BookService(new DatabaseConfig().getBookRepository());
-        this.userService = new UserService(new DatabaseConfig().getUserRepository());
+        this.userService = new UserService(
+                config.getUserRepository(),
+                config.getAddressRepository(),
+                config.getContactRepository()
+        );
         this.lendingService = new LendingService(new DatabaseConfig().getLendingRepository());
         this.waitlistService = new WaitlistService(new DatabaseConfig().getWaitlistRepository());
     }
@@ -51,12 +56,13 @@ public class Main extends Application {
         // Hole den MainController und setze die Services
         MainController mainController = loader.getController();
 
-        mainController.setBookService(BookService.getInstance());
-        mainController.setUserService(UserService.getInstance());
-        mainController.setLendingService(LendingService.getInstance());
+        mainController.setBookService(bookService);
+        mainController.setUserService(userService);
+        mainController.setLendingService(lendingService);
+        mainController.setWaitlistService(waitlistService);
 
-        // Erstelle die Szene mit einer Größe von 800x600 Pixeln
-        Scene scene = new Scene(root, 800, 600);
+        // Erstelle die Szene mit einer Größe von 1100 x 1000 Pixeln
+        Scene scene = new Scene(root, 1100, 1000);
         scene.getStylesheets().add(getClass().getResource("/styles/style.css").toExternalForm());
 
         primaryStage.setTitle("Library Management");

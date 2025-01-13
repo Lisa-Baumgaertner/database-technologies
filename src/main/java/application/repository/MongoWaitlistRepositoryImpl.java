@@ -4,10 +4,13 @@ import application.model.Person;
 import application.model.Waitlist;
 import com.mongodb.client.MongoDatabase;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
+
     private final MongoDatabase database;
+
     public MongoWaitlistRepositoryImpl(MongoDatabase database) {
         this.database = database;
     }
@@ -22,31 +25,31 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
 
     @Override
     public List<Waitlist> getAllWaitlistEntries() {
-        return List.of();
+        return null;
     }
 
-    @Override
-    public boolean addToWaitlist(Long userId, Long bookId, String status) {
-        return true; // Änderung
+    public void addToWaitlist(Long userId, Long bookId, String status) {}
+
+    public  List<Waitlist> getWaitlistForBook(Long bookId) {
+        return null;
     }
 
-    @Override
-    public List<Waitlist> getWaitlistForBook(Long bookId) {
-        return List.of();
+    public  List<Waitlist> getWaitlistForUser(Long userId) {
+        return null;
     }
 
-    @Override
-    public List<Waitlist> getWaitlistForUser(Long userId) {
-        return List.of();
-    }
 
-    @Override
-    public void updateStatus(Long waitlistId, String status) {
+    public void updateStatus(Long waitlistId, String status) {}
 
+    public void removeFromWaitlist(Long waitlistId) {}
+
+    public  List<Waitlist>  getPrioritizedWaitlistEntries() {
+        return null;
     }
 
     @Override
     public void removeFromWaitlist(Long waitlistId) {
 
+   public void updateCheckoutDate(Long waitlistId, LocalDate checkoutDate) {
     }
 }

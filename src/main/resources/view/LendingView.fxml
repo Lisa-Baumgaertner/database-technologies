@@ -11,12 +11,11 @@
 <?import javafx.scene.control.TableColumn?>
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="application.controller.LendingController">
-    <!-- Überschrift -->
+
     <top>
         <Label text="Ausleihen verwalten" style="-fx-font-size: 20px; -fx-padding: 10px;" />
     </top>
 
-    <!-- Such- und Filterbereich -->
     <top>
         <VBox spacing="10" alignment="CENTER" style="-fx-padding: 10px;">
             <!-- Suchfeld -->
