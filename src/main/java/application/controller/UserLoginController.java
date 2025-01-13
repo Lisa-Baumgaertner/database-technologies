@@ -116,4 +116,21 @@ public class UserLoginController {
             System.out.println("Fehler beim Laden von UserView.fxml.");
         }
     }
+
+    @FXML
+    private void navigateToMainView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
+            Parent bookSearchView = loader.load();
+
+            Scene scene = new Scene(bookSearchView, 1100, 1000);
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
+            Stage stage = (Stage) loginButton.getScene().getWindow();
+            stage.setScene(scene);
+        } catch (IOException e) {
+            System.err.println("Fehler beim Laden der MainView.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+    }
 }
