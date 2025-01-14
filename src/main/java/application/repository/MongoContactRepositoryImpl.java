@@ -17,4 +17,9 @@ public class MongoContactRepositoryImpl implements ContactRepository {
     public Contact getContactByUserId(long userId) {
         return null;
     }
+
+    @Override
+    public Contact insertContact(Contact contact) {
+        return null;
+    }
 }

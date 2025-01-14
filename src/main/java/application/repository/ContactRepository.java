@@ -4,4 +4,5 @@ import application.model.Contact;
 
 public interface ContactRepository {
     Contact getContactByUserId(long userId);
+    Contact insertContact(Contact contact);
 }

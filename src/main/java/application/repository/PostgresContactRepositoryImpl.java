@@ -35,4 +35,32 @@ public class PostgresContactRepositoryImpl implements ContactRepository {
         }
         return null;
     }
+
+    /**
+     * Kontakt hinzufügen
+     */
+    public Contact insertContact(Contact contact) {
+        String query = "INSERT INTO Contact (user_id, email, phone, mobile) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, contact.getUserId());
+            preparedStatement.setString(2, contact.getEmail());
+            preparedStatement.setString(3, contact.getPhone());
+            preparedStatement.setString(4, contact.getMobile());
+            int rowsInserted = preparedStatement.executeUpdate();
+
+            if (rowsInserted > 0) {
+                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int contactId = generatedKeys.getInt(1);  // Automatisch generierte ID abrufen
+                        contact.setContactId(contactId);  // In das Objekt setzen
+                        return contact;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Fehler beim Einfügen der Adresse: " + e.getMessage());
+        }
+        return null;
+    }
+
 }

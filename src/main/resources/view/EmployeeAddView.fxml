@@ -40,6 +40,29 @@
     <Label text="Rolle:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
     <Label text="Mitarbeiter" GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="roleLabel"/>
 
+    <!-- Adresse -->
+    <Label text="Straße:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+    <TextField fx:id="streetField" GridPane.rowIndex="5" GridPane.columnIndex="1" promptText="Straße eingeben"/>
+
+    <Label text="Hausnummer:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+    <TextField fx:id="houseNumberField" GridPane.rowIndex="6" GridPane.columnIndex="1" promptText="Hausnummer eingeben"/>
+
+    <Label text="Stadt:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+    <TextField fx:id="cityField" GridPane.rowIndex="7" GridPane.columnIndex="1" promptText="Stadt eingeben"/>
+
+    <Label text="Postleitzahl:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+    <TextField fx:id="zipCodeField" GridPane.rowIndex="8" GridPane.columnIndex="1" promptText="Postleitzahl eingeben"/>
+
+    <!-- Kontakt -->
+    <Label text="Telefon:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+    <TextField fx:id="phoneField" GridPane.rowIndex="9" GridPane.columnIndex="1" promptText="Telefonnummer eingeben"/>
+
+    <Label text="Mobil:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+    <TextField fx:id="mobileField" GridPane.rowIndex="10" GridPane.columnIndex="1" promptText="Handynummer eingeben"/>
+
+    <Label text="E-Mail:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+    <TextField fx:id="emailField" GridPane.rowIndex="11" GridPane.columnIndex="1" promptText="E-Mail-Adresse eingeben"/>
+
     <!-- Button zum Hinzufügen -->
-    <Button text="Mitarbeiter hinzufügen" GridPane.rowIndex="5" GridPane.columnIndex="1" onAction="#handleAddMitarbeiter"/>
+    <Button text="Mitarbeiter hinzufügen" GridPane.rowIndex="12" GridPane.columnIndex="1" onAction="#handleAddMitarbeiter"/>
 </GridPane>

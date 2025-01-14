@@ -1,5 +1,7 @@
 package application.repository;
 
+import application.model.Address;
+import application.model.Contact;
 import application.model.Person;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -10,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.set;
+
 
 public class MongoUserRepositoryImpl implements UserRepository {
     private final MongoDatabase database;
@@ -25,8 +27,6 @@ public class MongoUserRepositoryImpl implements UserRepository {
         System.out.println("Anzahl aller Einträge in der Collection: " + totalPersons);
         System.out.println("personCollection " + this.personCollection.countDocuments() );
 
-
-
     }
 
     public Person getFirstBorrower() {
@@ -40,13 +40,24 @@ public class MongoUserRepositoryImpl implements UserRepository {
         }
     }
 
+    /**
+     * Holt Name der Person anhand userId.
+     */
     public  String getUserNameById(int userId) {
         return "Benutzername";
     }
 
+    /**
+     * Person hinzufügen.
+     */
     public Person insertPerson(Person person) {
+        System.out.println("Insert Person: " + person);
+        MongoCollection<Document> collection = database.getCollection("person");
         return null;
     }
+    public Address insertAddress(Address address) { return null;}
+    public Contact insertContact(Contact contact) { return null;}
+
     public void deletePerson(Integer userId) {}
     public void updatePerson(Person Person) {}
 

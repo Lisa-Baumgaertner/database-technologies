@@ -17,4 +17,9 @@ public class MongoAddressRepositoryImpl implements AddressRepository {
     public Address getAddressByUserId(long userId) {
         return null;
     }
+
+    @Override
+    public Address insertAddress(Address address) {
+        return null;
+    }
 }
