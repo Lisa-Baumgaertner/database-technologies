@@ -36,7 +36,7 @@ public class PostgresReviewRepositoryImpl implements ReviewRepository {
                 review.setUserId(rs.getInt("USER_ID"));
                 review.setReviewText(rs.getString("REVIEW_TEXT"));
                 review.setReviewDate(rs.getDate("REVIEW_DATE").toLocalDate());
-                review.setReviewRating(rs.getString("REVIEW_RATING"));
+                review.setReviewRating(rs.getInt("REVIEW_RATING"));
                 reviews.add(review);
             }
         } catch (SQLException e) {
@@ -57,7 +57,7 @@ public class PostgresReviewRepositoryImpl implements ReviewRepository {
             stmt.setInt(2, review.getUserId());
             stmt.setString(3, review.getReviewText());
             stmt.setDate(4, Date.valueOf(review.getReviewDate()));
-            stmt.setString(5, review.getReviewRating());
+            stmt.setInt(5, review.getReviewRating());
             return stmt.executeUpdate() > 0;  // Gibt true zurück, wenn erfolgreich
         } catch (SQLException e) {
             throw new RuntimeException("Fehler beim Hinzufügen der Rezension", e);
