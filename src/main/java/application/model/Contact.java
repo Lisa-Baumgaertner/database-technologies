@@ -25,8 +25,17 @@ public class Contact {
         this.mobile = new SimpleStringProperty();
     }
 
+    // Konstruktor für PostgreSQL (mit contactId)
     public Contact(long contactId, long userId, String email, String phone, String mobile) {
         this.contactId = new SimpleLongProperty(contactId);
+        this.userId = new SimpleLongProperty(userId);
+        this.email = new SimpleStringProperty(email);
+        this.phone = new SimpleStringProperty(phone);
+        this.mobile = new SimpleStringProperty(mobile);
+    }
+
+    // Konstruktor für MongoDB (ohne contactId)
+    public Contact(long userId, String email, String phone, String mobile) {
         this.userId = new SimpleLongProperty(userId);
         this.email = new SimpleStringProperty(email);
         this.phone = new SimpleStringProperty(phone);
@@ -91,5 +100,16 @@ public class Contact {
 
     public void setMobile(String mobile) {
         this.mobile.set(mobile);
+    }
+
+    @Override
+    public String toString() {
+        return "Contact{" +
+                "contactId=" + getContactId() +
+                ", userId=" + getUserId() +
+                ", email='" + getEmail() + '\'' +
+                ", phone='" + getPhone() + '\'' +
+                ", mobile='" + getMobile() + '\'' +
+                '}';
     }
 }
