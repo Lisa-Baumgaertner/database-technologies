@@ -1,6 +1,8 @@
 package application.repository;
 
+import application.model.Address;
 import application.model.Book;
+import application.model.Contact;
 import application.model.Person;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,6 +49,9 @@ public class PostgresUserRepositoryImpl implements UserRepository {
         return null; // Kein Benutzer gefunden oder Fehler aufgetreten
     }
 
+    /**
+     * Holt Name der Person anhand userId.
+     */
     public  String getUserNameById(int userId) {
         String query = "SELECT firstname, lastname FROM person WHERE user_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -69,7 +74,7 @@ public class PostgresUserRepositoryImpl implements UserRepository {
      * Person hinzufügen.
      */
     public Person  insertPerson(Person person) {
-        String query = "INSERT INTO Person (firstname, lastname, birthdate, gender, role) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Person (firstname, lastname, birthdate, gender, role) VALUES (?, ?, ?, ?, ?) RETURNING user_id";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, person.getFirstName());
@@ -78,13 +83,13 @@ public class PostgresUserRepositoryImpl implements UserRepository {
             preparedStatement.setString(4, String.valueOf(person.getGender()));
             preparedStatement.setString(5,person.getRole());
 
-            int rowsInserted = preparedStatement.executeUpdate();
-            if (rowsInserted > 0) {
-                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        person.setUserId(generatedKeys.getInt(1));
-                    }
-                }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                int generatedId = resultSet.getInt("user_id");  // `user_id` abrufen
+                person.setUserId(generatedId);
+                System.out.println("Generierte user_id: " + generatedId);
+            } else {
+                System.err.println("Kein Schlüssel zurückgegeben.");
             }
 
         } catch (SQLException e) {
@@ -93,6 +98,7 @@ public class PostgresUserRepositoryImpl implements UserRepository {
         }
         return person;
     }
+
 
     /**
      * Person löschen

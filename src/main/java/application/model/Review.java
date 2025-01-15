@@ -14,7 +14,7 @@ public class Review {
     private IntegerProperty userId;
     private StringProperty reviewText;
     private ObjectProperty<LocalDate> reviewDate;
-    private StringProperty reviewRating;
+    private IntegerProperty reviewRating;
 
     /**
      * Standardkonstruktor für Bewertungen.
@@ -26,7 +26,19 @@ public class Review {
         this.userId = new SimpleIntegerProperty();
         this.reviewText = new SimpleStringProperty();
         this.reviewDate = new SimpleObjectProperty<>();
-        this.reviewRating = new SimpleStringProperty();
+        this.reviewRating = new SimpleIntegerProperty();
+    }
+
+    /**
+     * Konstruktor mit Parametern.
+     */
+    public Review(int reviewId, int bookId, int userId, String reviewText, LocalDate reviewDate, int reviewRating) {
+        this.reviewId = new SimpleIntegerProperty(reviewId);
+        this.bookId = new SimpleIntegerProperty(bookId);
+        this.userId = new SimpleIntegerProperty(userId);
+        this.reviewText = new SimpleStringProperty(reviewText);
+        this.reviewDate = new SimpleObjectProperty<>(reviewDate);
+        this.reviewRating = new SimpleIntegerProperty(reviewRating);
     }
 
     // Getter und Setter für Properties
@@ -121,15 +133,27 @@ public class Review {
      *
      * @return Das Rating der Bewertung.
      */
-    public String getReviewRating() {
+    public int getReviewRating() {
         return reviewRating.get();
     }
 
-    public void setReviewRating(String reviewRating) {
+    public void setReviewRating(int reviewRating) {
         this.reviewRating.set(reviewRating);
     }
 
-    public StringProperty reviewRatingProperty() {
+    public IntegerProperty reviewRatingProperty() {
         return reviewRating;
+    }
+
+    @Override
+    public String toString() {
+        return "Review{" +
+                "reviewId=" + getReviewId() +
+                ", bookId=" + getBookId() +
+                ", borrowerId=" + getUserId() +
+                ", reviewText='" + getReviewText() + '\'' +
+                ", reviewDate=" + getReviewDate() +
+                ", reviewRating=" + getReviewRating() +
+                '}';
     }
 }

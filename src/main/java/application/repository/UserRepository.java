@@ -1,5 +1,7 @@
 package application.repository;
 
+import application.model.Address;
+import application.model.Contact;
 import application.model.Person;
 
 

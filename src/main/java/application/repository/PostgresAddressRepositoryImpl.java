@@ -36,4 +36,32 @@ public class PostgresAddressRepositoryImpl implements AddressRepository {
         }
         return null;
     }
+
+    /**
+     * Adresse hinzufügen
+     */
+    public Address insertAddress(Address address) {
+        String query = "INSERT INTO address (user_id, street, housenumber, city, zip_code) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, address.getUserId());
+            preparedStatement.setString(2, address.getStreet());
+            preparedStatement.setString(3, address.getHouseNumber());
+            preparedStatement.setString(4, address.getCity());
+            preparedStatement.setString(5, address.getZipCode());
+            int rowsInserted = preparedStatement.executeUpdate();
+
+            if (rowsInserted > 0) {
+                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int addressId = generatedKeys.getInt(1);  // Automatisch generierte ID abrufen
+                        address.setAddressId(addressId);  // In das Objekt setzen
+                        return address;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Fehler beim Einfügen der Adresse: " + e.getMessage());
+        }
+        return null;
+    }
 }

@@ -4,10 +4,14 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.TextField?>
 
+
+<?import javafx.scene.layout.HBox?>
 <GridPane fx:controller="application.controller.UserLoginController"
           xmlns="http://javafx.com/javafx"
           xmlns:fx="http://javafx.com/fxml"
           alignment="center" hgap="10" vgap="10">
+
+
 
     <!-- Überschrift -->
     <Label text="Login" style="-fx-font-size: 20px; -fx-font-weight: bold;" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.halignment="center"/>
@@ -22,7 +26,8 @@
 
     <!-- Anmelden-Button -->
     <Button text="Anmelden" fx:id="loginButton" onAction="#handleLoginButtonAction" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.halignment="center" style="-fx-background-color: #007BFF; -fx-text-fill: white; -fx-font-weight: bold;"/>
-
+    <!-- Zurück-Button -->
+    <Button onAction="#navigateToMainView" text="Zurück" GridPane.columnIndex="2" GridPane.rowIndex="3" GridPane.halignment="center" />
     <!-- Padding -->
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>

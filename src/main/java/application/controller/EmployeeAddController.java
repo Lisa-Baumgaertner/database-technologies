@@ -1,5 +1,7 @@
 package application.controller;
 
+import application.model.Address;
+import application.model.Contact;
 import application.model.Person;
 import application.service.UserService;
 import javafx.fxml.FXML;
@@ -22,6 +24,23 @@ public class EmployeeAddController {
     private ComboBox<String> genderComboBox;
     @FXML
     private TextField roleField;
+    @FXML
+    private TextField streetField;
+    @FXML
+    private TextField houseNumberField;
+    @FXML
+    private TextField cityField;
+    @FXML
+    private TextField zipCodeField;
+
+    @FXML
+    private TextField phoneField;
+    @FXML
+    private TextField mobileField;
+    @FXML
+    private TextField emailField;
+
+
     private UserService userService;
     public void setUserService(UserService userService) {
         this.userService = userService;
@@ -38,16 +57,53 @@ public class EmployeeAddController {
      */
     @FXML
     public void handleAddMitarbeiter() {
-        Person personToInsert = new Person();
-        personToInsert.setFirstName(firstNameField.getText().trim());
-        personToInsert.setLastName(lastNameField.getText().trim());
-        personToInsert.setBirthDate(birthDateField.getValue());
-        personToInsert.setGender(genderComboBox.getSelectionModel().getSelectedItem());
-        personToInsert.setRole("Worker");
 
-        userService.insertPerson(personToInsert);
-        System.out.println("Person was successfully added.");
-        this.clearFields();
+        // Überprüfen, ob alle Pflichtfelder ausgefüllt sind
+        if (firstNameField.getText().trim().isEmpty() || lastNameField.getText().trim().isEmpty() || birthDateField.getValue() == null ||
+                genderComboBox.getSelectionModel().isEmpty() || streetField.getText().trim().isEmpty() ||
+                houseNumberField.getText().trim().isEmpty() || cityField.getText().trim().isEmpty() || zipCodeField.getText().trim().isEmpty()) {
+            System.err.println("Bitte alle Pflichtfelder ausfüllen.");
+            return;  // Bricht ab, wenn Felder leer sind
+        }
+
+        try {
+            // Erstelle eine neue Person
+            Person personToInsert = new Person();
+            personToInsert.setFirstName(firstNameField.getText().trim());
+            personToInsert.setLastName(lastNameField.getText().trim());
+            personToInsert.setBirthDate(birthDateField.getValue());
+            personToInsert.setGender(genderComboBox.getSelectionModel().getSelectedItem());
+            personToInsert.setRole("Worker");
+
+            // Adresse hinzufügen
+            Address address = new Address();
+            address.setStreet(streetField.getText().trim());
+            address.setHouseNumber(houseNumberField.getText().trim());
+            address.setCity(cityField.getText().trim());
+            address.setZipCode(zipCodeField.getText().trim());
+            personToInsert.setAddress(address);
+
+            // Kontakt hinzufügen
+            Contact contact = new Contact();
+            contact.setPhone(phoneField.getText().trim());
+            contact.setMobile(mobileField.getText().trim());
+            contact.setEmail(emailField.getText().trim());
+            personToInsert.setContact(contact);
+
+            // Person speichern und generierte userId abrufen
+            Person insertedPerson = userService.insertPerson(personToInsert);
+
+            if (insertedPerson.getUserId() == 0) {
+                throw new RuntimeException("Fehler: Die userId ist 0 und konnte nicht abgerufen werden!");
+            }
+
+            System.out.println("Person mit ID: " + insertedPerson.getUserId() + " wurde erfolgreich hinzugefügt.");
+
+        } catch (Exception e) {
+            System.err.println("Fehler beim Hinzufügen der Person: " + e.getMessage());
+        }
+
+        this.clearFields();  // Felder zurücksetzen
     }
 
     /**
@@ -105,5 +161,12 @@ public class EmployeeAddController {
         lastNameField.clear();
         birthDateField.setValue(null);
         genderComboBox.setValue(null);
+        streetField.clear();
+        houseNumberField.clear();
+        cityField.clear();
+        zipCodeField.clear();
+        phoneField.clear();
+        mobileField.clear();
+        emailField.clear();
     }
 }

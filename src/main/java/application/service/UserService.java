@@ -23,8 +23,8 @@ public class UserService {
     private final ContactRepository contactRepository;
 
 
-    public UserService(UserRepository userRepository,
-                       AddressRepository addressRepository,
+
+    public UserService(UserRepository userRepository, AddressRepository addressRepository,
                        ContactRepository contactRepository) {
 
         this.userRepository = userRepository;
@@ -33,16 +33,67 @@ public class UserService {
     }
 
 
+    /**
+     * Holt Name der Peron anhand userID.
+     */
     public  String getUserNameById(int id) {
         return userRepository.getUserNameById(id);
     }
 
+
     /**
      * Fügt Person hinzu.
      */
-    public  Person insertPerson(Person Person) {
-        return userRepository.insertPerson(Person);
+    public Person insertPerson(Person person) {
+        // Beginne den Transaktionsblock
+        try {
+            // Person in die Datenbank einfügen und userId abfragen
+            Person insertedPerson = userRepository.insertPerson(person);
+            if (insertedPerson == null || insertedPerson.getUserId() == 0) {
+                System.err.println("Fehler: Keine gültige userId zurückgegeben!");
+                return null;
+            }
+
+            int userId = insertedPerson.getUserId().intValue();
+            System.out.println("Generierte userId: " + userId);
+
+            // Adresse speichern, falls vorhanden
+            if (person.getAddress() != null) {
+                try {
+                    System.out.println("Adresse wird hinzugefügt: " + person.getAddress().getCity());
+                    Address address = person.getAddress();
+                    address.setUserId(userId);  // Setze die userId für die Adresse
+                    addressRepository.insertAddress(address);
+                } catch (Exception e) {
+                    System.err.println("Fehler beim Hinzufügen der Adresse: " + e.getMessage());
+                    throw new RuntimeException("Datenbank-Transaktion fehlgeschlagen: Adresse konnte nicht gespeichert werden.");
+                }
+            }
+
+            // Kontakt speichern, falls vorhanden
+            if (person.getContact() != null) {
+                try {
+                    System.out.println("Kontakt wird hinzugefügt: " + person.getContact().getEmail());
+                    Contact contact = person.getContact();
+                    contact.setUserId(userId);  // Setze die userId für den Kontakt
+                    contactRepository.insertContact(contact);
+                } catch (Exception e) {
+                    System.err.println("Fehler beim Hinzufügen des Kontakts: " + e.getMessage());
+                    throw new RuntimeException("Datenbank-Transaktion fehlgeschlagen: Kontakt konnte nicht gespeichert werden.");
+                }
+            }
+
+            System.out.println("Person mit Adresse und Kontakt wurde erfolgreich hinzugefügt.");
+            return insertedPerson;
+
+        } catch (Exception e) {
+            System.err.println("Fehler beim Hinzufügen der Person: " + e.getMessage());
+            e.printStackTrace();
+            return null;  // Gib null zurück, wenn etwas fehlschlägt
+        }
     }
+
+
 
     /**
      * Aktualisiert Person
@@ -70,10 +121,11 @@ public class UserService {
                 DatabaseConfig config = new DatabaseConfig();
 
                 // Verwende die Methode getUserRepository() der Instanz
-                UserRepository repository = config.getUserRepository();
+                UserRepository userRepo = config.getUserRepository();
                 AddressRepository addressRepo = config.getAddressRepository();
                 ContactRepository contactRepo = config.getContactRepository();
-                instance = new UserService(repository, addressRepo, contactRepo);
+
+                instance = new UserService(userRepo, addressRepo, contactRepo);
             } catch (IOException e) {
                 throw new RuntimeException("Fehler bei der Initialisierung des UserService", e);
             }
@@ -99,4 +151,5 @@ public class UserService {
 
         return p;
     }
+
 }

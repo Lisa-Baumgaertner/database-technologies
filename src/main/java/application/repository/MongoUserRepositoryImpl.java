@@ -1,16 +1,21 @@
 package application.repository;
 
+import application.model.Address;
+import application.model.Contact;
 import application.model.Person;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.set;
+
 
 public class MongoUserRepositoryImpl implements UserRepository {
     private final MongoDatabase database;
@@ -25,8 +30,6 @@ public class MongoUserRepositoryImpl implements UserRepository {
         System.out.println("Anzahl aller Einträge in der Collection: " + totalPersons);
         System.out.println("personCollection " + this.personCollection.countDocuments() );
 
-
-
     }
 
     public Person getFirstBorrower() {
@@ -40,13 +43,75 @@ public class MongoUserRepositoryImpl implements UserRepository {
         }
     }
 
+    /**
+     * Holt Name der Person anhand userId.
+     */
     public  String getUserNameById(int userId) {
         return "Benutzername";
     }
 
+    /**
+     * Person hinzufügen.
+     */
     public Person insertPerson(Person person) {
-        return null;
+        try {
+
+            int newUserId = getNextUserId();
+            person.setUserId(newUserId);
+
+            // Adresse und Kontakt als Dokument erstellen
+            Document addressDoc = new Document("street", person.getAddress().getStreet())
+                    .append("houseNumber", person.getAddress().getHouseNumber())
+                    .append("city", person.getAddress().getCity())
+                    .append("zipCode", person.getAddress().getZipCode());
+
+            Document contactDoc = new Document("email", person.getContact().getEmail())
+                    .append("phone", person.getContact().getPhone())
+                    .append("mobile", person.getContact().getMobile());
+
+            // Person-Dokument erstellen
+            Document personDoc = new Document("userId", newUserId)
+                    .append("role", person.getRole())// Benutzerdefinierte `userId`
+                    .append("personalDetails", new Document()
+                            .append("firstName", person.getFirstName())
+                            .append("lastName", person.getLastName())
+                            .append("dateOfBirth", person.getBirthDate().toString())
+                            .append("gender", String.valueOf(person.getGender())))
+                    .append("address", addressDoc)
+                    .append("contact", contactDoc)
+                    .append("reviews", new ArrayList<>())  // Leeres Array für Reviews
+                    .append("lendings", new ArrayList<>());  // Leeres Array für Lendings
+
+            // Dokument in die Collection einfügen
+            personCollection.insertOne(personDoc);
+
+            System.out.println("Mitarbeiter erfolgreich hinzugefügt mit userId: " + newUserId);
+            return person;
+
+        } catch (Exception e) {
+            System.err.println("Fehler beim Hinzufügen des Mitarbeiters in MongoDB: " + e.getMessage());
+            return null;
+        }
     }
+
+    /**
+     * Diese Methode ermittelt die nächste eindeutige `userId`, indem sie nach dem höchsten
+     * aktuellen Wert in der `person`-Collection sucht und diesen um 1 erhöht.
+     * Der Zweck ist, sicherzustellen, dass jede neue Person eine eindeutige `userId` erhält,
+     * auch wenn Einträge in der Datenbank gelöscht wurden.
+     *
+     */
+    public int getNextUserId() {
+        Document maxUserIdDoc = personCollection.find()
+                .sort(new Document("userId", -1))  // Absteigend sortieren
+                .limit(1)
+                .first();
+        int maxUserId = (maxUserIdDoc != null && maxUserIdDoc.containsKey("userId")) ?
+                maxUserIdDoc.getInteger("userId") : 0;  // Überprüfen, ob _id vorhanden ist
+        return maxUserId + 1;
+    }
+
+
     public void deletePerson(Integer userId) {}
     public void updatePerson(Person Person) {}
 
@@ -73,4 +138,10 @@ public class MongoUserRepositoryImpl implements UserRepository {
         return new Person(userId, firstName, lastName, birthDate, gender, role);
     }
 
+    private int getNextSequence(String name) {
+        Document filter = new Document("_id", name);
+        Document update = new Document("$inc", new Document("seq", 1));
+        Document result = database.getCollection("counter").findOneAndUpdate(filter, update);
+        return result.getInteger("seq");
+    }
 }

@@ -72,7 +72,7 @@ public class ReviewListController {
         userColumn.setCellValueFactory(cellData -> cellData.getValue().userIdProperty().asString());
         reviewColumn.setCellValueFactory(cellData -> cellData.getValue().reviewTextProperty());
         dateColumn.setCellValueFactory(cellData -> cellData.getValue().reviewDateProperty());
-        ratingColumn.setCellValueFactory(cellData -> cellData.getValue().reviewRatingProperty());
+        ratingColumn.setCellValueFactory(cellData -> cellData.getValue().reviewRatingProperty().asString());
 
         reviewTable.setItems(reviews);
 
@@ -105,38 +105,45 @@ public class ReviewListController {
      */
     private void handleAddReview() {
         try {
+            // Text aus den Textfeldern holen
             String reviewText = reviewTextField.getText().trim();
-            String rating = ratingTextField.getText().trim();
+            String ratingText = ratingTextField.getText().trim();
 
-            if (reviewText.isEmpty() || rating.isEmpty()) {
+            // Überprüfen, ob die Felder leer sind
+            if (reviewText.isEmpty() || ratingText.isEmpty()) {
                 showAlert(Alert.AlertType.WARNING, "Ungültige Eingabe", "Bitte alle Felder ausfüllen.");
                 return;
             }
 
-            // Test ob die Bewertung im gültigen Bereich (1-5) liegt
+            // Bewertung in Integer umwandeln
+            int rating = Integer.parseInt(ratingText);
+
+            // Prüfen, ob die Bewertung zwischen 1 und 5 liegt
             if (!isValidRating(rating)) {
                 showAlert(Alert.AlertType.ERROR, "Ungültige Bewertung", "Die Bewertung muss zwischen 1 und 5 liegen.");
                 return;
             }
 
+            // Neues Review-Objekt erstellen
             Review review = new Review();
-            review.setBookId(bookId);
-            review.setUserId(1);  // TODO: Benutzer-ID noch fest auf 1 gesetzt
+            review.setBookId(bookId); // Buch-ID setzen
+            review.setUserId(1);      // TODO: Benutzer-ID dynamisch setzen
             review.setReviewText(reviewText);
             review.setReviewDate(LocalDate.now());
-            review.setReviewRating(rating);
+            review.setReviewRating(rating); // <-- Übergabe als Integer
 
-            // Prüfen ob die Bewertung erfolgreich hinzugefügt wurde
+            // Review hinzufügen
             if (reviewService.addReview(review)) {
-                loadReviews();
-                showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Bewertung hinzugefügt.");
+                loadReviews();  // Liste aktualisieren
+                showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Bewertung wurde erfolgreich hinzugefügt.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Fehler", "Bewertung konnte nicht hinzugefügt werden.");
+        } catch (NumberFormatException e) {
+            // Fehlerbehandlung, falls Rating keine Zahl ist
+            showAlert(Alert.AlertType.ERROR, "Ungültige Bewertung", "Bitte eine gültige Zahl für die Bewertung eingeben.");
         }
     }
+
 
 
     /**
@@ -165,14 +172,10 @@ public class ReviewListController {
     /**
      * Validiert, ob die Bewertung eine gültige Zahl zwischen 1 und 5 ist.
      */
-    private boolean isValidRating(String rating) {
-        try {
-            int ratingValue = Integer.parseInt(rating);
-            return ratingValue >= 1 && ratingValue <= 5;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+    private boolean isValidRating(int rating) {
+        return rating >= 1 && rating <= 5;
     }
+
 
     /**
      * Funktion für den Zurück Button.
