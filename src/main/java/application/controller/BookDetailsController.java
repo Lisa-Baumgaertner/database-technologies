@@ -1,9 +1,15 @@
 package application.controller;
 
 import application.model.Book;
+import application.model.Person;
+import application.model.Waitlist;
+import application.repository.WaitlistRepository;
+import application.service.*;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
@@ -14,7 +20,11 @@ import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
-import application.service.ReviewService;
+import java.util.Objects;
+
+import application.service.WaitlistService;
+
+//import static jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle.title;
 
 
 /**
@@ -44,12 +54,21 @@ public class BookDetailsController {
     private Label keywordIdLabel;
     @FXML
     private TextArea descriptionArea;
+    @FXML
+    private Button buttonBackToSearch;
 
     private int bookId;
 
+    private Long userId;
+    private Long myBookId;
+
     private final ReviewService reviewService;
+    private WaitlistRepository waitlistRepository;
+    private WaitlistService waitlistService;
+
     public BookDetailsController() {
         this.reviewService = ReviewService.getInstance(); // Singleton-Instanz des ReviewService
+        this.waitlistService = WaitlistService.getInstance();
     }
 
     private Stage stage;
@@ -60,6 +79,7 @@ public class BookDetailsController {
      */
     public void setBookDetails(Book book) {
         this.bookId = (int) book.getBookId();
+        this.myBookId = book.getBookId();
         bookIdLabel.setText(String.valueOf(book.getBookId()));
         titleLabel.setText(book.getTitle());
         authorLabel.setText(book.getAuthor());
@@ -73,15 +93,36 @@ public class BookDetailsController {
         descriptionArea.setText(book.getDescription());
     }
 
+
+    public void setUserIdBookDetails(Long userId) {
+        this.userId = userId;
+    };
+
+    public Long getUserIdBookDetails(){
+        return userId;
+    }
+
+
     /**
-     * Funktion für die Handhabung des Zurückgehens
+     * Funktion für Handhabung von Zurückgehen.
      */
     @FXML
     private void handleBack() {
-        if (stage != null) {
-            stage.close();
+        // Get the current stage (popup)
+        Stage stage = (Stage) buttonBackToSearch.getScene().getWindow();
+
+        // Get the owner stage (underlying view) if available
+        Stage ownerStage = (Stage) stage.getOwner();
+
+        if (ownerStage != null) {
+            // Show the underlying view (owner stage)
+            ownerStage.show();
         }
+
+        // Close the current popup
+        stage.close();
     }
+
 
     /**
      * Funktion für das Anzeigen der Bewertungen
@@ -107,6 +148,65 @@ public class BookDetailsController {
             e.printStackTrace();
         }
     }
+
+
+    public void setWaitlistService(WaitlistService waitlistService) {
+        this.waitlistService = waitlistService;
+    }
+
+
+
+
+    @FXML
+    private void registerWaitlist() throws IOException {
+
+        boolean resultAdd;
+        String mystatus = statusLabel.getText();
+        System.out.print(mystatus);
+        if (!mystatus.equals("available")){
+
+            System.out.print("in handleSearchUserWaitlsit");
+            UserPageController uspController = new UserPageController();
+            this.userId = uspController.getUserId();
+
+            resultAdd = waitlistService.addToWaitlist(userId, myBookId , mystatus);
+            if (resultAdd == true) {
+                // Anzeige einer Meldung, wenn Nutzer erfolgreich auf Warteliste aufgenommen wurde
+                showAlert("Success", "You have been placed on the waitlist successfully!");
+            } else {
+                // Anzeige einer Meldung, dass Nutzer schon auf Warteliste
+                showAlert("Failure", "You are already on the waitlist!");
+
+            }
+
+
+
+        } else {
+
+            // Anzeige einer Meldung, wenn Buch vorhanden und direkt ausleihbar
+            showAlert("Book Available", "The book is available for checkout!");
+
+
+        }
+
+        }
+
+    /**
+     * Zeige eine Alertbox an.
+     *
+     * @param title   Titel des Alertes.
+     * @param message Inhalt.
+     */
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.showAndWait();
+
+    }
+
+
+
 
     public void setStage(Stage stage) {
         this.stage = stage;

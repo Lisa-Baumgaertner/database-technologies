@@ -173,6 +173,7 @@ public class UserBookSearchController {
     @FXML
     private void handleRowClick() {
         Book selectedBook = resultTable.getSelectionModel().getSelectedItem();
+        UserPageController uspController = new UserPageController();
 
         if (selectedBook != null) {
             try {
@@ -181,8 +182,11 @@ public class UserBookSearchController {
 
                 BookDetailsController controller = loader.getController();
                 controller.setBookDetails(selectedBook);
+                uspController.getUserId();
+                System.out.println("UserBookSearchController " + uspController.getUserId());
 
                 Stage detailsStage = new Stage();
+
                 detailsStage.setTitle("Buchdetails");
                 detailsStage.setScene(detailsScene);
                 detailsStage.show();
