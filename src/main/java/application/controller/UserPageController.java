@@ -37,8 +37,10 @@ public class UserPageController {
 
     private UserService userService;
     private NotificationService notificationService;
-    private Long currentUserId;
+    private static Long currentUserId;
     private final Set<String> dismissedNotifications = new HashSet<>(); // Geschlossene Benachrichtigungen
+
+    private Long userId;
 
     /**
      * Setter für den NotificationService und Benutzer-ID.
@@ -48,8 +50,12 @@ public class UserPageController {
         this.notificationService = notificationService;
         this.userService = userService; // UserService wird initialisiert
         this.currentUserId = userId;
-
         loadNotifications(); // Lade Benachrichtigungen beim Initialisieren
+    }
+
+    public Long getUserId() {
+        System.out.println("In UserPageController " + currentUserId);
+        return currentUserId;
     }
 
 
@@ -126,8 +132,8 @@ public class UserPageController {
 
             Scene scene = new Scene(loginView, 1100, 1000);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
-           Stage stage = (Stage) navigateBookSearchButton.getScene().getWindow();
-           stage.setScene(scene);
+            Stage stage = (Stage) navigateBookSearchButton.getScene().getWindow();
+            stage.setScene(scene);
         } catch (IOException e) {
             System.err.println("Fehler beim Laden der MainView.fxml: " + e.getMessage());
             e.printStackTrace();
@@ -171,7 +177,7 @@ public class UserPageController {
 
                 UserDetailsController detailsController = loader.getController();
                 detailsController.initialize(currentUser);
-                
+
                 mainPane.setCenter(detailsRoot);
             } else {
                 System.out.println("Kein currentUser gefunden!");

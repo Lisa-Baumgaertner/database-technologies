@@ -38,6 +38,7 @@ public class UserLoginController {
     private UserService userService;
     NotificationRepository notificationRepository;
 
+
     /**
      * Setter für UserService.
      * @param userService
@@ -93,7 +94,8 @@ public class UserLoginController {
             // Zeige die neue Ansicht im Center-Bereich
           //  mainPane.setCenter(root);
 
-             UserPageController userPageController = loader.getController();
+            UserPageController userPageController = loader.getController();
+
 
             // NotificationRepository aus DatabaseConfig laden
             DatabaseConfig databaseConfig = new DatabaseConfig();
