@@ -5,6 +5,7 @@ import application.util.NoSQLDatabaseConnection;
 import application.util.SQLDatabaseConnection;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.Properties;
 
 public class DatabaseConfig {
@@ -29,7 +30,9 @@ public class DatabaseConfig {
         if (useMongoDB) {
             return new MongoBookRepositoryImpl(new NoSQLDatabaseConnection("application.properties").getDatabase());
         } else {
-            return new PostgresBookRepositoryImpl(new SQLDatabaseConnection().getConnection());
+            Connection sqlConnection = new SQLDatabaseConnection().getConnection();
+            PostgresKeywordRepositoryImpl keywordRepository = new PostgresKeywordRepositoryImpl(sqlConnection);
+            return new PostgresBookRepositoryImpl(new SQLDatabaseConnection().getConnection(), keywordRepository);
         }
     }
     /**
@@ -114,6 +117,18 @@ public class DatabaseConfig {
             return new MongoContactRepositoryImpl(new NoSQLDatabaseConnection("application.properties").getDatabase());
         } else {
             return new PostgresContactRepositoryImpl(new SQLDatabaseConnection().getConnection());
+        }
+    }
+
+    /**
+     * Gibt das KeywordRepository zurück, um auf die Keywords zuzugreifen.
+     * @return das KeywordRepository
+     */
+    public KeywordRepository getKeywordRepository() {
+        if (useMongoDB) {
+            return new MongoKeywordRepositoryImpl(new NoSQLDatabaseConnection("application.properties").getDatabase());
+        } else {
+            return new PostgresKeywordRepositoryImpl(new SQLDatabaseConnection().getConnection());
         }
     }
 }

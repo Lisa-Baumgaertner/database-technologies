@@ -33,12 +33,13 @@ public class PostgresKeywordRepositoryImpl implements KeywordRepository {
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setLong(1, bookId);
             try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
+                while (resultSet.next()) {
                     keywords.add(new Keyword(
                             resultSet.getInt("KEYWORD_ID"),
                             resultSet.getString("KEYWORD")
                     ));
                 }
+                System.out.println("keywords " + keywords);
             }
 
         } catch (SQLException e) {

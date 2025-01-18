@@ -13,12 +13,14 @@ import java.util.List;
 public class PostgresBookRepositoryImpl implements BookRepository {
 
     private final Connection connection;
+    private final PostgresKeywordRepositoryImpl keywordRepository;
 
     /**
      * Konstruktor zur Initialisierung der Datenbankverbindung.
      */
-    public PostgresBookRepositoryImpl(Connection connection) {
+    public PostgresBookRepositoryImpl(Connection connection, PostgresKeywordRepositoryImpl keywordRepository) {
         this.connection = connection;
+        this.keywordRepository = keywordRepository;
     }
 
     /**
@@ -32,22 +34,14 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    books.add(new Book(
-                            rs.getInt("book_id"),
-                            rs.getString("isbn_long"),
-                            rs.getString("isbn_short"),
-                            rs.getInt("copies"),
-                            rs.getString("booktitle"),
-                            rs.getString("bookauthor"),
-                            rs.getString("publisher"),
-                            rs.getInt("year_published"),
-                            rs.getString("description"),
-                            rs.getString("status"),
-                            rs.getInt("keyword_id")
-                    ));
+                    Book book = mapResultSetToBook(rs);
+                    // Keywords abrufen
+                    book.setKeywords(keywordRepository.getKeywordsForBook(book.getBookId()));
+                    books.add(book);
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Fehler beim Laden der Bücher : " + e.getMessage());
             e.printStackTrace();
         }
         return books;
@@ -262,6 +256,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         book.setDescription(resultSet.getString("description"));
         book.setStatus(resultSet.getString("status"));
         book.setKeywordId(resultSet.getInt("keyword_id"));
+        book.setKeywords(new ArrayList<>()); // Keywords werden separat geladen
         return book;
     }
 }

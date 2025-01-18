@@ -1,6 +1,7 @@
 package application.controller;
 
 import application.model.Book;
+import application.model.Keyword;
 import application.model.Person;
 import application.model.Waitlist;
 import application.repository.WaitlistRepository;
@@ -20,7 +21,10 @@ import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
+import java.text.BreakIterator;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import application.service.WaitlistService;
 
@@ -51,24 +55,24 @@ public class BookDetailsController {
     @FXML
     private Label copiesLabel;
     @FXML
-    private Label keywordIdLabel;
+    private Label keywordsLabel;
     @FXML
     private TextArea descriptionArea;
     @FXML
     private Button buttonBackToSearch;
 
     private int bookId;
-
     private Long userId;
     private Long myBookId;
 
     private final ReviewService reviewService;
-    private WaitlistRepository waitlistRepository;
     private WaitlistService waitlistService;
+    private final KeywordService keywordService;
 
     public BookDetailsController() {
         this.reviewService = ReviewService.getInstance(); // Singleton-Instanz des ReviewService
         this.waitlistService = WaitlistService.getInstance();
+        this.keywordService = KeywordService.getInstance();
     }
 
     private Stage stage;
@@ -89,8 +93,20 @@ public class BookDetailsController {
         yearPublishedLabel.setText(String.valueOf(book.getYearPublished()));
         statusLabel.setText(book.getStatus());
         copiesLabel.setText(String.valueOf(book.getCopies()));
-        keywordIdLabel.setText(String.valueOf(book.getKeywordId()));
         descriptionArea.setText(book.getDescription());
+
+        // Keywords Liste anzeigen
+        List<Keyword> keywords = keywordService.getKeywordsForBook(book.getBookId());
+        if (keywords != null && !keywords.isEmpty()) {
+            String keywordsText = keywords.stream()
+                    .map(Keyword::getKeyword) // Extrahiere den Keyword-Namen
+                    .collect(Collectors.joining(", ")); // Kombiniere die Keywords mit Kommas
+            System.out.println(keywordsText);
+            keywordsLabel.setText(keywordsText);
+        } else {
+            keywordsLabel.setText("Keine Keywords verfügbar");
+        }
+
     }
 
 

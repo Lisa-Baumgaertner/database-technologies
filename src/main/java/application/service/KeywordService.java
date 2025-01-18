@@ -3,7 +3,6 @@ package application.service;
 import application.config.DatabaseConfig;
 import application.model.Address;
 import application.model.Keyword;
-import application.repository.AddressRepository;
 import application.repository.KeywordRepository;
 
 import java.io.IOException;
@@ -36,9 +35,8 @@ public class KeywordService {
                 // Erstelle eine neue Instanz von DatabaseConfig
                 DatabaseConfig config = new DatabaseConfig();
 
-                // Verwende die Methode getAddressRepository() der Instanz
-                //  KeywordRepository repository = config.getAddressRepository();
-             //   instance = new KeywordService(repository);
+                  KeywordRepository repository = config.getKeywordRepository();
+                  instance = new KeywordService(repository);
             } catch (IOException e) {
                 throw new RuntimeException("Fehler bei der Initialisierung des ContactService", e);
             }

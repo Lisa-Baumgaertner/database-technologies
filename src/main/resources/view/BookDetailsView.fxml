@@ -63,8 +63,8 @@
             </HBox>
 
             <HBox alignment="center" spacing="10">
-                <Label text="Keyword ID:" />
-                <Label fx:id="keywordIdLabel" />
+                <Label text="Keywords:" />
+                <Label fx:id="keywordsLabel" />
             </HBox>
         </VBox>
     </StackPane>

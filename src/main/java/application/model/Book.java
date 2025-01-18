@@ -6,6 +6,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,9 +26,8 @@ public class Book {
     private IntegerProperty yearPublished;
     private StringProperty description;
     private StringProperty status;
-    private IntegerProperty keywordId;
-
-    private StringProperty keywordName;
+    private IntegerProperty keywordId; // (KEYWORD_ID in der BOOK-Tabelle)
+    private List<Keyword> keywords; // Liste der Keywords (über BOOK_KEYWORD)
 
 
     /**
@@ -45,7 +46,7 @@ public class Book {
         this.description = new SimpleStringProperty();
         this.status = new SimpleStringProperty();
         this.keywordId = new SimpleIntegerProperty();
-        this.keywordName = new SimpleStringProperty();
+        this.keywords = new ArrayList<Keyword>();
     }
 
     /**
@@ -61,9 +62,10 @@ public class Book {
      * @param description
      * @param status
      * @param keywordId
+     * @param keywords
      */
     public Book(Integer bookId, String isbnLong, String isbnShort, Integer copies, String title, String author, String publisher,
-                Integer yearPublished, String description, String status, Integer keywordId) {
+                Integer yearPublished, String description, String status, Integer keywordId, List<Keyword> keywords) {
         this.bookId = new SimpleIntegerProperty(bookId);
         this.isbn_long = new SimpleStringProperty(isValidIsbn13(isbnLong) ? isbnLong : "");
         this.isbn_short = new SimpleStringProperty(isValidIsbn10(isbnShort) ? isbnShort : "");
@@ -75,6 +77,7 @@ public class Book {
         this.description = new SimpleStringProperty(description);
         this.status = new SimpleStringProperty(status);
         this.keywordId = new SimpleIntegerProperty(keywordId);
+        this.keywords = keywords;
     }
 
 
@@ -121,9 +124,6 @@ public class Book {
         return status;
     }
 
-    public IntegerProperty keywordIdProperty() {
-        return keywordId;
-    }
 
 
     /**
@@ -247,13 +247,25 @@ public class Book {
     /**
      * Holt die Id des Keywords, welches dem Buch zugeordnet wurde
      */
-    public Integer getKeywordId() {
-        return keywordId.get();
+    public IntegerProperty getKeywordId() {
+        return keywordId;
     }
 
     public void setKeywordId(Integer keywordId) {
         this.keywordId.set(keywordId);
     }
+
+    /**
+     * Holt die des Keywords, welches dem Buch zugeordnet wurde
+     */
+    public List<Keyword> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(List<Keyword> keywords) {
+        this.keywords = keywords;
+    }
+
 
     /**
      * Prüft die Validität der long ISBN
@@ -264,21 +276,6 @@ public class Book {
         if (isbn == null) return false;
         isbn = isbn.replace("-", "");
         return isbn.length() == 13;
-    }
-
-    /**
-     * Holt Keyword Namen
-     */
-    public String getKeywordName() {
-        return keywordName.get();
-    }
-
-    public void setKeywordName(String keywordName) {
-        this.keywordName.set(keywordName);
-    }
-
-    public StringProperty keywordNameProperty() {
-        return keywordName;
     }
 
     /**
