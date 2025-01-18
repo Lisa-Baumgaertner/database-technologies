@@ -105,18 +105,10 @@ public class EmployeeBookSearchController {
         statusColumn.setCellValueFactory(cellData -> {
             String status = cellData.getValue().getStatus();
             // Status in Deutsch übersetzen
-            switch (status) {
-                case "available":
-                    return new SimpleStringProperty("Verfügbar");
-                case "borrowed":
-                    return new SimpleStringProperty("Ausgeliehen");
-                case "reserved":
-                    return new SimpleStringProperty("Reserviert");
-                default:
-                    return new SimpleStringProperty(status);
-            }
+            return new SimpleStringProperty(Book.translateStatusToGerman(status));
+
         });
-        statusDropdown.setItems(FXCollections.observableArrayList("Alle", "Verfügbar", "Ausgeliehen", "Reserviert"));
+        statusDropdown.setItems(FXCollections.observableArrayList("Alle", "Verfügbar", "Ausgeliehen", "Reserviert", "Wartend"));
         statusDropdown.setValue("Alle");
         resultTable.setFixedCellSize(-1);
         resultTable.setStyle("-fx-table-cell-border-color: transparent;");
@@ -145,12 +137,15 @@ public class EmployeeBookSearchController {
         String author = authorField.getText().trim().toLowerCase();
         String isbn = isbnField.getText().trim().toLowerCase();
         String status = statusDropdown.getValue();
+        System.out.println("Status aus Controller "+ status);
         if ("Verfügbar".equals(status)) {
             status = "available";
         } else if ("Ausgeliehen".equals(status)) {
             status = "borrowed";
         } else if ("Reserviert".equals(status)) {
             status = "reserved";
+        } else if ("Wartend".equals(status)) {
+            status = "waiting";
         } else {
             status = null; // "Alle" wird ignoriert
         }
@@ -161,7 +156,6 @@ public class EmployeeBookSearchController {
                 isbn.isEmpty() ? null : isbn,
                 status
         );
-    System.out.println("results: " + results.size());
 
         ObservableList<Book> filteredBooks = FXCollections.observableArrayList(results);
         resultTable.setItems(filteredBooks);

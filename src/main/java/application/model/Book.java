@@ -296,7 +296,8 @@ public class Book {
     private static final Map<String, String> STATUS_TRANSLATION_MAP = Map.of(
             "Verfügbar", "available",
             "Ausgeliehen", "borrowed",
-            "Reserviert", "reserved"
+            "Reserviert", "reserved",
+            "Wartend", "waiting"
     );
     public static String translateStatusToEnglish(String germanStatus) {
         return STATUS_TRANSLATION_MAP.getOrDefault(germanStatus, null);

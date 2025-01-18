@@ -73,6 +73,10 @@ public class MongoBookRepositoryImpl implements BookRepository {
         // Filter für Status, wenn gesetzt
         if (status != null && !status.equalsIgnoreCase("Alle") && !status.isEmpty()) {
             filters.add(Filters.elemMatch("waitlist", Filters.eq("status", status))); // Filter für spezifischen Status
+        } else {
+            // Kein spezifischer Statusfilter: Alle Bücher anzeigen
+            System.out.println("Kein spezifischer Statusfilter. Alle Bücher mit ihrem gespeicherten Status anzeigen.");
+            // Kein Filter für die Warteliste anwenden, um alle gespeicherten Status zurückzugeben.
         }
 
         // Kombiniere alle Filter
@@ -82,6 +86,7 @@ public class MongoBookRepositoryImpl implements BookRepository {
             while (cursor.hasNext()) {
                 Document doc = cursor.next();
                 books.add(mapDocumentToBook(doc));
+                System.out.println("Bücher niw " +books);
             }
         } catch (Exception e) {
             System.err.println("Fehler bei der Suche in MongoDB: " + e.getMessage());
