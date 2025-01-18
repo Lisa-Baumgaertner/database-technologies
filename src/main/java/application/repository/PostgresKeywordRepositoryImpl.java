@@ -9,6 +9,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementierung des KeywordRepository für PostgreSQL.
+ * Diese Klasse bietet Funktionen zum Abrufen von Keywords aus der PostgreSQL-Datenbank.
+ */
 public class PostgresKeywordRepositoryImpl implements KeywordRepository {
 
     private final Connection connection;
@@ -21,6 +25,12 @@ public class PostgresKeywordRepositoryImpl implements KeywordRepository {
 
 
 
+/**
+ * Ruft alle Keywords ab, die einem Buch anhand der Buch-ID zugeordnet sind.
+ *
+ * @param bookId Die ID des Buches, für das die Keywords abgerufen werden sollen.
+ * @return Eine Liste von Keywords, die dem Buch zugeordnet sind.
+ */
     @Override
    public List<Keyword> getKeywordsForBook(long bookId) {
         List<Keyword> keywords = new ArrayList<>();
