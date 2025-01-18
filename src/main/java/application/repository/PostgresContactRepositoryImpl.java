@@ -7,14 +7,30 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
+/**
+ * Implementierung des ContactRepository für PostreSQL.
+ */
 public class PostgresContactRepositoryImpl implements ContactRepository {
 
     private final Connection connection;
 
+    /**
+     * Konstruktor zur Initialisierung der Datenbankverbindung.
+     *
+     * @param connection Die PostgreSQL-Datenbankverbindung.
+     */
     public PostgresContactRepositoryImpl(Connection connection) {
         this.connection = connection;
     }
 
+
+    /**
+     * Sucht den Kontakt anhand der User-ID.
+     *
+     * @param userId Die ID des Benutzers.
+     * @return Das zugehörige Contact-Objekt oder null, wenn nicht gefunden.
+     */
     @Override
     public Contact getContactByUserId(long userId) {
         String sql = "SELECT * FROM CONTACT WHERE USER_ID = ? LIMIT 1";
@@ -35,9 +51,11 @@ public class PostgresContactRepositoryImpl implements ContactRepository {
         }
         return null;
     }
-
     /**
-     * Kontakt hinzufügen
+     * Fügt einen neuen Kontakt in die Datenbank ein.
+     *
+     * @param contact Das Contact-Objekt, das eingefügt werden soll.
+     * @return Das eingefügte Contact-Objekt.
      */
     public Contact insertContact(Contact contact) {
         String query = "INSERT INTO Contact (user_id, email, phone, mobile) VALUES (?, ?, ?, ?)";

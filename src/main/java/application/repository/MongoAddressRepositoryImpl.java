@@ -56,6 +56,9 @@ public class MongoAddressRepositoryImpl implements AddressRepository {
         return null;
     }
 
+    /**
+     * Fügt eine neue Adresse in die Datenbank ein.
+     */
     @Override
     public Address insertAddress(Address address) {
         // Erstellen des Address-Dokuments für MongoDB
