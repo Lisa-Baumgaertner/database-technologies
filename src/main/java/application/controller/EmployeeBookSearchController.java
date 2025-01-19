@@ -137,18 +137,14 @@ public class EmployeeBookSearchController {
         String author = authorField.getText().trim().toLowerCase();
         String isbn = isbnField.getText().trim().toLowerCase();
         String status = statusDropdown.getValue();
-        System.out.println("Status aus Controller "+ status);
-        if ("Verfügbar".equals(status)) {
-            status = "available";
-        } else if ("Ausgeliehen".equals(status)) {
-            status = "borrowed";
-        } else if ("Reserviert".equals(status)) {
-            status = "reserved";
-        } else if ("Wartend".equals(status)) {
-            status = "waiting";
-        } else {
-            status = null; // "Alle" wird ignoriert
-        }
+        status = switch (status) {
+            case "Verfügbar" -> "available";
+            case "Ausgeliehen" -> "borrowed";
+            case "Reserviert" -> "reserved";
+            case "Wartend" -> "waiting";
+            case null, default -> null; // "Alle" wird ignoriert
+
+        };
 
         List<Book> results = bookService.searchBooks(
                 title.isEmpty() ? null : title,

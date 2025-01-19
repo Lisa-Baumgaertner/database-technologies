@@ -104,18 +104,9 @@ public class UserBookSearchController {
         statusColumn.setCellValueFactory(cellData -> {
             String status = cellData.getValue().getStatus();
             // Status in Deutsch übersetzen
-            switch (status) {
-                case "available":
-                    return new SimpleStringProperty("Verfügbar");
-                case "borrowed":
-                    return new SimpleStringProperty("Ausgeliehen");
-                case "reserved":
-                    return new SimpleStringProperty("Reserviert");
-                default:
-                    return new SimpleStringProperty(status);
-            }
+            return new SimpleStringProperty(Book.translateStatusToGerman(status));
         });
-        statusDropdown.setItems(FXCollections.observableArrayList("Alle", "Verfügbar", "Ausgeliehen", "Reserviert"));
+        statusDropdown.setItems(FXCollections.observableArrayList("Alle", "Verfügbar", "Ausgeliehen", "Reserviert", "Wartend"));
         statusDropdown.setValue("Alle");
         resultTable.setFixedCellSize(-1);
         resultTable.setStyle("-fx-table-cell-border-color: transparent;");
@@ -144,15 +135,13 @@ public class UserBookSearchController {
         String author = authorField.getText().trim().toLowerCase();
         String isbn = isbnField.getText().trim().toLowerCase();
         String status = statusDropdown.getValue();
-        if ("Verfügbar".equals(status)) {
-            status = "available";
-        } else if ("Ausgeliehen".equals(status)) {
-            status = "borrowed";
-        } else if ("Reserviert".equals(status)) {
-            status = "reserved";
-        } else {
-            status = null; // "Alle" wird ignoriert
-        }
+        status = switch (status) {
+            case "Verfügbar" -> "available";
+            case "Ausgeliehen" -> "borrowed";
+            case "Reserviert" -> "reserved";
+            case "Wartend" -> "waiting";
+            case null, default -> null; // "Alle" wird ignoriert
+        };
 
         List<Book> results = bookService.searchBooks(
                 title.isEmpty() ? null : title,
@@ -160,8 +149,6 @@ public class UserBookSearchController {
                 isbn.isEmpty() ? null : isbn,
                 status
         );
-        System.out.println("results: " + results.size());
-
         ObservableList<Book> filteredBooks = FXCollections.observableArrayList(results);
         resultTable.setItems(filteredBooks);
     }
@@ -183,8 +170,6 @@ public class UserBookSearchController {
                 BookDetailsController controller = loader.getController();
                 controller.setBookDetails(selectedBook);
                 uspController.getUserId();
-                System.out.println("UserBookSearchController " + uspController.getUserId());
-
                 Stage detailsStage = new Stage();
 
                 detailsStage.setTitle("Buchdetails");

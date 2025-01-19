@@ -146,7 +146,7 @@ public class BookEditController {
             return new SimpleStringProperty(Book.translateStatusToGerman(status));
         });
 
-        statusDropdown.setItems(FXCollections.observableArrayList("Alle", "Verfügbar", "Ausgeliehen", "Reserviert"));
+        statusDropdown.setItems(FXCollections.observableArrayList("Alle", "Verfügbar", "Ausgeliehen", "Reserviert", "Wartend"));
         statusDropdown.setValue("Alle");
 
         resultsTable.setItems(bookList);

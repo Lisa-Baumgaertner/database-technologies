@@ -49,6 +49,7 @@ public class MongoBookRepositoryImpl implements BookRepository {
 
     @Override
     public List<Book> searchBooks(String title, String author, String isbn, String status) {
+        System.out.println("ausgewählte Status " + status);
         List<Book> books = new ArrayList<>();
         List<Bson> filters = new ArrayList<>();
 
@@ -72,7 +73,7 @@ public class MongoBookRepositoryImpl implements BookRepository {
 
         // Filter für Status, wenn gesetzt
         if (status != null && !status.equalsIgnoreCase("Alle") && !status.isEmpty()) {
-            filters.add(Filters.elemMatch("waitlist", Filters.eq("status", status))); // Filter für spezifischen Status
+            filters.add(Filters.elemMatch("waitlist", Filters.eq("status", status)));
         } else {
             // Kein spezifischer Statusfilter: Alle Bücher anzeigen
             System.out.println("Kein spezifischer Statusfilter. Alle Bücher mit ihrem gespeicherten Status anzeigen.");
@@ -81,12 +82,10 @@ public class MongoBookRepositoryImpl implements BookRepository {
 
         // Kombiniere alle Filter
         Bson query = filters.isEmpty() ? new Document() : Filters.and(filters);
-
         try (MongoCursor<Document> cursor = this.bookCollection.find(query).iterator()) {
             while (cursor.hasNext()) {
                 Document doc = cursor.next();
                 books.add(mapDocumentToBook(doc));
-                System.out.println("Bücher niw " +books);
             }
         } catch (Exception e) {
             System.err.println("Fehler bei der Suche in MongoDB: " + e.getMessage());

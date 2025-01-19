@@ -21,6 +21,7 @@
                     <String fx:value="Verfügbar"/>
                     <String fx:value="Ausgeliehen"/>
                     <String fx:value="Reserviert"/>
+                    <String fx:value="Wartend"/>
                 </FXCollections>
             </items>
         </ComboBox>
