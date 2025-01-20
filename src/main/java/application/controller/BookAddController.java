@@ -1,5 +1,6 @@
 package application.controller;
 import application.model.Book;
+import application.model.Status;
 import application.service.BookService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -61,7 +62,7 @@ public class BookAddController {
             bookToInsert.setPublisher(publisher.getText().trim());
             bookToInsert.setYearPublished(Integer.valueOf(year_published.getText().trim()));
             bookToInsert.setDescription(description.getText().trim());
-            bookToInsert.setStatus(status.getText().toLowerCase().trim());
+            bookToInsert.setStatus(Status.BookStatus.valueOf(status.getText().toLowerCase().trim()));
             bookToInsert.setKeywordId(Integer.valueOf(keyword_id.getText().trim()));
             bookService.insertBook(bookToInsert);
             System.out.println("Book was successfully added.");

@@ -1,4 +1,5 @@
 package application.controller;
+import application.model.Status;
 import application.service.BookService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -140,9 +141,9 @@ public class BookEditController {
             }
         });
 
-        statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
+        statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty().asString());
         statusColumn.setCellValueFactory(cellData -> {
-            String status = cellData.getValue().getStatus();
+            String status = String.valueOf(cellData.getValue().getStatus());
             return new SimpleStringProperty(Book.translateStatusToGerman(status));
         });
 
@@ -296,7 +297,7 @@ public class BookEditController {
 
         String germanStatus = editStatusDropdown.getValue();
         String englishStatus = Book.translateStatusToEnglish(germanStatus);
-        selectedBook.setStatus(englishStatus);
+        selectedBook.setStatus(Status.BookStatus.valueOf(englishStatus));
 
         bookService.updateBook(selectedBook);
         resultsTable.refresh();

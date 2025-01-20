@@ -1,6 +1,7 @@
 package application.repository;
 
 import application.model.Book;
+import application.model.Status;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
      */
     public List<Book> searchBooks(String title, String author, String isbn, String status) {
         List<Book> books = new ArrayList<>();
+        System.out.println("ausgewählte Status," + status);
         String query = "SELECT * FROM BOOK WHERE " +
                 "(LOWER(BOOKTITLE) LIKE ? OR ? IS NULL) AND " +
                 "(LOWER(BOOKAUTHOR) LIKE ? OR ? IS NULL) AND " +
@@ -125,7 +127,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
                 book.setPublisher(resultSet.getString("publisher"));
                 book.setYearPublished(resultSet.getInt("year_published"));
                 book.setDescription(resultSet.getString("description"));
-                book.setStatus(resultSet.getString("status"));
+                book.setStatus(Status.BookStatus.valueOf(resultSet.getString("status")));
                 return book;
             }
         } catch (Exception e) {
@@ -254,7 +256,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         book.setPublisher(resultSet.getString("publisher"));
         book.setYearPublished(resultSet.getInt("year_published"));
         book.setDescription(resultSet.getString("description"));
-        book.setStatus(resultSet.getString("status"));
+        book.setStatus(Status.BookStatus.fromString(resultSet.getString("status").trim()));
         book.setKeywordId(resultSet.getInt("keyword_id"));
         book.setKeywords(new ArrayList<>()); // Keywords werden separat geladen
         return book;

@@ -2,6 +2,7 @@ package application.repository;
 
 import application.model.Book;
 import application.model.Keyword;
+import application.model.Status;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
@@ -179,7 +180,8 @@ public class MongoBookRepositoryImpl implements BookRepository {
 
         // Status aus der Warteliste extrahieren
         List<Document> waitlist = doc.getList("waitlist", Document.class);
-        String finalStatus = "Unknown";
+        String finalStatus = null;
+
         if (waitlist != null && !waitlist.isEmpty()) {
             for (Document entry : waitlist) {
                 String entryStatus = entry.getString("status");
@@ -189,6 +191,10 @@ public class MongoBookRepositoryImpl implements BookRepository {
                 }
             }
         }
+        // Konvertierung des Status-Strings in das Enum
+        Status.BookStatus bookStatus = (finalStatus != null)
+                ? Status.BookStatus.fromString(finalStatus)
+                : Status.BookStatus.AVAILABLE; // Fallback zu einem Standardwert
 
         // Buch-ID, Kopien und KeywordId
         Integer bookId = doc.getInteger("bookId");
@@ -206,7 +212,7 @@ public class MongoBookRepositoryImpl implements BookRepository {
                 publisher,          // Verlag
                 yearPublished,      // Jahr der Veröffentlichung
                 description,        // Beschreibung
-                finalStatus,        // Status
+                bookStatus,        // Status
                 mainKeywordId,      // Haupt-Keyword-ID
                 keywords            // Liste der Keywords
         );

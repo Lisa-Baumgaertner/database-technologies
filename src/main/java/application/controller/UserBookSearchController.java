@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controller-Klasse für Buchsuche eines Nutzers.
@@ -100,14 +101,25 @@ public class UserBookSearchController {
         });
 
 
-        statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
+        statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty().asString());
         statusColumn.setCellValueFactory(cellData -> {
             String status = cellData.getValue().getStatus();
             // Status in Deutsch übersetzen
             return new SimpleStringProperty(Book.translateStatusToGerman(status));
         });
-        statusDropdown.setItems(FXCollections.observableArrayList("Alle", "Verfügbar", "Ausgeliehen", "Reserviert", "Wartend"));
+
+        // Deutsche Statuswerte aus der Map extrahieren (nur die Schlüssel)
+        List<String> statusList = Book.STATUS_TRANSLATION_MAP.keySet()
+                .stream()
+                .sorted()
+                .collect(Collectors.toList());
+        // "Alle" als Option hinzufügen
+        statusList.add(0, "Alle");
+
+        // Die Statuswerte in die ComboBox setzen
+        statusDropdown.setItems(FXCollections.observableArrayList(statusList));
         statusDropdown.setValue("Alle");
+
         resultTable.setFixedCellSize(-1);
         resultTable.setStyle("-fx-table-cell-border-color: transparent;");
 
@@ -134,14 +146,13 @@ public class UserBookSearchController {
         String title = titleField.getText().trim().toLowerCase();
         String author = authorField.getText().trim().toLowerCase();
         String isbn = isbnField.getText().trim().toLowerCase();
-        String status = statusDropdown.getValue();
-        status = switch (status) {
-            case "Verfügbar" -> "available";
-            case "Ausgeliehen" -> "borrowed";
-            case "Reserviert" -> "reserved";
-            case "Wartend" -> "waiting";
-            case null, default -> null; // "Alle" wird ignoriert
-        };
+
+        String selectedStatus = statusDropdown.getValue();
+        selectedStatus = selectedStatus.trim();
+        String status = (selectedStatus == null || selectedStatus.equals("Alle"))
+                ? null
+                : Book.translateStatusToEnglish(selectedStatus);
+
 
         List<Book> results = bookService.searchBooks(
                 title.isEmpty() ? null : title,
@@ -149,8 +160,9 @@ public class UserBookSearchController {
                 isbn.isEmpty() ? null : isbn,
                 status
         );
-        ObservableList<Book> filteredBooks = FXCollections.observableArrayList(results);
-        resultTable.setItems(filteredBooks);
+
+        // Tabelle mit gefilterten Ergebnissen aktualisieren
+        resultTable.setItems(FXCollections.observableArrayList(results));
     }
 
     /**

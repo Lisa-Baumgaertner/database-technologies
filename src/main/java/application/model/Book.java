@@ -1,10 +1,7 @@
 package application.model;
 
-
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import application.model.Status.BookStatus;
+import javafx.beans.property.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +22,7 @@ public class Book {
     private StringProperty publisher;
     private IntegerProperty yearPublished;
     private StringProperty description;
-    private StringProperty status;
+    private ObjectProperty<Status.BookStatus> status;
     private IntegerProperty keywordId; // (KEYWORD_ID in der BOOK-Tabelle)
     private List<Keyword> keywords; // Liste der Keywords (über BOOK_KEYWORD)
 
@@ -44,7 +41,7 @@ public class Book {
         this.publisher = new SimpleStringProperty();
         this.yearPublished = new SimpleIntegerProperty();
         this.description = new SimpleStringProperty();
-        this.status = new SimpleStringProperty();
+        this.status = new SimpleObjectProperty<>(Status.BookStatus.AVAILABLE);
         this.keywordId = new SimpleIntegerProperty();
         this.keywords = new ArrayList<Keyword>();
     }
@@ -65,7 +62,7 @@ public class Book {
      * @param keywords
      */
     public Book(Integer bookId, String isbnLong, String isbnShort, Integer copies, String title, String author, String publisher,
-                Integer yearPublished, String description, String status, Integer keywordId, List<Keyword> keywords) {
+                Integer yearPublished, String description, Status.BookStatus status, Integer keywordId, List<Keyword> keywords) {
         this.bookId = new SimpleIntegerProperty(bookId);
         this.isbn_long = new SimpleStringProperty(isValidIsbn13(isbnLong) ? isbnLong : "");
         this.isbn_short = new SimpleStringProperty(isValidIsbn10(isbnShort) ? isbnShort : "");
@@ -75,7 +72,7 @@ public class Book {
         this.publisher = new SimpleStringProperty(publisher);
         this.yearPublished = new SimpleIntegerProperty(yearPublished);
         this.description = new SimpleStringProperty(description);
-        this.status = new SimpleStringProperty(status);
+        this.status =  new SimpleObjectProperty<>(status);
         this.keywordId = new SimpleIntegerProperty(keywordId);
         this.keywords = keywords;
     }
@@ -120,9 +117,10 @@ public class Book {
         return description;
     }
 
-    public StringProperty statusProperty() {
-        return status;
+    public SimpleObjectProperty<Status.BookStatus> statusProperty() {
+        return (SimpleObjectProperty<BookStatus>) status;
     }
+
 
 
 
@@ -237,10 +235,10 @@ public class Book {
      * Holt den Status des Buches
      */
     public String getStatus() {
-        return status.get();
+        return status.get().getStatus();
     }
 
-    public void setStatus(String status) {
+    public void setStatus(BookStatus status) {
         this.status.set(status);
     }
 
@@ -293,15 +291,26 @@ public class Book {
     /**
      * Funktionen, um den Status eines Buches zu übersetzen
      */
-    private static final Map<String, String> STATUS_TRANSLATION_MAP = Map.of(
+    public static final Map<String, String> STATUS_TRANSLATION_MAP = Map.of(
             "Verfügbar", "available",
             "Ausgeliehen", "borrowed",
             "Reserviert", "reserved",
-            "Wartend", "waiting"
+            "Wartend", "waiting",
+            "Verloren", "lost",
+            "Beschädigt", "damaged",
+            "Ausgecheckt", "checked out",
+            "In Wartung", "in_maintenance"
     );
+
     public static String translateStatusToEnglish(String germanStatus) {
-        return STATUS_TRANSLATION_MAP.getOrDefault(germanStatus, null);
+        System.out.println("germanStatus," + germanStatus);
+        return STATUS_TRANSLATION_MAP.entrySet().stream()
+                .filter(entry -> entry.getKey().trim().equalsIgnoreCase(germanStatus.trim()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
     }
+
 
     public static String translateStatusToGerman(String englishStatus) {
         return STATUS_TRANSLATION_MAP.entrySet().stream()
