@@ -88,6 +88,7 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
      */
     @Override
     public boolean addToWaitlist(Long userId, Long bookId, String status) {
+        System.out.println("Postiii");
         int size = 0;
         boolean bSuccess = true;
         // Corrected SQL query with the WHERE clause
@@ -134,6 +135,54 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         return bSuccess;
     }
 
+
+    public Waitlist addToWaitlist(Waitlist waitlist){
+        System.out.println("Postiii");
+        int size = 0;
+        boolean bSuccess = true;
+        // Corrected SQL query with the WHERE clause
+        String query = "SELECT * FROM WAITLIST WHERE user_id = ? AND book_id = ? AND return_date IS NULL ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, waitlist.getUser().getUserId());
+            preparedStatement.setLong(2, waitlist.getBook().getBookId());
+            ResultSet rs = preparedStatement.executeQuery();
+
+            // Check if any row was returned by the query
+            if (rs.next()) {
+                size = 1; // A matching row was found
+                bSuccess = false;
+            } else {
+                size = 0; // No matching row found
+                bSuccess = true;
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        if (size == 0) {
+            String query2 = "INSERT INTO WAITLIST (user_id, book_id, checkout_date, status) VALUES (?, ?, CURRENT_DATE, ?)";
+
+            try (PreparedStatement statement = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS)) {
+
+                statement.setLong(1, waitlist.getUser().getUserId());
+                statement.setLong(2, waitlist.getBook().getBookId());
+                statement.setString(3, waitlist.getStatus());
+                statement.executeUpdate();
+
+                bSuccess = true;
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            System.out.println("Du stehst schon auf der Warteliste!");
+            bSuccess = false;
+        }
+        return waitlist;
+    }
 //    @Override
 //    public void addToWaitlist(Long userId, Long bookId, String status)  {
 //        int size = 0;

@@ -255,6 +255,12 @@ public class Book {
         this.keywordId.set(keywordId);
     }
 
+
+
+
+
+
+
     /**
      * Holt die des Keywords, welches dem Buch zugeordnet wurde
      */

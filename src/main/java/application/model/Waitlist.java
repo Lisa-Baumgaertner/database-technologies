@@ -28,7 +28,7 @@ public class Waitlist {
         this.book = new SimpleObjectProperty<>();
         this.checkoutDate = new SimpleObjectProperty<>();
         this.returnDate = new SimpleObjectProperty<>();
-        this.status = new SimpleStringProperty("waiting");
+        this.status = new SimpleStringProperty("borrowed");
     }
 
     /**

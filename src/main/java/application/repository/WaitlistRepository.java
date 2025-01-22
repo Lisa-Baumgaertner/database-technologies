@@ -14,4 +14,6 @@ public interface WaitlistRepository {
     void removeFromWaitlist(Long waitlistId);
     List<Waitlist> getPrioritizedWaitlistEntries();
     void updateCheckoutDate(Long waitlistId, LocalDate checkoutDate);
+
+    Waitlist addToWaitlist(Waitlist waitlist);
 }
