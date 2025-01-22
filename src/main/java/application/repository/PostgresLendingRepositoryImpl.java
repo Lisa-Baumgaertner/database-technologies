@@ -191,11 +191,11 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
      */
     @Override
     public int calculateExtensionCount(Lending lending) {
+
         LocalDate originalDueDate = lending.getCheckoutDate().plusDays(28); // Standardfrist: 28 Tage
-        System.out.println(originalDueDate);
         LocalDate currentDate = LocalDate.now(); // Heutiges Datum für den Vergleich verwenden, wenn returnDate null ist
 
-        LocalDate effectiveReturnDate = lending.getReturnDate() != null ? lending.getReturnDate() : currentDate;
+        LocalDate effectiveReturnDate = lending.getDueDate() != null ? lending.getDueDate() : currentDate;
 
         // Berechnen, wie viele 4-Wochen-Intervalle hinzugefügt wurden
         if (effectiveReturnDate.isAfter(originalDueDate)) {
