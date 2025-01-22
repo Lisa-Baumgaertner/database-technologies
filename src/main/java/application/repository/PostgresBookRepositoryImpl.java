@@ -222,6 +222,21 @@ public class PostgresBookRepositoryImpl implements BookRepository {
      */
     @Override
     public String getCategoryByBookId(int bookId) {
+        String query = "SELECT STRING_AGG(k.keyword, ', ') AS keywords " +
+                "FROM book_keyword bk " +
+                "JOIN keyword k ON bk.keyword_id = k.keyword_id " +
+                "WHERE bk.book_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, bookId);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("keywords");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

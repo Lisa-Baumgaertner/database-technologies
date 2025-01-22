@@ -4,26 +4,38 @@ import application.model.Lending;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.elemMatch;
+
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementierung des LendingRepository für MongoDB.
  * Diese Klasse bietet Methoden zum Verwalten von Ausleiheinträgen.
  */
 public class MongoLendingRepositoryImpl implements LendingRepository {
-    // Verbindung zur MongoDB-Datenbank
-    private final MongoDatabase database;
+    private final MongoCollection<Document> personCollection;
+    private final MongoCollection<Document> bookCollection;
+    private final MongoCollection<Document> keywordCollection;
 
     /**
-     * Konstruktor zur Initialisierung der MongoDB-Datenbank.
-     * @param database Verbindung zur MongoDB-Datenbank.
+     * Konstruktor zur Initialisierung der MongoDB-Collection.
      */
-    public MongoLendingRepositoryImpl(MongoDatabase database) {
-        this.database = database;
+    public MongoLendingRepositoryImpl(MongoDatabase mongoDatabase) {
+        this.personCollection = mongoDatabase.getCollection("Person");
+        this.bookCollection = mongoDatabase.getCollection("Book");
+        this.keywordCollection = mongoDatabase.getCollection("Keyword");
     }
 
     /**
@@ -31,18 +43,23 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
      */
     public List<Lending> getAllLendinglistEntries() {
         List<Lending> lendings = new ArrayList<>();
-        MongoCollection<Document> collection = database.getCollection("Person");
-        try (MongoCursor<Document> cursor = collection.find().iterator()) {
-            while (cursor.hasNext()) {
-                Document personDoc = cursor.next();
-                List<Document> lendingDocs = personDoc.getList("lendings", Document.class);
-                if (lendingDocs != null) {
-                    for (Document lendingDoc : lendingDocs) {
-                        lendings.add(documentToLending(lendingDoc));
-                    }
+
+        // MongoDB Aggregation für beide Collections
+        List<MongoCollection<Document>> collections = List.of(this.personCollection, this.bookCollection);
+
+        for (MongoCollection<Document> collection : collections) {
+            try (MongoCursor<Document> cursor = collection.aggregate(List.of(
+                    new Document("$unwind", "$lendings"), // Entpacken des lendings-Arrays
+                    new Document("$replaceRoot", new Document("newRoot", "$lendings")) // Extrahieren der lendings
+            )).iterator()) {
+                while (cursor.hasNext()) {
+                    Document lendingDoc = cursor.next();
+                    // lendings.add(documentToLending(lendingDoc));
                 }
             }
         }
+
+        System.out.println("Total lending entries found via aggregation: " + lendings.size());
         return lendings;
     }
 
@@ -74,7 +91,22 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
     /**
      * Holt einen Ausleiheintrag anhand seiner ID.
      */
-    public Lending getLendingById(Long lendingId) {return null;}
+    public Lending getLendingById(Long lendingId) {
+
+        // Suche in der Person-Kollektion
+        Document personDoc = personCollection.find(
+                eq("lendings.lendingId", lendingId)
+        ).projection(new Document("lendings.$", 1)).first();
+
+        if (personDoc != null) {
+            Document lendingDoc = (Document) personDoc.getList("lendings", Document.class).get(0);
+           // return documentToLending(lendingDoc);
+        }
+        // Suche in der Peron-Kollektion
+        Document perDoc = bookCollection.find(eq("lendings.lendingId", lendingId)).first();
+
+        return null;
+    }
 
     /**
      * Aktualisiert das Rückgabedatum einer Ausleihe.
@@ -94,41 +126,239 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
     /**
      * Holt Ausleiheinträge für einen Nutzer basierend auf seinem Namen.
      */
-    public List<Lending> getLendingForUserByName(String userName) {return null;}
+    public List<Lending> getLendingForUserByName(String userName) {
+        List<Lending> lendings = new ArrayList<>();
+
+        // MongoDB Aggregation Pipeline für die Suche nach Vor- und Nachnamen
+        List<Bson> pipeline = Arrays.asList(
+                Aggregates.match(Filters.or(
+                        Filters.regex("personalDetails.firstName", ".*" + userName + ".*", "i"),
+                        Filters.regex("personalDetails.lastName", ".*" + userName + ".*", "i")
+                )),
+                Aggregates.project(Projections.fields(
+                        Projections.include("personalDetails.firstName", "personalDetails.lastName", "lendings", "userId")
+                ))
+        );
+
+        try (MongoCursor<Document> cursor = this.personCollection.aggregate(pipeline).iterator()) {
+            while (cursor.hasNext()) {
+                Document doc = cursor.next();
+                System.out.println("Gefundenes Dokument: " + doc.toJson());
+
+                List<Lending> userLendings = documentToLending(doc);
+                if (!userLendings.isEmpty()) {
+                    lendings.addAll(userLendings);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Fehler bei der Suche nach Ausleihen für '" + userName + "': " + e.getMessage());
+        }
+
+        return lendings;
+    }
 
     /**
      * Filtert Ausleihen basierend auf dem Fälligkeitsdatum.
      */
-    public List<Lending> filterByDueDate(){return null;}
+    public List<Lending> filterByReturnDate() {
+        List<Lending> lendingList = new ArrayList<>();
+
+        // Definiere den Datumsformatter für die Datumsumwandlung
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        // Suche nach Büchern mit existierenden Ausleihen, die ein Fälligkeitsdatum enthalten
+        List<Document> books = bookCollection.find().into(new ArrayList<>());
+
+        for (Document book : books) {
+            if (book.containsKey("lendings")) {
+                List<Document> lendings = (List<Document>) book.get("lendings");
+                System.out.println("lendings" + lendings.size());
+
+                List<Lending> filteredLendings = lendings.stream()
+                        .filter(l -> {
+                            // Überprüfen, ob das Feld dueDate vorhanden und nicht leer ist
+                            String dueDateStr = l.getString("returnDate");
+                            return dueDateStr != null && !dueDateStr.trim().isEmpty() &&
+                                    !dueDateStr.equalsIgnoreCase("Noch nicht zurückgegeben");
+                        })
+                        .map(l -> new Lending(
+                                l.getInteger("lendingId"),
+                                book.getInteger("bookId"),
+                                l.getInteger("borrowerId"),
+                                l.getInteger("workerId"),
+                                l.getString("status"),
+                                parseDate(l.getString("checkoutDate"), formatter),
+                                parseDate(l.getString("returnDate"), formatter),
+                                parseDate(l.getString("dueDate"), formatter)
+                        ))
+                        .collect(Collectors.toList());
+
+                lendingList.addAll(filteredLendings);
+            }
+        }
+
+        return lendingList;
+    }
 
     /**
      * Filtert Ausleihen basierend auf der Kategorie.
      */
-    public List<Lending> filterByCategory(String category){return null;}
+    public List<Lending> filterByCategory(String category) {
+        List<Lending> lendingList = new ArrayList<>();
+        // Definiere den Datumsformatter für die Datumsumwandlung
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+          // Finde die keywordId für die übergebene Kategorie
+        Document keywordDoc = keywordCollection.find(eq("keyword", category)).first();
+
+        int keywordId = keywordDoc.getInteger("keyword_id");
+
+        if (keywordDoc == null) {
+            System.out.println("Kategorie nicht gefunden: " + category);
+            return lendingList;  // Leere Liste zurückgeben, wenn die Kategorie nicht existiert
+        }
+
+
+        // Suche nach Büchern, die das angegebene Keyword enthalten
+        List<Document> books = bookCollection.find(elemMatch("keywords", eq("keywordId", keywordId)))
+                .into(new ArrayList<>());
+
+        for (Document book : books) {
+            if (book.containsKey("lendings")) {
+                List<Document> lendings = (List<Document>) book.get("lendings");
+
+                List<Lending> filteredLendings = lendings.stream()
+                        .map(l -> new Lending(
+                                l.getInteger("lendingId"),
+                                book.getInteger("bookId"),
+                                l.getInteger("borrowerId"),
+                                l.getInteger("workerId"),
+                                l.getString("status"),
+                                parseDate(l.getString("checkoutDate"), formatter),
+                                parseDate(l.getString("returnDate"), formatter),
+                                parseDate(l.getString("dueDate"), formatter)
+                        ))
+                        .collect(Collectors.toList());
+
+                lendingList.addAll(filteredLendings);
+            }
+        }
+
+        return lendingList;
+    }
 
     /**
      * Filtert Ausleihen basierend auf der Verfügbarkeit.
      */
-    public List<Lending> filterByAvailability(String availabilityStatus){return null;}
+    public List<Lending> filterByAvailability(String availabilityStatus) {
+        List<Lending> lendingList = new ArrayList<>();
+
+        // MongoDB-Abfrage zum Filtern nach Lending-Status
+        List<Document> books = bookCollection.find().into(new ArrayList<>());
+
+        for (Document book : books) {
+            if (book.containsKey("lendings")) {
+                List<Document> lendings = (List<Document>) book.get("lendings");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+                List<Lending> filteredLendings = lendings.stream()
+                        .filter(l -> availabilityStatus.equals(l.getString("status"))) // Status prüfen
+                        .map(l -> new Lending(
+                                l.getInteger("lendingId"),
+                                book.getInteger("bookId"),
+                                l.getInteger("borrowerId"),
+                                l.getInteger("workerId"),
+                                l.getString("status"),
+                                parseDate(l.getString("checkoutDate"), formatter),
+                                parseDate(l.getString("returnDate"), formatter),
+                                parseDate(l.getString("dueDate"), formatter)
+                        ))
+                        .collect(Collectors.toList());
+
+                lendingList.addAll(filteredLendings);
+            }
+        }
+
+        return lendingList;
+    }
+
 
     /**
      * Holt alle Schlüsselwörter Keywords.
      */
-    public List<String> getAllKeywords(){return null;}
+    public List<String> getAllKeywords() {
+        List<String> keywordList = new ArrayList<>();
 
+        // Alle Dokumente aus der Keyword-Sammlung abrufen
+        List<Document> keywords = keywordCollection.find().into(new ArrayList<>());
+        // Extrahiere die Keywords aus jedem Dokument
+        keywordList = keywords.stream()
+                .map(doc -> doc.getString("keyword"))
+                .filter(keyword -> keyword != null && !keyword.isEmpty()) // Null oder leere Werte filtern
+                .collect(Collectors.toList());
 
-
-    private Lending documentToLending(Document doc) {
-        Lending lending = new Lending();
-        lending.setLendingId(doc.getInteger("lendingId"));
-        lending.setBookId(doc.getInteger("lendingId"));
-        lending.setUserIdBorrower(doc.getInteger("userId"));
-        lending.setBookId(doc.getInteger("bookId"));
-        lending.setStatus(doc.getString("status"));
-        lending.setCheckoutDate(LocalDate.parse(doc.getString("checkoutDate")));
-        lending.setReturnDate(LocalDate.parse(doc.getString("returnDate")));
-        lending.setDueDate(LocalDate.parse(doc.getString("dueDate")));
-        return lending;
+        return keywordList;
     }
+
+    /**
+     * Wandelt ein MongoDB-Dokument in ein Lending-Objekt um.
+     */
+    private List<Lending> documentToLending(Document doc) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        List<Lending> lendingList = new ArrayList<>();
+
+        // Überprüfen, ob userId existiert, wenn nicht, Standardwert setzen
+        int userIdBorrower = doc.containsKey("userId") ? doc.getInteger("userId", 0) : 0;
+        System.out.println("Extracted userId: " + userIdBorrower);
+
+        // Prüfen, ob das Feld "lendings" existiert und nicht null ist
+        if (!doc.containsKey("lendings") || doc.get("lendings") == null) {
+            System.out.println("Keine Lending-Daten gefunden.");
+            return lendingList;
+        }
+
+        List<Document> lendingDocs = doc.getList("lendings", Document.class);
+        if (lendingDocs.isEmpty()) {
+            System.out.println("Lending-Array ist leer.");
+            return lendingList;
+        }
+
+        // Iteration über alle Lending-Einträge
+        for (Document lendingDoc : lendingDocs) {
+            int lendingId = lendingDoc.getInteger("lendingId", 0);
+            int bookId = lendingDoc.getInteger("bookId", 0);
+            int workerId = lendingDoc.getInteger("workerId", 0);
+            String status = lendingDoc.getString("status") != null ? lendingDoc.getString("status") : "unknown";
+
+            // Sichere Datumsumwandlung
+            LocalDate checkoutDate = parseDate(lendingDoc.getString("checkoutDate"), formatter);
+            LocalDate dueDate = parseDate(lendingDoc.getString("dueDate"), formatter);
+            LocalDate returnDate = parseDate(lendingDoc.getString("returnDate"), formatter);
+
+            // Lending-Objekt erstellen und zur Liste hinzufügen
+            Lending lending = new Lending(lendingId, bookId, userIdBorrower, workerId, status, checkoutDate, returnDate, dueDate);
+            lendingList.add(lending);
+        }
+
+        return lendingList;
+    }
+
+
+
+    /**
+     * Hilfsmethode zur sicheren Umwandlung eines Datumsstrings in LocalDate.
+     */
+    private LocalDate parseDate(String dateString, DateTimeFormatter formatter) {
+        if (dateString == null || dateString.trim().isEmpty() || dateString.equalsIgnoreCase("Noch nicht zurückgegeben")) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(dateString, formatter);
+        } catch (Exception e) {
+            System.err.println("Fehler bei der Datumsumwandlung für: " + dateString);
+            return null;
+        }
+    }
+
 
 }

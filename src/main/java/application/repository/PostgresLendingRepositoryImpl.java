@@ -256,8 +256,9 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
     /**
      * Filtert ausgeliehene Bücher nach Fälligkeitsdatum
      */
+
     @Override
-    public List<Lending> filterByDueDate() {
+    public List<Lending> filterByReturnDate() {
         List<Lending> lendingList = new ArrayList<>();
 
         String query = """
@@ -269,7 +270,7 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
         JOIN book b ON l.book_id = b.book_id
         JOIN person p ON l.user_id_borrower = p.user_id
         LEFT JOIN keyword k ON b.keyword_id = k.keyword_id
-        WHERE l.due_date <= CURRENT_DATE + INTERVAL '7 days';
+        WHERE l.return_date <= CURRENT_DATE + INTERVAL '7 days';
     """;
 
         try (PreparedStatement statement = connection.prepareStatement(query);

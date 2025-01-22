@@ -111,8 +111,9 @@ public class LendingController {
         dueDateColumn.setCellValueFactory(cellData -> {
             if (cellData.getValue().getReturnDate() != null) {
                 return new SimpleStringProperty(cellData.getValue().getReturnDate().toString());
+            }  else {
+                return new SimpleStringProperty("Noch nicht zurückgegeben");
             }
-            return null;
         });
 
         if (categoryColumn == null) {

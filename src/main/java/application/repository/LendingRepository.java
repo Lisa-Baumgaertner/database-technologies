@@ -17,7 +17,7 @@ public interface LendingRepository {
     void updateDueDate(Long lendingId, LocalDate newDueDate);
     int calculateExtensionCount(Lending lending);
     List<Lending> getLendingForUserByName(String userName);
-    List<Lending> filterByDueDate();
+    List<Lending> filterByReturnDate();
     List<Lending> filterByCategory(String category);
     List<Lending> filterByAvailability(String availabilityStatus);
     List<String> getAllKeywords();

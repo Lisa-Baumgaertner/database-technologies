@@ -1,5 +1,6 @@
 package application.repository;
 
+import static com.mongodb.client.model.Filters.eq;
 import application.model.Book;
 import application.model.Keyword;
 import application.model.Status;
@@ -12,6 +13,7 @@ import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementierung des BookRepository für MongoDB.
@@ -19,12 +21,14 @@ import java.util.List;
  */
 public class MongoBookRepositoryImpl implements BookRepository {
     private final MongoCollection<Document> bookCollection;
+    private final MongoCollection<Document> keywordCollection;
 
     /**
      * Konstruktor zur Initialisierung der MongoDB-Collection.
      */
     public MongoBookRepositoryImpl(MongoDatabase mongoDatabase) {
-        this.bookCollection = mongoDatabase.getCollection("Book"); // Verwende die Collection "books"
+        this.bookCollection = mongoDatabase.getCollection("Book"); // Verwende die Collection "book"
+        this.keywordCollection = mongoDatabase.getCollection("Keyword"); // Verwende die Collection "keyword"
     }
 
     /**
@@ -50,7 +54,6 @@ public class MongoBookRepositoryImpl implements BookRepository {
 
     @Override
     public List<Book> searchBooks(String title, String author, String isbn, String status) {
-        System.out.println("ausgewählte Status " + status);
         List<Book> books = new ArrayList<>();
         List<Bson> filters = new ArrayList<>();
 
@@ -115,6 +118,15 @@ public class MongoBookRepositoryImpl implements BookRepository {
      */
     @Override
     public String getBookTitleById(int bookId) {
+        Document query = new Document("bookId", bookId);
+        Document result = bookCollection.find(query).first();
+
+        if (result != null) {
+            Document metadata = (Document) result.get("metadata");
+            if (metadata != null) {
+                return metadata.getString("title");
+            }
+        }
         return null;
     }
 
@@ -123,8 +135,37 @@ public class MongoBookRepositoryImpl implements BookRepository {
      */
     @Override
     public String getCategoryByBookId(int bookId) {
-        return null;
+        // Buch anhand der bookId suchen
+        Document book = bookCollection.find(eq("bookId", bookId)).first();
+
+        if (book != null && book.containsKey("keywords")) {
+            List<Document> keywords = (List<Document>) book.get("keywords");
+
+            // Extrahiere die keywordId aus dem Buch-Dokument
+            List<Integer> keywordIds = keywords.stream()
+                    .map(k -> k.getInteger("keywordId"))
+                    .collect(Collectors.toList());
+
+            // Hole die tatsächlichen Kategorienamen aus der Keyword-Sammlung
+            List<String> categories = keywordCollection.find(
+                            eq("keyword_id", new Document("$in", keywordIds))
+                    )
+                    .map(doc -> doc.getString("keyword"))
+                    .into(new java.util.ArrayList<>());
+
+            // Falls keine Kategorien vorhanden sind, leere Zeichenkette zurückgeben
+            if (categories.isEmpty()) {
+                return "";
+            }
+            // Kategorien als durch Komma getrennte Zeichenkette formatieren
+            return categories.stream()
+                    .filter(s -> s != null && !s.isEmpty())  // Entferne null oder leere Werte
+                    .collect(Collectors.joining(", "));
+        }
+
+        return "";  // Rückgabe eines leeren Strings, falls keine Kategorien gefunden wurden
     }
+
     /**
      * Fügt ein neues Buch in die MongoDB-Collection ein.
      */

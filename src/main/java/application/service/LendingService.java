@@ -2,7 +2,6 @@ package application.service;
 
 import application.config.DatabaseConfig;
 import application.model.Lending;
-import application.repository.BookRepository;
 import application.repository.LendingRepository;
 
 import java.io.IOException;
@@ -121,7 +120,7 @@ public class LendingService {
      * @return Liste der gefilterten Ausleihen
      */
     public List<Lending> filterByDueDate() {
-        return lendingRepository.filterByDueDate();
+        return lendingRepository.filterByReturnDate();
     }
 
 
