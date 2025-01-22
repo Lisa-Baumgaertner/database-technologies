@@ -116,8 +116,31 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
                     .append("checkoutDate",waitlist.getCheckoutDate())
                     .append("status", "borrowed")
                     .append("returnDate", null);
-            Bson updateoperation = new Document("$set", updatedvalue);
-            collection.updateOne(found, updateoperation);
+
+            System.out.println("updatedvalue" + updatedvalue);
+
+            // Objekt zur Warteliste hinzufügen
+            Bson updateOperation = Updates.push("waitlist", updatedvalue);
+
+            UpdateResult result = collection.updateOne(eq("bookId", waitlist.getBook().getBookId()), updateOperation);
+
+
+
+            Long updatedCount = collection.updateOne(
+                    eq("bookId", waitlist.getBook().getBookId()),
+                    updateOperation
+            ).getModifiedCount();
+
+            if (updatedCount > 0) {
+                System.out.println("Waitlist updated successfully.");
+            } else {
+                System.out.println("No documents were updated.");
+            }
+
+            //   Bson updateoperation = new Document("$set", updatedvalue);
+
+
+         //   collection.updateOne(found, updateoperation);
             System.out.println("Waitlist updated");
 
 
