@@ -10,11 +10,13 @@ import com.mongodb.client.model.Projections;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.elemMatch;
 
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -92,6 +94,7 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
      * Holt einen Ausleiheintrag anhand seiner ID.
      */
     public Lending getLendingById(Long lendingId) {
+        System.out.println("lendingId " + lendingId);
 
         // Suche in der Person-Kollektion
         Document personDoc = personCollection.find(
@@ -99,19 +102,56 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
         ).projection(new Document("lendings.$", 1)).first();
 
         if (personDoc != null) {
+            System.out.println("Lending gefunden in Person-Kollektion.");
             Document lendingDoc = (Document) personDoc.getList("lendings", Document.class).get(0);
-           // return documentToLending(lendingDoc);
+            return documentToLending(lendingDoc);
         }
         // Suche in der Peron-Kollektion
-        Document perDoc = bookCollection.find(eq("lendings.lendingId", lendingId)).first();
+        Document bookDoc = bookCollection.find(
+                eq("lendings.lendingId", lendingId)
+        ).projection(new Document("lendings.$", 1)).first();
 
+        if (bookDoc != null) {
+            System.out.println("Lending gefunden in Book-Kollektion.");
+            Document lendingDoc = (Document) bookDoc.getList("lendings", Document.class).get(0);
+            return documentToLending(lendingDoc);
+        }
+
+        System.out.println("Lending mit ID " + lendingId + " nicht gefunden.");
         return null;
     }
 
     /**
-     * Aktualisiert das Rückgabedatum einer Ausleihe.
+     * Aktualisiert das Fälligkeitsdatum einer Ausleihe.
      */
-    public  void updateDueDate(Long lendingId, LocalDate newDueDate) {return ;}
+    public  void updateDueDate(Long lendingId, LocalDate newDueDate) {
+        // Formatieren des Datums für MongoDB als String im Format "dd-MM-yyyy"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String formattedDate = newDueDate.format(formatter);
+
+        // Update in der Person-Kollektion
+        UpdateResult personResult = personCollection.updateOne(
+                eq("lendings.lendingId", lendingId),
+                new Document("$set", new Document("lendings.$.dueDate", formattedDate))
+        );
+
+        // Update in der Book-Kollektion
+        UpdateResult bookResult = bookCollection.updateOne(
+                eq("lendings.lendingId", lendingId),
+                new Document("$set", new Document("lendings.$.dueDate", formattedDate))
+        );
+
+        if (bookResult.getModifiedCount() > 0) {
+            System.out.println("dueDate in Book-Kollektion aktualisiert.");
+        } else {
+            System.out.println("LendingId nicht in Book-Kollektion gefunden.");
+        }
+
+        // Falls die ID in keiner der Kollektionen gefunden wurde
+        if (personResult.getModifiedCount() == 0 && bookResult.getModifiedCount() == 0) {
+            System.out.println("Lending mit ID " + lendingId + " nicht gefunden. Aktualisierung fehlgeschlagen.");
+        }
+    }
 
     /**
      * Filtert Ausleiheinträge basierend auf einem bestimmten Filterkriterium.
@@ -121,7 +161,35 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
     /**
      * Berechnet, wie oft eine Ausleihe verlängert wurde.
      */
-    public int  calculateExtensionCount(Lending lending) {return 0;}
+    public int  calculateExtensionCount(Lending lending) {
+        System.out.println("Calculating extension count for lending: " + lending);
+
+        if (lending == null || lending.getCheckoutDate() == null || lending.getDueDate() == null) {
+            System.out.println("Ungültige Lending-Daten.");
+            return 0;
+        }
+        // Ursprüngliches Fälligkeitsdatum = Checkout-Datum + 28 Tage
+        LocalDate originalDueDate = lending.getCheckoutDate().plusDays(28);
+
+        // Verwende das aktuelle Datum, falls kein Rückgabedatum gesetzt ist
+        LocalDate effectiveReturnDate = lending.getReturnDate() != null ? lending.getReturnDate() : LocalDate.now();
+
+        // Überprüfen, ob das Rückgabedatum nach dem ursprünglichen Fälligkeitsdatum liegt
+        if (effectiveReturnDate.isAfter(originalDueDate)) {
+            // Berechne die Anzahl der 28-tägigen Verlängerungen
+            int extensionCount = (int) (ChronoUnit.DAYS.between(originalDueDate, effectiveReturnDate) / 28);
+
+            // Maximal 3 Verlängerungen erlaubt
+            if (extensionCount > 3) {
+                System.out.println("Maximale Verlängerungsanzahl erreicht (3).");
+                return 3;
+            }
+            return extensionCount;
+        }
+
+        // Keine Verlängerung, wenn das Rückgabedatum vor oder am ursprünglichen Fälligkeitsdatum liegt
+        return 0;
+    }
 
     /**
      * Holt Ausleiheinträge für einen Nutzer basierend auf seinem Namen.
@@ -145,7 +213,7 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
                 Document doc = cursor.next();
                 System.out.println("Gefundenes Dokument: " + doc.toJson());
 
-                List<Lending> userLendings = documentToLending(doc);
+                List<Lending> userLendings = documentToLendingList(doc);
                 if (!userLendings.isEmpty()) {
                     lendings.addAll(userLendings);
                 }
@@ -301,9 +369,9 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
     }
 
     /**
-     * Wandelt ein MongoDB-Dokument in ein Lending-Objekt um.
+     * Wandelt ein MongoDB-Dokument in Liste von Lending-Objekt um.
      */
-    private List<Lending> documentToLending(Document doc) {
+    private List<Lending> documentToLendingList(Document doc) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         List<Lending> lendingList = new ArrayList<>();
 
@@ -343,6 +411,44 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
         return lendingList;
     }
 
+    /**
+     * Wandelt ein MongoDB-Dokument in ein Lending-Objekt um.
+     */
+    private Lending documentToLending(Document doc) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        // Überprüfen, ob das Dokument null ist
+        if (doc == null) {
+            System.out.println("Das übergebene Dokument ist null.");
+            return null;
+        }
+
+        // Überprüfen, ob userId existiert, wenn nicht, Standardwert setzen
+        int borrowerId = doc.containsKey("borrowerId") ? doc.getInteger("borrowerId", 0) : 0;
+        System.out.println("Extracted borrowerId: " + borrowerId);
+
+        // Prüfen, ob das Feld "lendingId" existiert
+        if (!doc.containsKey("lendingId")) {
+            System.out.println("Keine Lending-Daten gefunden.");
+            return null;
+        }
+
+        // Extrahiere Lending-Details
+        int lendingId = doc.getInteger("lendingId", 0);
+        int bookId = doc.getInteger("bookId", 0);
+        int workerId = doc.getInteger("workerId", 0);
+        String status = doc.getString("status") != null ? doc.getString("status") : "unknown";
+
+        // Sichere Datumsumwandlung
+        LocalDate checkoutDate = parseDate(doc.getString("checkoutDate"), formatter);
+        LocalDate dueDate = parseDate(doc.getString("dueDate"), formatter);
+        LocalDate returnDate = parseDate(doc.getString("returnDate"), formatter);
+
+        // Lending-Objekt erstellen
+        Lending lending = new Lending(lendingId, bookId, borrowerId, workerId, status, checkoutDate, returnDate, dueDate);
+
+        return lending;
+    }
 
 
     /**

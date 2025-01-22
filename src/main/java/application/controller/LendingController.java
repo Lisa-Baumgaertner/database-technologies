@@ -37,7 +37,11 @@ public class LendingController {
     private TableColumn<Lending, String> statusColumn;
 
     @FXML
+    private TableColumn<Lending, String> returnDateColumn;
+
+    @FXML
     private TableColumn<Lending, String> dueDateColumn;
+
     @FXML
     private TableColumn<Lending, String> categoryColumn;
 
@@ -108,11 +112,20 @@ public class LendingController {
         });
 
         // Rückgabedatum anzeigen
-        dueDateColumn.setCellValueFactory(cellData -> {
+        returnDateColumn.setCellValueFactory(cellData -> {
             if (cellData.getValue().getReturnDate() != null) {
                 return new SimpleStringProperty(cellData.getValue().getReturnDate().toString());
             }  else {
                 return new SimpleStringProperty("Noch nicht zurückgegeben");
+            }
+        });
+
+        // Fälligkeitsdatum anzeigen
+        dueDateColumn.setCellValueFactory(cellData -> {
+            if (cellData.getValue().getDueDate() != null) {
+                return new SimpleStringProperty(cellData.getValue().getDueDate().toString());
+            }  else {
+                return new SimpleStringProperty("Zurückgegeben");
             }
         });
 
