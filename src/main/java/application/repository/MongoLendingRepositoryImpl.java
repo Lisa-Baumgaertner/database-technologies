@@ -68,27 +68,144 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
     /**
      * Fügt einen neuen Ausleiheintrag hinzu.
      */
-    public void addToLending(Long userId, Long workerId, Long bookId, String status, LocalDate checkoutDate) { return;}
+    public void addToLending(Long userId, Long workerId, Long bookId, String status, LocalDate checkoutDate) {
+        // Ermittle die nächste lendingId
+        int newLendingId = getMaxLendingId() + 1;
+
+        // Lending-Daten erstellen
+        Document newLending = new Document()
+                .append("lendingId", newLendingId)
+                .append("bookId", bookId)
+                .append("workerId", workerId)
+                .append("status", status)
+                .append("checkoutDate", formatDate(checkoutDate))
+                .append("dueDate", formatDate(checkoutDate.plusDays(28))) // Standardmäßig 28 Tage
+                .append("returnDate", "Noch nicht zurückgegeben");
+
+        // Zu Person-Dokument hinzufügen
+        UpdateResult personResult = personCollection.updateOne(
+                eq("userId", userId),
+                new Document("$push", new Document("lendings", newLending))
+        );
+
+        // Zu Buch-Dokument hinzufügen
+        UpdateResult bookResult = bookCollection.updateOne(
+                eq("bookId", bookId),
+                new Document("$push", new Document("lendings", newLending))
+        );
+
+        if (personResult.getModifiedCount() > 0 && bookResult.getModifiedCount() > 0) {
+            System.out.println("Lending erfolgreich hinzugefügt.");
+        } else {
+            System.err.println("Fehler beim Hinzufügen der Lending.");
+        }
+    }
+
+    /**
+     * Ermittelt die höchste derzeitige Lending-Id
+     */
+    private int getMaxLendingId() {
+        // Höchste lendingId aus der Person-Kollektion
+        Document personMax = personCollection.aggregate(Arrays.asList(
+                new Document("$unwind", "$lendings"),
+                new Document("$group", new Document("_id", null).append("maxId", new Document("$max", "$lendings.lendingId")))
+        )).first();
+
+        int maxPersonId = (personMax != null) ? personMax.getInteger("maxId", 0) : 0;
+
+        // Höchste lendingId aus der Buch-Kollektion
+        Document bookMax = bookCollection.aggregate(Arrays.asList(
+                new Document("$unwind", "$lendings"),
+                new Document("$group", new Document("_id", null).append("maxId", new Document("$max", "$lendings.lendingId")))
+        )).first();
+
+        int maxBookId = (bookMax != null) ? bookMax.getInteger("maxId", 0) : 0;
+
+        // Höchsten Wert zurückgeben
+        return Math.max(maxPersonId, maxBookId);
+    }
 
     /**
      * Holt alle Ausleiheinträge zu einem bestimmten Buch.
      */
-    public List<Lending> getLendingForBook(Long bookId) {return null;}
+    public List<Lending> getLendingForBook(Long bookId) {
+        List<Lending> lendings = new ArrayList<>();
+
+        // Buch-Dokument suchen
+        Document bookDoc = bookCollection.find(eq("bookId", bookId)).first();
+        if (bookDoc != null && bookDoc.containsKey("lendings")) {
+            List<Document> lendingDocs = (List<Document>) bookDoc.get("lendings");
+
+            for (Document lendingDoc : lendingDocs) {
+                lendings.add(documentToLending(lendingDoc));
+            }
+        }
+        return lendings;
+    }
 
     /**
      * Holt alle Ausleiheinträge für einen bestimmten Nutzer.
      */
-    public List<Lending> getLendingForUser(Long userId) {return null;}
+    public List<Lending> getLendingForUser(Long userId) {
+        List<Lending> lendings = new ArrayList<>();
+
+        // Nutzer-Dokument suchen
+        Document personDoc = personCollection.find(eq("userId", userId)).first();
+        if (personDoc != null && personDoc.containsKey("lendings")) {
+            List<Document> lendingDocs = (List<Document>) personDoc.get("lendings");
+
+            for (Document lendingDoc : lendingDocs) {
+                lendings.add(documentToLending(lendingDoc));
+            }
+        }
+        return lendings;
+    }
 
     /**
      * Aktualisiert den Status einer Ausleihe (z. B. von "ausgeliehen" auf "zurückgegeben").
      */
-    public  void updateStatus(Long lendingId, String status) {return ;}
+    public  void updateStatus(Long lendingId, String status) {
+        // Status in der Person-Kollektion aktualisieren
+        UpdateResult personResult = personCollection.updateOne(
+                eq("lendings.lendingId", lendingId),
+                new Document("$set", new Document("lendings.$.status", status))
+        );
+
+        // Status in der Buch-Kollektion aktualisieren
+        UpdateResult bookResult = bookCollection.updateOne(
+                eq("lendings.lendingId", lendingId),
+                new Document("$set", new Document("lendings.$.status", status))
+        );
+
+        if (personResult.getModifiedCount() > 0 || bookResult.getModifiedCount() > 0) {
+            System.out.println("Lending-Status erfolgreich aktualisiert.");
+        } else {
+            System.err.println("Fehler beim Aktualisieren des Lending-Status.");
+        }
+    }
 
     /**
      * Entfernt einen Ausleiheintrag aus der Datenbank.
      */
-    public  void removeFromLending(Long lendingId) {return ;}
+    public  void removeFromLending(Long lendingId) {
+        // Lending aus der Person-Kollektion entfernen
+        UpdateResult personResult = personCollection.updateOne(
+                Filters.elemMatch("lendings", eq("lendingId", lendingId)),
+                new Document("$pull", new Document("lendings", new Document("lendingId", lendingId)))
+        );
+
+        // Lending aus der Buch-Kollektion entfernen
+        UpdateResult bookResult = bookCollection.updateOne(
+                Filters.elemMatch("lendings", eq("lendingId", lendingId)),
+                new Document("$pull", new Document("lendings", new Document("lendingId", lendingId)))
+        );
+
+        if (personResult.getModifiedCount() > 0 || bookResult.getModifiedCount() > 0) {
+            System.out.println("Lending erfolgreich entfernt.");
+        } else {
+            System.err.println("Fehler beim Entfernen des Lending.");
+        }
+    }
 
     /**
      * Holt einen Ausleiheintrag anhand seiner ID.
@@ -464,6 +581,14 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
             System.err.println("Fehler bei der Datumsumwandlung für: " + dateString);
             return null;
         }
+    }
+
+    /**
+     * Hilfsmethode zur sicheren Umwandlung eines LocalDate zu Datumsstring.
+     */
+    private String formatDate(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        return date.format(formatter);
     }
 
 
