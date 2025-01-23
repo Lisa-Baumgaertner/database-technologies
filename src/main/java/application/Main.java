@@ -1,11 +1,8 @@
 package application;
 
 import application.config.DatabaseConfig;
-import application.service.BookService;
+import application.service.*;
 import application.controller.MainController;
-import application.service.LendingService;
-import application.service.UserService;
-import application.service.WaitlistService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -25,6 +22,7 @@ public class Main extends Application {
     private final UserService userService;
     private final LendingService lendingService;
     private final WaitlistService waitlistService;
+    private final KeywordService keywordService;
 
 
     /**
@@ -40,6 +38,7 @@ public class Main extends Application {
         );
         this.lendingService = new LendingService(new DatabaseConfig().getLendingRepository());
         this.waitlistService = new WaitlistService(new DatabaseConfig().getWaitlistRepository());
+        this.keywordService = new KeywordService(new DatabaseConfig().getKeywordRepository());
     }
 
     /**
@@ -60,6 +59,7 @@ public class Main extends Application {
         mainController.setUserService(userService);
         mainController.setLendingService(lendingService);
         mainController.setWaitlistService(waitlistService);
+        mainController.setKeywordService(keywordService);
 
         // Erstelle die Szene mit einer Größe von 1100 x 1000 Pixeln
         Scene scene = new Scene(root, 1100, 1000);

@@ -14,17 +14,7 @@
         <TextField fx:id="titleField" promptText="Titel eingeben" prefWidth="200"/>
         <TextField fx:id="authorField" promptText="Autor eingeben" prefWidth="200"/>
         <TextField fx:id="isbnField" promptText="ISBN eingeben" prefWidth="200"/>
-        <ComboBox fx:id="statusDropdown" promptText="Status auswählen" prefWidth="150">
-            <items>
-                <FXCollections fx:factory="observableArrayList">
-                    <String fx:value="Alle"/>
-                    <String fx:value="Verfügbar"/>
-                    <String fx:value="Ausgeliehen"/>
-                    <String fx:value="Reserviert"/>
-                    <String fx:value="Wartend"/>
-                </FXCollections>
-            </items>
-        </ComboBox>
+        <ComboBox fx:id="statusDropdown" promptText="Status auswählen" prefWidth="150"/>
     </HBox>
 
     <Button fx:id="searchButton" text="Suchen" onAction="#searchBook"/>

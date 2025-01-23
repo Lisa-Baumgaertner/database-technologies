@@ -18,7 +18,7 @@ public class MongoContactRepositoryImpl implements ContactRepository {
      * Konstruktor zur Initialisierung der "Personen"-Sammlung.
      */
     public MongoContactRepositoryImpl(MongoDatabase database) {
-        this.collection = database.getCollection("Person");
+        this.collection = database.getCollection(MongoCollectionNameRepository.getCollectionName("Person"));
     }
 
     /**

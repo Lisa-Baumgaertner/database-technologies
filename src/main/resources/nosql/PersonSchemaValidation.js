@@ -145,6 +145,6 @@ db.runCommand({
             }
         }
     },
-    validationLevel: "strict",
+    validationLevel: "moderate",
     validationAction: "error"
 });

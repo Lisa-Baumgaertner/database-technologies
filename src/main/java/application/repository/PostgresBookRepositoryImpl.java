@@ -1,6 +1,7 @@
 package application.repository;
 
 import application.model.Book;
+import application.model.Status;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
      */
     public List<Book> searchBooks(String title, String author, String isbn, String status) {
         List<Book> books = new ArrayList<>();
+        System.out.println("ausgewählte Status," + status);
         String query = "SELECT * FROM BOOK WHERE " +
                 "(LOWER(BOOKTITLE) LIKE ? OR ? IS NULL) AND " +
                 "(LOWER(BOOKAUTHOR) LIKE ? OR ? IS NULL) AND " +
@@ -125,7 +127,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
                 book.setPublisher(resultSet.getString("publisher"));
                 book.setYearPublished(resultSet.getInt("year_published"));
                 book.setDescription(resultSet.getString("description"));
-                book.setStatus(resultSet.getString("status"));
+                book.setStatus(Status.BookStatus.valueOf(resultSet.getString("status")));
                 return book;
             }
         } catch (Exception e) {
@@ -157,7 +159,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
      * Fügt ein neues Buch zur Datenbank hinzu.
      */
     @Override
-    public Book insertBook(Book book) {
+    public void insertBook(Book book) {
         String query = "INSERT INTO book (isbn_long, isbn_short, copies, booktitle, bookauthor, publisher, year_published, description, status, keyword_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -171,21 +173,17 @@ public class PostgresBookRepositoryImpl implements BookRepository {
             statement.setInt(7, book.getYearPublished());
             statement.setString(8, book.getDescription());
             statement.setString(9, book.getStatus());
-            statement.setObject(10, book.getKeywordId(), Types.INTEGER);
+            statement.setObject(10, book.getKeywordId().get(), Types.INTEGER);
 
-            int affectedRows = statement.executeUpdate();
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        book.setBookId(generatedKeys.getInt(1));
-                    }
-                }
+            statement.executeUpdate();
+            ResultSet rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                book.setBookId(rs.getInt(1));
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return book;
     }
 
     /**
@@ -220,7 +218,35 @@ public class PostgresBookRepositoryImpl implements BookRepository {
      */
     @Override
     public String getCategoryByBookId(int bookId) {
+        String query = "SELECT STRING_AGG(k.keyword, ', ') AS keywords " +
+                "FROM book_keyword bk " +
+                "JOIN keyword k ON bk.keyword_id = k.keyword_id " +
+                "WHERE bk.book_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, bookId);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("keywords");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return null;
+    }
+
+
+    @Override
+    public void insertBookKeyword(Long bookId, int keywordId) {
+        String query = "INSERT INTO book_keyword (book_id, keyword_id) VALUES (?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, (int) bookId.longValue());
+            stmt.setInt(2, keywordId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -254,7 +280,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
         book.setPublisher(resultSet.getString("publisher"));
         book.setYearPublished(resultSet.getInt("year_published"));
         book.setDescription(resultSet.getString("description"));
-        book.setStatus(resultSet.getString("status"));
+        book.setStatus(Status.BookStatus.fromString(resultSet.getString("status").trim()));
         book.setKeywordId(resultSet.getInt("keyword_id"));
         book.setKeywords(new ArrayList<>()); // Keywords werden separat geladen
         return book;

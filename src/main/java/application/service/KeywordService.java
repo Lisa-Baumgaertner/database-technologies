@@ -18,11 +18,26 @@ public class KeywordService {
     }
 
     /**
-     * Holt Adresse anhand der  userId.
+     * Holt KeywordNames anhand der  bookId.
      */
     public List<Keyword> getKeywordsForBook(Long bookId) {
         return keywordRepository.getKeywordsForBook(bookId);
     }
+
+    /**
+     * Holt KeywordId anhand der  keyword.
+     */
+    public int getKeywordIdByName(String keywordName) {
+        return keywordRepository.getKeywordIdByName(keywordName);
+    }
+
+    /**
+     * fügt eine Keyword hinzu.
+     */
+    public int insertKeyword(String keywordName) {
+        return keywordRepository.insertKeyword(keywordName);
+    }
+
 
 
     /**

@@ -51,9 +51,10 @@
                 <TableColumn prefWidth="150" text="Benutzer" fx:id="userNameColumn" />
                 <TableColumn prefWidth="150" text="Buchtitel" fx:id="bookTitleColumn" />
                 <TableColumn prefWidth="150" text="Ausleihdatum"  fx:id="checkoutDateColumn"/>
-                <TableColumn  prefWidth="150" text="Rückgabedatum" fx:id="dueDateColumn" />
-                <TableColumn  prefWidth="150" text="Kategorie" fx:id="categoryColumn" />
-                <TableColumn prefWidth="150" text="Status" fx:id="statusColumn" />
+                <TableColumn  prefWidth="200" text="Fälligkeitsdatum" fx:id="dueDateColumn" />
+                <TableColumn  prefWidth="200" text="Rückgabedatum" fx:id="returnDateColumn" />
+                <TableColumn  prefWidth="250" text="Kategorie" fx:id="categoryColumn" />
+                <TableColumn prefWidth="100" text="Status" fx:id="statusColumn" />
             </columns>
         </TableView>
     </center>

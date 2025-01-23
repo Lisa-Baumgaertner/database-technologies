@@ -24,7 +24,7 @@ public class MongoUserRepositoryImpl implements UserRepository {
     public MongoUserRepositoryImpl(MongoDatabase database) {
         this.database = database;
 
-        this.personCollection = database.getCollection("Person");
+        this.personCollection = database.getCollection(MongoCollectionNameRepository.getCollectionName("Person"));
 
         long totalPersons = personCollection.countDocuments();
         System.out.println("Anzahl aller Einträge in der Collection: " + totalPersons);
@@ -47,7 +47,23 @@ public class MongoUserRepositoryImpl implements UserRepository {
      * Holt Name der Person anhand userId.
      */
     public  String getUserNameById(int userId) {
-        return "Benutzername";
+        System.out.println("userId " + userId);
+        Document query = new Document("userId", userId);
+        System.out.println("Query " + query);
+        Document result = personCollection.find(query).first();
+        if (result != null) {
+            Document personalDetails = (Document) result.get("personalDetails");
+            System.out.println("personalDetails " + personalDetails);
+            if (personalDetails != null) {
+                String firstName = personalDetails.getString("firstName");
+                String lastName = personalDetails.getString("lastName");
+
+                if (firstName != null && lastName != null) {
+                    return firstName + " " + lastName;
+                }
+            }
+        }
+        return "Benutzer nicht gefunden";
     }
 
     /**

@@ -58,4 +58,43 @@ public class PostgresKeywordRepositoryImpl implements KeywordRepository {
         }
         return keywords;
     }
+
+    /**
+     * Holt Keyword_ID mit Keywordname
+     */
+    @Override
+    public int getKeywordIdByName(String keyword) {
+        String query = "SELECT keyword_id FROM keyword WHERE keyword = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, keyword);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("keyword_id");
+            }
+        } catch (SQLException e) {
+            System.err.println("Fehler beim Abrufen des KeywordId: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    /**
+     * Fügt Keyword hinzu
+     */
+    @Override
+    public int insertKeyword(String keyword) {
+        String query = "INSERT INTO keyword (keyword) VALUES (?) RETURNING keyword_id";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, keyword);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("keyword_id");
+            }
+        } catch (SQLException e) {
+            System.err.println("Fehler beim Hinzufügen des Keyword: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return -1; // Falls das Einfügen fehlschlägt
+    }
+
 }

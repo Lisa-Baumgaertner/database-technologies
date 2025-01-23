@@ -2,6 +2,7 @@ package application.service;
 
 import application.config.DatabaseConfig;
 import application.model.Book;
+import application.model.Keyword;
 import application.repository.BookRepository;
 
 
@@ -63,10 +64,21 @@ public class BookService {
     /**
      * Fügt ein neues Buch in die Datenbank ein.
      **/
-    public Book insertBook(Book book) {
-        return bookRepository.insertBook(book);
+    public void insertBook(Book book) {
+      try {
+        bookRepository.insertBook(book);
+          if (book.getBookId() > 0) {
+              // Nach der Speicherung wird die tatsächliche Buch-ID verwendet
+              for (Keyword keyword : book.getKeywords()) {
+                  bookRepository.insertBookKeyword(book.getBookId(), keyword.getKeywordId());
+              }
+          } else {
+              System.out.println("Fehler beim Einfügen des Buches: Keine gültige Buch-ID erhalten.");
+          }
+      } catch (Exception e) {
+          System.err.println("Fehler beim Hinzufügen des Buches: " + e.getMessage());
+      }
     }
-
 
     /**
      * Aktualisiert die Daten eines bestehenden Buches in der Datenbank.

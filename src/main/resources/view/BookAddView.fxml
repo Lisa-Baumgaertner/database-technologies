@@ -12,8 +12,16 @@
     <TextField fx:id="year_published" onAction="#addBook" promptText="Jahr der Veröffentlichung eingeben" />
     <TextField fx:id="description" onAction="#addBook" prefHeight="25.0" prefWidth="280.0" promptText="Beschreibung eingeben" />
     <TextField fx:id="status" onAction="#addBook" promptText="Status eingeben" />
-    <TextField fx:id="keyword_id" layoutY="25.0" onAction="#addBook" prefHeight="25.0" prefWidth="149.0" promptText="Stichwort Id eingeben" />
-   <TextField fx:id="copies" layoutX="10.0" layoutY="35.0" onAction="#addBook" promptText="Anzahl Exemplare eingeben" />
+
+    <!-- Eingabefeld für Keywords -->
+    <TextField fx:id="keywordField" promptText="Stichwort eingeben" />
+    <Button fx:id="addKeywordButton" text="Stichwort hinzufügen" onAction="#addKeyword" />
+
+    <!-- Liste für Keywords -->
+    <ListView fx:id="keywordListView" prefHeight="100.0" prefWidth="280.0" />
+
+
+    <TextField fx:id="copies" layoutX="10.0" layoutY="35.0" onAction="#addBook" promptText="Anzahl Exemplare eingeben" />
    <Button fx:id="addButton" mnemonicParsing="false" onAction="#addBook" text="Hinzufügen" />
 
 

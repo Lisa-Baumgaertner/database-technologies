@@ -1,9 +1,6 @@
 package application.controller;
 
-import application.service.BookService;
-import application.service.LendingService;
-import application.service.UserService;
-import application.service.WaitlistService;
+import application.service.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -33,6 +30,7 @@ public class EmployeePageController {
     private UserService userService;
     private LendingService lendingService;
     private WaitlistService waitlistService;
+    private KeywordService keywordService;
 
     public void setBookService(BookService bookService) {
         this.bookService = bookService;
@@ -43,6 +41,9 @@ public class EmployeePageController {
     public void setLendingService(LendingService lendingService) {  this.lendingService = lendingService;}
 
     public void setWaitlistService(WaitlistService waitlistService) {  this.waitlistService = waitlistService;}
+
+    public void setKeywordService(KeywordService keywordService) {  this.keywordService = keywordService;}
+
     @FXML
     public Button editBookButton;
     @FXML
@@ -107,6 +108,7 @@ public class EmployeePageController {
 
             BookAddController controller = loader.getController();
             controller.setBookService(bookService);
+            controller.setKeywordService(keywordService);
 
         } catch (IOException e) {
             System.err.println("Fehler beim Laden der BookAddView.fxml: " + e.getMessage());
