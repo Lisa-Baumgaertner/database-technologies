@@ -196,7 +196,46 @@ public class MongoBookRepositoryImpl implements BookRepository {
      * Löscht ein Buch anhand seiner ID aus der MongoDB-Collection.
      */
     @Override
-    public void deleteBookById(Long id) {
+    public void deleteBookById(Long bookId) {
+        try {
+            // Suche das Buch anhand der bookId
+            Bson filter = Filters.eq("bookId", bookId);
+            Document bookDoc = bookCollection.find(filter).first();
+
+            if (bookDoc != null) {
+                // Extrahiere die keywordId(s) aus dem Buch-Dokument
+                List<Document> keywords = (List<Document>) bookDoc.get("keywords");
+                List<Integer> keywordIds = new ArrayList<>();
+
+                if (keywords != null) {
+                    for (Document keywordDoc : keywords) {
+                        keywordIds.add(keywordDoc.getInteger("keywordId"));
+                    }
+                }
+
+                // Lösche das Buch aus der Buch-Collection
+                bookCollection.deleteOne(filter);
+                System.out.println("Buch mit der ID " + bookId + " wurde erfolgreich gelöscht.");
+
+                // Überprüfen, ob Keywords noch von anderen Büchern verwendet werden
+                for (Integer keywordId : keywordIds) {
+                    Bson keywordFilter = Filters.elemMatch("keywords", Filters.eq("keywordId", keywordId));
+                    long count = bookCollection.countDocuments(keywordFilter);
+
+                    if (count == 0) {
+                        // Lösche das Keyword, wenn es nicht mehr verwendet wird
+                        keywordCollection.deleteOne(Filters.eq("keyword_id", keywordId));
+                        System.out.println("Keyword mit ID " + keywordId + " wurde gelöscht.");
+                    } else {
+                        System.out.println("Keyword mit ID " + keywordId + " wird noch verwendet und bleibt erhalten.");
+                    }
+                }
+            } else {
+                System.out.println("Kein Buch mit der ID " + bookId + " gefunden.");
+            }
+        } catch (Exception e) {
+            System.err.println("Fehler beim Löschen des Buches mit der ID " + bookId + ": " + e.getMessage());
+        }
     }
 
     /**
