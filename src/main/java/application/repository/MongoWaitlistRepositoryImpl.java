@@ -106,7 +106,12 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
     }
 
 
-    public void updateStatus(Long waitlistId, String status) {
+    public boolean updateStatus(Long waitlistId, String status) {
+
+        Bson filter = Filters.elemMatch("waitlist", Filters.eq("waitlistId", waitlistId));
+        Bson update = Updates.set("waitlist.$.text", status);
+
+        return collection.updateOne(filter, update).getModifiedCount() > 0;
     }
 
     //public void removeFromWaitlist(Long waitlistId) {}

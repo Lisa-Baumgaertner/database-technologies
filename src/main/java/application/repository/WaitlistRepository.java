@@ -10,7 +10,7 @@ public interface WaitlistRepository {
     boolean addToWaitlist(Long userId, Long bookId, String status);
     List<Waitlist> getWaitlistForBook(Long bookId);
     List<Waitlist> getWaitlistForUser(Long userId);
-    void updateStatus(Long waitlistId, String status);
+    boolean updateStatus(Long waitlistId, String status);
     boolean removeFromWaitlist(Long waitlistId);
     List<Waitlist> getPrioritizedWaitlistEntries();
     void updateCheckoutDate(Long waitlistId, LocalDate checkoutDate);

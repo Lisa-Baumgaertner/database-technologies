@@ -290,7 +290,7 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
      * Aktualisiert den Status eines Eintrags in der Warteliste.
      */
     @Override
-    public void updateStatus(Long waitlistId, String status) {
+    public boolean updateStatus(Long waitlistId, String status) {
         String query = "UPDATE WAITLIST SET status = ? WHERE waitlist_id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, status);
@@ -300,6 +300,7 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return true;
     }
 
     /**
