@@ -176,7 +176,7 @@ public class BookDetailsController {
     @FXML
     private void registerWaitlist() throws IOException {
 
-        boolean resultAdd;
+        Waitlist resultAdd;
         String mystatus = statusLabel.getText();
         System.out.print(mystatus);
         if (!mystatus.equals("available")){
@@ -185,8 +185,20 @@ public class BookDetailsController {
             UserPageController uspController = new UserPageController();
             this.userId = uspController.getUserId();
 
-            resultAdd = waitlistService.addToWaitlist(userId, myBookId , mystatus);
-            if (resultAdd == true) {
+            Person testPers = new Person();
+            testPers.setUserId(userId.intValue());
+            Book testBook = new Book();
+            testBook.setBookId(bookId);
+            Waitlist waitlist = new Waitlist();
+            waitlist.setUser(testPers);
+            waitlist.setBook(testBook);
+            waitlist.setCheckoutDate(null);
+            waitlist.setStatus(null);
+            waitlist.setWaitlistId(2);
+
+            //resultAdd = waitlistService.addToWaitlist(userId, myBookId , mystatus);
+            resultAdd = waitlistService.addToWaitlist(waitlist);
+            if (resultAdd != null) {
                 // Anzeige einer Meldung, wenn Nutzer erfolgreich auf Warteliste aufgenommen wurde
                 showAlert("Success", "You have been placed on the waitlist successfully!");
             } else {
@@ -204,6 +216,8 @@ public class BookDetailsController {
 
 
         }
+        long tmp= 1;
+        waitlistService.removeFromWaitlist(tmp);
 
         }
 

@@ -107,6 +107,13 @@ public class WaitlistService {
     }
 
     /**
+     * Fügt einen Benutzer zu der Warteliste für ein bestimmtes Buch hinzu.
+     */
+    public Waitlist addToWaitlist(Waitlist waitlist) {
+        return waitlistRepository.addToWaitlist(waitlist);
+    }
+
+    /**
      * Aktualisiert den Status eines bestehenden Wartelisteneintrags.
      */
     public void updateStatus(Long waitlistId, String status) {
