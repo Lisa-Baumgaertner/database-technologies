@@ -118,6 +118,21 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
     @Override
     public void updateCheckoutDate(Long waitlistId, LocalDate checkoutDate) {
 
+        // Formatieren des Datums für MongoDB als String im Format "dd-MM-yyyy"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String formattedDate = checkoutDate.format(formatter);
+
+        // Update in der Book-Kollektion
+        UpdateResult bookResult = collection.updateOne(
+                eq("waitlist.waitlistId", waitlistId),
+                new Document("$set", new Document("waitlist.$.checkoutDate", formattedDate))
+        );
+
+        // Falls die ID in keiner der Kollektionen gefunden wurde
+        if (bookResult.getModifiedCount() == 0 && bookResult.getModifiedCount() == 0) {
+            System.out.println("Lending mit ID " + waitlistId + " nicht gefunden. Aktualisierung fehlgeschlagen.");
+        }
+
     }
 
     @Override
