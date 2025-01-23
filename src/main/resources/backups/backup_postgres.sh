@@ -14,6 +14,7 @@ PG_PASSWORD=$(get_property "database.password")
 PG_DUMP_PATH=$(get_property "pg_dump.path")
 
 BACKUP_DIR="src/main/resources/backups/postgres"
+LOG_FILE="$BACKUP_DIR/postgres_backup.log"
 
 # Falls kein pg_dump-Pfad gesetzt ist, Standard verwenden
 if [ -z "$PG_DUMP_PATH" ]; then
@@ -35,14 +36,25 @@ mkdir -p "$BACKUP_DIR"
 # Passwort setzen
 export PGPASSWORD="$PG_PASSWORD"
 
-# Backup starten und Log-Datei schreiben
-"$PG_DUMP_PATH" -h "$PG_HOST" -p "$PG_PORT" -U "$PG_USER" "$PG_DB" > "$BACKUP_FILE" 2>> backup.log
+# Zeitmessung starten (Millisekunden)
+start_time=$(date +%s%3N)
 
-# Ergebnis prüfen
+# Backup starten
+"$PG_DUMP_PATH" -h "$PG_HOST" -p "$PG_PORT" -U "$PG_USER" "$PG_DB" > "$BACKUP_FILE" 2>> "$LOG_FILE"
+
+# Zeitmessung beenden (Millisekunden)
+end_time=$(date +%s%3N)
+
+# Dauer berechnen
+backup_duration=$((end_time - start_time))
+
+# Ergebnis prüfen und Log schreiben
 if [ $? -eq 0 ]; then
-    echo "$(date +"%Y-%m-%d %H:%M:%S") - PostgreSQL-Backup erfolgreich: $BACKUP_FILE" >> backup.log
+    echo "$(date +"%Y-%m-%d %H:%M:%S") - PostgreSQL-Backup erfolgreich: $BACKUP_FILE" >> "$LOG_FILE"
+    echo "Backup-Dauer: ${backup_duration} Millisekunden" >> "$LOG_FILE"
 else
-    echo "$(date +"%Y-%m-%d %H:%M:%S") - Fehler beim PostgreSQL-Backup." >> backup.log
+    echo "$(date +"%Y-%m-%d %H:%M:%S") - Fehler beim PostgreSQL-Backup." >> "$LOG_FILE"
+    echo "Backup-Dauer: ${backup_duration} Millisekunden (fehlgeschlagen)" >> "$LOG_FILE"
 fi
 
 # Passwort entfernen

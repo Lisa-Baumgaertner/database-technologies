@@ -36,9 +36,15 @@ fi
 echo "Geladene MONGO_URI: $MONGO_URI"
 echo "Geladene MONGO_DB: $MONGO_DB"
 
+# Zeitmessung starten (Millisekundenpräzision)
+start_time=$(date +%s%3N)
+
 # Backup starten
 echo "Starte MongoDB-Backup für die Datenbank: $MONGO_DB"
 "$MONGO_DUMP_PATH" --uri="${MONGO_URI}" --db="$MONGO_DB" --out="$BACKUP_FOLDER" 2>> "$BACKUP_DIR/mongo_backup.log"
+
+# Zeitmessung beenden (Millisekundenpräzision)
+end_time=$(date +%s%3N)
 
 # Erfolg oder Fehler prüfen
 if [ $? -eq 0 ]; then
@@ -46,3 +52,11 @@ if [ $? -eq 0 ]; then
 else
     echo "Fehler beim MongoDB-Backup. Details siehe Logdatei: $BACKUP_DIR/mongo_backup.log"
 fi
+
+# Dauer berechnen (in Millisekunden)
+backup_duration=$((end_time - start_time))
+
+# Ausgabe der Backup-Dauer
+echo "Startzeit: $(date -d @$((start_time / 1000)) '+%F %T').$((start_time % 1000))"
+echo "Endzeit: $(date -d @$((end_time / 1000)) '+%F %T').$((end_time % 1000))"
+echo "Backup-Dauer: ${backup_duration} Millisekunden" | tee -a "$BACKUP_DIR/mongo_backup.log"
