@@ -11,7 +11,7 @@ db.runCommand({
                 },
                 isbn: {
                     bsonType: "object",
-                    required: ["isbn_long", "isbn_short"],
+                    required: ["isbn_long"],
                     properties: {
                         isbn_long: {
                             bsonType: "string",

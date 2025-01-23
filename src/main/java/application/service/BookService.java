@@ -65,11 +65,19 @@ public class BookService {
      * Fügt ein neues Buch in die Datenbank ein.
      **/
     public void insertBook(Book book) {
+      try {
         bookRepository.insertBook(book);
-        // Nach der Speicherung wird die tatsächliche Buch-ID verwendet
-        for (Keyword keyword : book.getKeywords()) {
-            bookRepository.insertBookKeyword(book.getBookId(), keyword.getKeywordId());
-        }
+          if (book.getBookId() > 0) {
+              // Nach der Speicherung wird die tatsächliche Buch-ID verwendet
+              for (Keyword keyword : book.getKeywords()) {
+                  bookRepository.insertBookKeyword(book.getBookId(), keyword.getKeywordId());
+              }
+          } else {
+              System.out.println("Fehler beim Einfügen des Buches: Keine gültige Buch-ID erhalten.");
+          }
+      } catch (Exception e) {
+          System.err.println("Fehler beim Hinzufügen des Buches: " + e.getMessage());
+      }
     }
 
     /**

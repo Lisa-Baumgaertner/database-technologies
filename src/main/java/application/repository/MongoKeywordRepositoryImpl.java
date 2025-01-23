@@ -68,4 +68,16 @@ public class MongoKeywordRepositoryImpl implements KeywordRepository {
 
         return keywords;
     }
+
+    @Override
+    public int getKeywordIdByName(String keywordName) {
+
+        return 0;
+    }
+
+    @Override
+    public int insertKeyword(String keywordName) {
+
+        return 0;
+    }
 }
