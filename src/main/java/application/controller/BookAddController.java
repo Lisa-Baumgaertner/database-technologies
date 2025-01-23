@@ -1,13 +1,20 @@
 package application.controller;
 import application.model.Book;
+import application.model.Keyword;
 import application.model.Status;
 import application.service.BookService;
+import application.service.KeywordService;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Controller-Klasse für das Hinzufügen eines Buches
@@ -31,15 +38,38 @@ public class BookAddController {
     @FXML
     private TextField status;
     @FXML
-    private TextField keyword_id;
+    private TextField keywordField;
     @FXML
     private TextField copies;
     @FXML
+    private Button addKeywordButton;
+    @FXML
+    private ListView<String> keywordListView;
+    @FXML
     private Button addButton;
     private BookService bookService;
+    private  KeywordService keywordService;
+
+    private ObservableList<Keyword> keywordList = FXCollections.observableArrayList();
 
     public void setBookService(BookService bookService) {
         this.bookService = bookService;
+    }
+    public void setKeywordService(KeywordService keywordService) {
+        this.keywordService = keywordService;
+    }
+
+    @FXML
+    private void addKeyword() {
+        String keywordText = keywordField.getText().trim();
+        if (!keywordText.isEmpty() && keywordList.stream().noneMatch(k -> k.getKeyword().equalsIgnoreCase(keywordText))) {
+            Keyword newKeyword = new Keyword(0, keywordText);  // ID wird später von der DB generiert
+            keywordList.add(newKeyword);
+            keywordListView.getItems().add(newKeyword.getKeyword());
+            keywordField.clear();
+        } else {
+            showAlert("Fehler", "Das Stichwort ist leer oder bereits vorhanden.");
+        }
     }
 
     /**
@@ -67,12 +97,29 @@ public class BookAddController {
             bookToInsert.setPublisher(publisher.getText().trim());
             bookToInsert.setYearPublished(Integer.parseInt(year_published.getText().trim()));
             bookToInsert.setDescription(description.getText().trim());
-
             bookToInsert.setStatus(Status.BookStatus.valueOf(status.getText().trim().toUpperCase()));
-            bookToInsert.getKeywordId().set(Integer.parseInt(keyword_id.getText().trim()));
-          //  bookToInsert.setKeywordId(Integer.parseInt(keyword_id.getText().trim()));
 
+            // Keywords verarbeiten über KeywordService
+            List<Keyword> keywordObjects = new ArrayList<>();
+            for (String keywordText : keywordListView.getItems()) {
+                int keywordId = keywordService.getKeywordIdByName(keywordText.trim());
+                if (keywordId == -1) {
+                    keywordId = keywordService.insertKeyword(keywordText.trim());
+                }
+                keywordObjects.add(new Keyword(keywordId, keywordText.trim()));
+            }
+
+            bookToInsert.setKeywords(keywordObjects);
+
+            // Setze das erste Keyword als Haupt-Keyword
+            if (!keywordObjects.isEmpty()) {
+                bookToInsert.setKeywordId(keywordObjects.get(0).getKeywordId());
+            }
+
+            // Buch in die Datenbank einfügen
             bookService.insertBook(bookToInsert);
+
+
             showAlert("Erfolg", "Buch wurde erfolgreich hinzugefügt.");
             clearAllFields();
         } catch (NumberFormatException e) {
@@ -133,11 +180,6 @@ public class BookAddController {
             validTextFields = false;
         }
 
-        if (keyword_id.getText().trim().isEmpty() || !keyword_id.getText().trim().matches("\\d+")) {
-            showAlert("Fehler","Die Keyword-ID darf nur Zahlen enthalten.\n");
-            validTextFields = false;
-        }
-
         if (copies.getText().trim().isEmpty() || !copies.getText().trim().matches("\\d+")) {
             showAlert("Fehler","Das Kopien-Feld darf nur Zahlen enthalten.\n");
             validTextFields = false;
@@ -160,7 +202,6 @@ public class BookAddController {
         year_published.clear();
         description.clear();
         status.clear();
-        keyword_id.clear();
         copies.clear();
 
     }

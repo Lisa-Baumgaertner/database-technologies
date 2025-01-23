@@ -159,7 +159,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
      * Fügt ein neues Buch zur Datenbank hinzu.
      */
     @Override
-    public Book insertBook(Book book) {
+    public void insertBook(Book book) {
         String query = "INSERT INTO book (isbn_long, isbn_short, copies, booktitle, bookauthor, publisher, year_published, description, status, keyword_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -175,19 +175,15 @@ public class PostgresBookRepositoryImpl implements BookRepository {
             statement.setString(9, book.getStatus());
             statement.setObject(10, book.getKeywordId().get(), Types.INTEGER);
 
-            int affectedRows = statement.executeUpdate();
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        book.setBookId(generatedKeys.getInt(1));
-                    }
-                }
+            statement.executeUpdate();
+            ResultSet rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                book.setBookId(rs.getInt(1));
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return book;
     }
 
     /**
@@ -238,6 +234,19 @@ public class PostgresBookRepositoryImpl implements BookRepository {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    @Override
+    public void insertBookKeyword(Long bookId, int keywordId) {
+        String query = "INSERT INTO book_keyword (book_id, keyword_id) VALUES (?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, (int) bookId.longValue());
+            stmt.setInt(2, keywordId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

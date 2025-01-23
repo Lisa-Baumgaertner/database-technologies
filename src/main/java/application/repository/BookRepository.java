@@ -12,7 +12,8 @@ public interface BookRepository {
     Book findBookByIsbn(String isbnLong, String isbnShort);
     String getBookTitleById(int bookId);
     String getCategoryByBookId(int bookId);
-    Book insertBook(Book book);
+    void insertBook(Book book);
+    void insertBookKeyword(Long bookId, int keywordId);
     void updateBook(Book book);
     void deleteBookById(Long id);
 }

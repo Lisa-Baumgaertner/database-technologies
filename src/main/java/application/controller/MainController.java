@@ -28,6 +28,7 @@ public class MainController {
     private NotificationService notificationService;
     private UserService userService;
     private WaitlistService waitlistService;
+    private KeywordService keywordService;
 
     private  NotificationController notificationController;
 
@@ -37,6 +38,7 @@ public class MainController {
     public void setUserService(UserService userService) {this.userService = userService;}
     public void setLendingService(LendingService lendingService) {this.lendingService = lendingService;}
     public void setWaitlistService(WaitlistService waitlistService) {this.waitlistService = waitlistService;}
+    public void setKeywordService(KeywordService keywordService) {  this.keywordService = keywordService;}
 
     /**
      * Anzeige der Nutzeransicht.
@@ -74,6 +76,7 @@ public class MainController {
             controller.setLendingService(LendingService.getInstance());
             controller.setUserService(UserService.getInstance());
             controller.setWaitlistService(WaitlistService.getInstance());
+            controller.setKeywordService(KeywordService.getInstance());
 
             Scene scene = new Scene(root, 1100, 1000);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/style.css")).toExternalForm());
