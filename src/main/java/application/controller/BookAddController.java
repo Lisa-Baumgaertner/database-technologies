@@ -3,8 +3,11 @@ import application.model.Book;
 import application.model.Status;
 import application.service.BookService;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+
+import javax.swing.*;
 
 /**
  * Controller-Klasse für das Hinzufügen eines Buches
@@ -46,49 +49,104 @@ public class BookAddController {
     private void addBook(){
 
         Book bookToInsert = new Book();
+        if (!checkTextFieldsValid(bookToInsert)) {
+            System.out.println("Validierung fehlgeschlagen. Bitte Eingaben überprüfen.");
+            return;
 
-        if (! checkTextFieldsValid(bookToInsert)) {
-            System.out.println("At least one Text Field is empty, please enter valid data into all fields.");
-            System.out.println("Double check that you are not entering characters into the fields Year published, Keyword Id and Copies");
-            System.out.println("Also check that the isbns have the correct format");
-
-        } else {
-
+        }
+        try {
             bookToInsert.setIsbnLong(isbn_long.getText().trim());
-            bookToInsert.setIsbnShort(isbn_short.getText().trim());
-            bookToInsert.setCopies(Integer.valueOf(copies.getText().trim()));
+
+            if (!isbn_short.getText().trim().isEmpty()) {
+                bookToInsert.setIsbnShort(isbn_short.getText().trim());
+            }
+
+            bookToInsert.setCopies(Integer.parseInt(copies.getText().trim()));
             bookToInsert.setTitle(title.getText().trim());
             bookToInsert.setAuthor(author.getText().trim());
             bookToInsert.setPublisher(publisher.getText().trim());
-            bookToInsert.setYearPublished(Integer.valueOf(year_published.getText().trim()));
+            bookToInsert.setYearPublished(Integer.parseInt(year_published.getText().trim()));
             bookToInsert.setDescription(description.getText().trim());
-            bookToInsert.setStatus(Status.BookStatus.valueOf(status.getText().toLowerCase().trim()));
-            bookToInsert.setKeywordId(Integer.valueOf(keyword_id.getText().trim()));
+
+            bookToInsert.setStatus(Status.BookStatus.valueOf(status.getText().trim().toUpperCase()));
+            bookToInsert.getKeywordId().set(Integer.parseInt(keyword_id.getText().trim()));
+          //  bookToInsert.setKeywordId(Integer.parseInt(keyword_id.getText().trim()));
+
             bookService.insertBook(bookToInsert);
-            System.out.println("Book was successfully added.");
+            showAlert("Erfolg", "Buch wurde erfolgreich hinzugefügt.");
             clearAllFields();
-
+        } catch (NumberFormatException e) {
+            showAlert("Eingabefehler", "Bitte geben Sie gültige numerische Werte ein.");
+        } catch (IllegalArgumentException e) {
+            showAlert("Eingabefehler", "Ungültiger Statuswert.");
         }
-
     }
-
 
     /**
      * Prüfung, ob alle Textfelder gefüllt sind
      * und, ob die Felder, die numerische Werte enthalten müssen, diese tatsächlich enthalten
-     * @param book
+     *
      * @return boolean validTextFields
      */
     private boolean checkTextFieldsValid(Book book) {
-
+        StringBuilder errorMessage = new StringBuilder();
         boolean validTextFields = true;
 
-        if (isbn_long.getText().isEmpty() || isbn_short.getText().isEmpty() || title.getText().isEmpty() || author.getText().isEmpty() || publisher.getText().isEmpty() || year_published.getText().isEmpty() || !year_published.getText().matches("[0-9]+") || description.getText().isEmpty() || status.getText().isEmpty() || keyword_id.getText().isEmpty()|| !keyword_id.getText().matches("[0-9]+") || copies.getText().isEmpty()|| !copies.getText().matches("[0-9]+") || !book.isValidIsbn13(isbn_long.getText().trim()) || !book.isValidIsbn10(isbn_short.getText().trim())) {
+        if (isbn_long.getText().trim().isEmpty()) {
+            showAlert("Fehler", "Das ISBN-13-Feld darf nicht leer sein.\n");
             validTextFields = false;
         }
 
+        // ISBN-10 wird nur geprüft, wenn sie eingegeben wurde
+        if (!isbn_short.getText().trim().isEmpty() && !book.isValidIsbn10(isbn_short.getText().trim())) {
+            showAlert("Fehler", "Die eingegebene ISBN-10 ist ungültig.\n");
+            validTextFields = false;
+        }
+
+        if (title.getText().trim().isEmpty()) {
+            showAlert("Fehler","Das Titel-Feld darf nicht leer sein.\n");
+            validTextFields = false;
+        }
+
+        if (author.getText().trim().isEmpty()) {
+            showAlert("Fehler","Das Autor-Feld darf nicht leer sein.\n");
+            validTextFields = false;
+        }
+
+        if (publisher.getText().trim().isEmpty()) {
+            showAlert("Fehler","Das Verlags-Feld darf nicht leer sein.\n");
+            validTextFields = false;
+        }
+
+        if (year_published.getText().trim().isEmpty() || !year_published.getText().trim().matches("\\d{4}")) {
+            showAlert("Fehler","Das Veröffentlichungsjahr muss vier Zahlen enthalten.\n");
+            validTextFields = false;
+        }
+
+        if (description.getText().trim().isEmpty()) {
+            showAlert("Fehler","Das Beschreibungsfeld darf nicht leer sein.\n");
+            validTextFields = false;
+        }
+
+        if (status.getText().trim().isEmpty()) {
+            showAlert("Fehler","Das Statusfeld darf nicht leer sein.\n");
+            validTextFields = false;
+        }
+
+        if (keyword_id.getText().trim().isEmpty() || !keyword_id.getText().trim().matches("\\d+")) {
+            showAlert("Fehler","Die Keyword-ID darf nur Zahlen enthalten.\n");
+            validTextFields = false;
+        }
+
+        if (copies.getText().trim().isEmpty() || !copies.getText().trim().matches("\\d+")) {
+            showAlert("Fehler","Das Kopien-Feld darf nur Zahlen enthalten.\n");
+            validTextFields = false;
+        }
+
+
         return validTextFields;
     }
+
 
     /**
      * Löschung aller Inhalte in den Textfeldern
@@ -107,7 +165,13 @@ public class BookAddController {
 
     }
 
-
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
 
 }

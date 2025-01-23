@@ -173,7 +173,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
             statement.setInt(7, book.getYearPublished());
             statement.setString(8, book.getDescription());
             statement.setString(9, book.getStatus());
-            statement.setObject(10, book.getKeywordId(), Types.INTEGER);
+            statement.setObject(10, book.getKeywordId().get(), Types.INTEGER);
 
             int affectedRows = statement.executeUpdate();
             if (affectedRows > 0) {
