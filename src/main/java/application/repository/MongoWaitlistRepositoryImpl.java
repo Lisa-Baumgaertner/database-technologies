@@ -20,7 +20,7 @@ import static com.mongodb.client.model.Filters.eq;
 
 public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
     private final MongoCollection<Document> collection;
-    //private final MongoDatabase database;
+
 
 
     /**
@@ -30,9 +30,6 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
         this.collection = mongoDatabase.getCollection("Book"); // Verwende die Collection "books"
     }
 
-    /*public MongoWaitlistRepositoryImpl(MongoDatabase database) {
-        this.database = database;
-    }*/
 
     public Person getFirstBorrower() {
         return null;
@@ -48,53 +45,8 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
 
     }
 
-    /*public boolean addToWaitlist(Long userId, Long bookId, String status) {
-        boolean bSuccess = true;
-
-        Document doc = collection.find(eq("bookId", bookId)).first();
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-uuuu");
-        LocalDate localDate = LocalDate.now();
-        String checkout = dtf.format(localDate);
-
-        //if (doc != null && doc.containsKey("waitlist")) {
-            Document contactDoc = new Document("borrowerId", userId)
-                    .append("checkoutDate", checkout)
-                    .append("status", status)
-                    .append("returnDate", null);
-
-            collection.insertOne(new Document("waitlist", contactDoc));
-        //}
-        return bSuccess;
-        *//*Document contactDoc = new Document("borrowerId", userId)
-                .append("checkoutDate", checkout)
-                .append("status", status)
-                .append("returnDate", null);
-
-        collection.insertOne(new Document("waitlist", contactDoc));
-        return bSuccess;*//*
-    }*/
-
-
-
 
     public boolean addToWaitlist(Long userId, Long bookId, String status) {
-//        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-uuuu");
-//        LocalDate localDate = LocalDate.now();
-//        String checkout = dtf.format(localDate);
-//
-//        // Neues Review-Dokument erstellen
-//        Document newWaitlist = new Document()
-//                .append("borrowerId", userId)
-//                .append("checkoutDate", checkout)
-//                .append("status", status)
-//                .append("returnDate",  null);
-//
-//
-//        // Suche das Buch anhand der bookId und füge die Review hinzu
-//        Bson filter = Filters.eq("bookId", bookId);
-//        Bson update = Updates.push("waitlist", newWaitlist);
-//
-//        collection.updateOne(filter, update).getModifiedCount();
         return true;
     }
 
@@ -125,7 +77,6 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
             UpdateResult result = collection.updateOne(eq("bookId", waitlist.getBook().getBookId()), updateOperation);
 
 
-
             Long updatedCount = collection.updateOne(
                     eq("bookId", waitlist.getBook().getBookId()),
                     updateOperation
@@ -137,63 +88,13 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
                 System.out.println("No documents were updated.");
             }
 
-            //   Bson updateoperation = new Document("$set", updatedvalue);
-
-
-         //   collection.updateOne(found, updateoperation);
             System.out.println("Waitlist updated");
 
 
         }
-        /*Document contactDoc = new Document("waitlistId", waitlist.getWaitlistId())
-                .append("borrowerId", waitlist.getUser().getUserId())
-                .append("checkoutDate",waitlist.getCheckoutDate())
-                .append("status", "borrowed")
-                .append("returnDate", null);
 
-        //System.out.println("Mongo Waitlist Doc: " + contactDoc);
-        Bson update = Updates.push("waitlist", contactDoc);
-        //System.out.println("Mongo Waitlist Update: " + update);
-        Bson filter = Filters.eq("bookId", waitlist.getBook().getBookId());
-        //System.out.println("Mongo Waitlist Filter: " + filter);
-        UpdateResult result = collection.updateOne(filter, update);*/
-        //System.out.println("Mongo Waitlist Result: " + result);
-    //    collection.insertOne(new Document("waitlist", contactDoc));
-
-        // Generate a new waitlistId (e.g., based on timestamp or UUID)
-        /*long waitlistId = System.currentTimeMillis(); // Example ID generation
-
-        Document doc = collection.find(eq("bookId", bookId)).first();
-        // New waitlist document
-        Document newWaitlist = new Document()
-                //.append("waitlistId", )
-                .append("borrowerId", userId)
-                .append("checkoutDate", checkoutDate)
-                .append("status", status)
-                .append("returnDate", null);
-
-
-        System.out.println("Waitlist Document: " + newWaitlist);
-        // Filter to find the book by bookId
-        //Bson filter = Filters.eq("bookId", bookId); // Ensure bookId matches the schema type
-        Bson update = Updates.push("waitlist", newWaitlist);
-        collection.insertOne(new Document("waitlist", newWaitlist));*/
-        //System.out.println("Waitlist Update: " + update);
         return waitlist;
-        // Perform the update
-        /*try {
-            UpdateResult result = collection.updateOne(filter, update);
 
-            // Log for debugging
-            System.out.println("Filter: " + filter.toBsonDocument());
-            System.out.println("Update: " + update.toBsonDocument());
-
-            // Check if the document was modified
-            return result.getModifiedCount() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }*/
     }
 
     public List<Waitlist> getWaitlistForBook(Long bookId) {
@@ -220,8 +121,11 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
     }
 
     @Override
-    public void removeFromWaitlist(Long waitlistId) {
+    public boolean removeFromWaitlist(Long waitlistId) {
+        Bson filter = Filters.elemMatch("waitlist", Filters.eq("waitlistId", waitlistId));
+        Bson update = Updates.pull("waitlist", new Document("waitlistId", waitlistId));
 
-    //public void updateCheckoutDate(Long waitlistId, LocalDate checkoutDate) {}
+        return collection.updateOne(filter, update).getModifiedCount() > 0;
+
     }
 }

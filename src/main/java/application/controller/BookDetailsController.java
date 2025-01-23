@@ -216,6 +216,8 @@ public class BookDetailsController {
 
 
         }
+        long tmp= 1;
+        waitlistService.removeFromWaitlist(tmp);
 
         }
 

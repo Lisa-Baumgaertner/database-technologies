@@ -306,7 +306,7 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
      * Entfernt einen Eintrag aus der Warteliste.
      */
     @Override
-    public void removeFromWaitlist(Long waitlistId) {
+    public boolean removeFromWaitlist(Long waitlistId) {
         String query = "DELETE FROM waitlist WHERE waitlist_id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
 
@@ -316,6 +316,7 @@ public class PostgresWaitlistRepositoryImpl implements WaitlistRepository {
         }  catch (SQLException e) {
             e.printStackTrace();
         }
+        return true;
 
     }
 
