@@ -35,9 +35,9 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
      * Konstruktor zur Initialisierung der MongoDB-Collection.
      */
     public MongoLendingRepositoryImpl(MongoDatabase mongoDatabase) {
-        this.personCollection = mongoDatabase.getCollection("Person");
-        this.bookCollection = mongoDatabase.getCollection("Book");
-        this.keywordCollection = mongoDatabase.getCollection("Keyword");
+        this.personCollection = mongoDatabase.getCollection(MongoCollectionNameRepository.getCollectionName("Person"));
+        this.bookCollection = mongoDatabase.getCollection(MongoCollectionNameRepository.getCollectionName("Book"));
+        this.keywordCollection = mongoDatabase.getCollection(MongoCollectionNameRepository.getCollectionName("Keyword"));
     }
 
     /**

@@ -22,8 +22,8 @@ public class MongoKeywordRepositoryImpl implements KeywordRepository {
      * Konstruktor zur Initialisierung der "Keyword"-Sammlung.
      */
     public MongoKeywordRepositoryImpl(MongoDatabase database) {
-        this.keywordCollection = database.getCollection("Keyword");
-        this.bookCollection = database.getCollection("Book");
+        this.keywordCollection = database.getCollection(MongoCollectionNameRepository.getCollectionName("Keyword"));
+        this.bookCollection = database.getCollection(MongoCollectionNameRepository.getCollectionName("Book"));
     }
 
     /**

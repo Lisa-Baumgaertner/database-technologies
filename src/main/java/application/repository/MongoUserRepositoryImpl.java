@@ -24,7 +24,7 @@ public class MongoUserRepositoryImpl implements UserRepository {
     public MongoUserRepositoryImpl(MongoDatabase database) {
         this.database = database;
 
-        this.personCollection = database.getCollection("Person");
+        this.personCollection = database.getCollection(MongoCollectionNameRepository.getCollectionName("Person"));
 
         long totalPersons = personCollection.countDocuments();
         System.out.println("Anzahl aller Einträge in der Collection: " + totalPersons);

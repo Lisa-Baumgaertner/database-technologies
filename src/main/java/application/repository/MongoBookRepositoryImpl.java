@@ -27,8 +27,8 @@ public class MongoBookRepositoryImpl implements BookRepository {
      * Konstruktor zur Initialisierung der MongoDB-Collection.
      */
     public MongoBookRepositoryImpl(MongoDatabase mongoDatabase) {
-        this.bookCollection = mongoDatabase.getCollection("Book"); // Verwende die Collection "book"
-        this.keywordCollection = mongoDatabase.getCollection("Keyword"); // Verwende die Collection "keyword"
+        this.bookCollection = mongoDatabase.getCollection(MongoCollectionNameRepository.getCollectionName("Book")); // Verwende die Collection "book"
+        this.keywordCollection = mongoDatabase.getCollection(MongoCollectionNameRepository.getCollectionName("Keyword")); // Verwende die Collection "keyword"
     }
 
     /**

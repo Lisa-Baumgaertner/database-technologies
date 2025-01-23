@@ -22,7 +22,8 @@ public class MongoAddressRepositoryImpl implements AddressRepository {
      * @param database Die MongoDB-Datenbankinstanz.
      */
     public MongoAddressRepositoryImpl(MongoDatabase database) {
-        this.collection = database.getCollection("Person");
+
+        this.collection = database.getCollection(MongoCollectionNameRepository.getCollectionName("Person"));
     }
 
 

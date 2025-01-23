@@ -31,7 +31,7 @@ public class MongoNotificationRepositoryImpl implements NotificationRepository {
      */
     @Override
     public List<String> getDueDateNotificationsForUser(Long userId) {
-        MongoCollection<Document> personCollection = database.getCollection("Person");   // Collection-Name
+        MongoCollection<Document> personCollection = database.getCollection(MongoCollectionNameRepository.getCollectionName("Person"));   // Collection-Name
         List<String> notifications = new ArrayList<>();
         Document userDoc = personCollection.find(new Document("userId", userId)).first();  // Abfrage nach userId
         if (userDoc != null) {

@@ -23,7 +23,7 @@ public class MongoReviewRepositoryImpl implements ReviewRepository {
      * Konstruktor, der die MongoDB-Verbindung initialisiert.
      */
     public MongoReviewRepositoryImpl(MongoDatabase database) {
-        this.collection = database.getCollection("books");
+        this.collection = database.getCollection(MongoCollectionNameRepository.getCollectionName("Book"));
     }
 
     /**
