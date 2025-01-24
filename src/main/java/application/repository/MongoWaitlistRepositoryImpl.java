@@ -50,15 +50,23 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
 
             if (waitlistArray != null) {
                 for (Document entry : waitlistArray) {
-                    Long waitlistId = entry.getLong("waitlistId");
-                    Long borrowerId = entry.getLong("borrowerId");
+                    // Safely retrieve values and convert to Long where necessary
+                    Long waitlistId = entry.get("waitlistId", Number.class) != null
+                            ? entry.get("waitlistId", Number.class).longValue() : null;
+                    Long borrowerId = entry.get("borrowerId", Number.class) != null
+                            ? entry.get("borrowerId", Number.class).longValue() : null;
                     String checkoutDate = entry.getString("checkoutDate");
                     String status = entry.getString("status");
                     String returnDate = entry.getString("returnDate");
 
-
-
-                    String [] arr = {String.valueOf(waitlistId), String.valueOf(borrowerId), checkoutDate, status, returnDate};
+                    // Prepare array representation
+                    String[] arr = {
+                            String.valueOf(waitlistId),
+                            String.valueOf(borrowerId),
+                            checkoutDate,
+                            status,
+                            returnDate
+                    };
 
                     waitlistEntries.add(Arrays.toString(arr));
                 }
@@ -68,22 +76,6 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
         System.out.println(waitlistEntries);
 
         return null;
-
-        /*List<String> keywordList = new ArrayList<>();
-
-        // Alle Dokumente aus der Keyword-Sammlung abrufen
-        List<Document> waitlists = collection.find().into(new ArrayList<>());
-        System.out.println(waitlists.toString());
-        // Extrahiere die Keywords aus jedem Dokument
-        keywordList = waitlists.stream()
-                .map(doc -> doc.get("waitlist"))
-                .filter(waitlist -> waitlist != null && !waitlist.isEmpty())  // Null oder leere Werte filtern
-                .collect(Collectors.toList());
-
-        System.out.println(keywordList.toString());
-        return null;*/
-        //return null;
-
     }
 
 
