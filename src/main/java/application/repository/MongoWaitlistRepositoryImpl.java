@@ -1,8 +1,8 @@
 package application.repository;
 
-import application.model.Contact;
 import application.model.Person;
 import application.model.Waitlist;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -10,11 +10,12 @@ import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -31,25 +32,60 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
     }
 
 
-    public Person getFirstBorrower() {
-        return null;
-    }
-
-    public String getUserNameById(int userId) {
-        return "Benutzername";
-    }
-
+    /**
+     * Funktion, um alle aktuellen Wartelisten zu bekommen.
+     */
     @Override
     public List<Waitlist> getAllWaitlistEntries() {
-        return null;
+        List<String> waitlistEntries = new ArrayList<>();
 
+        // Retrieve all documents from the collection
+        List<Document> documents = collection.find().into(new ArrayList<>());
+
+        for (Document doc : documents) {
+            List<Document> waitlistArray = (List<Document>) doc.get("waitlist");
+
+            if (waitlistArray != null) {
+                for (Document entry : waitlistArray) {
+                    // Safely retrieve values and convert to Long where necessary
+                    Long waitlistId = entry.get("waitlistId", Number.class) != null
+                            ? entry.get("waitlistId", Number.class).longValue() : null;
+                    Long borrowerId = entry.get("borrowerId", Number.class) != null
+                            ? entry.get("borrowerId", Number.class).longValue() : null;
+                    String checkoutDate = entry.getString("checkoutDate");
+                    String status = entry.getString("status");
+                    String returnDate = entry.getString("returnDate");
+
+                    // Prepare array representation
+                    String[] arr = {
+                            String.valueOf(waitlistId),
+                            String.valueOf(borrowerId),
+                            checkoutDate,
+                            status,
+                            returnDate
+                    };
+
+                    waitlistEntries.add(Arrays.toString(arr));
+                }
+            }
+        }
+
+        System.out.println(waitlistEntries);
+
+        return null;
     }
 
 
+    /**
+     * Funktion, um zu einer Warteliste hinzuzufügen.
+     */
     public boolean addToWaitlist(Long userId, Long bookId, String status) {
         return true;
     }
 
+    /**
+     * Funktion, um zu einer Warteliste hinzuzufügen.
+     */
     public Waitlist addToWaitlist(Waitlist waitlist) {
         System.out.println("MOngoooooo Waitlist: " + waitlist);
         System.out.println("MOngoooooo");
@@ -73,9 +109,7 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
 
             // Objekt zur Warteliste hinzufügen
             Bson updateOperation = Updates.push("waitlist", updatedvalue);
-
             UpdateResult result = collection.updateOne(eq("bookId", waitlist.getBook().getBookId()), updateOperation);
-
 
             Long updatedCount = collection.updateOne(
                     eq("bookId", waitlist.getBook().getBookId()),
@@ -87,9 +121,7 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
             } else {
                 System.out.println("No documents were updated.");
             }
-
             System.out.println("Waitlist updated");
-
 
         }
 
@@ -97,15 +129,127 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
 
     }
 
+    /**
+     * Funktion, um die Warteliste für ein Buch zu retournieren.
+     */
     public List<Waitlist> getWaitlistForBook(Long bookId) {
-        return null;
+        List<Waitlist> waitlist = new ArrayList<>();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy"); // Matches '22-01-2025'
+
+        // Retrieve all documents from the collection
+        List<Document> documents = collection.find(eq("bookId", bookId)).into(new ArrayList<>());
+
+        for (Document doc : documents) {
+            List<Document> waitlistArray = (List<Document>) doc.get("waitlist");
+
+            if (waitlistArray != null) {
+                for (Document entry : waitlistArray) {
+                    Long waitlistId = entry.get("waitlistId", Number.class) != null
+                            ? entry.get("waitlistId", Number.class).longValue() : null;
+                    Long borrowerId = entry.get("borrowerId", Number.class) != null
+                            ? entry.get("borrowerId", Number.class).longValue() : null;
+
+                    // Handle dates using LocalDate.parse directly
+                    String checkoutDate = entry.getString("checkoutDate");
+                    LocalDate parsedCheckoutDate = checkoutDate != null
+                            ? LocalDate.parse(checkoutDate, dateFormatter)
+                            : null;
+
+                    String returnDate = entry.getString("returnDate");
+                    LocalDate parsedReturnDate = returnDate != null
+                            ? LocalDate.parse(returnDate, dateFormatter)
+                            : null;
+
+                    String status = entry.getString("status");
+
+                    Waitlist waitlistEntry = new Waitlist();
+                    Person waitlistPers = new Person();
+                    waitlistPers.setUserId(Math.toIntExact(borrowerId));
+                    waitlistEntry.setUser(waitlistPers);
+                    waitlistEntry.setWaitlistId(Math.toIntExact(waitlistId));
+                    waitlistEntry.setCheckoutDate(parsedCheckoutDate); // Store LocalDate directly
+                    waitlistEntry.setStatus(status);
+                    waitlistEntry.setReturnDate(parsedReturnDate); // Store LocalDate directly
+                    waitlist.add(waitlistEntry);
+                }
+            }
+        }
+
+        return waitlist;
+
     }
 
+
+    /**
+     * Funktion, um die Wartelisten zu retournieren, die für einen bestimmten Nutzer bestehen.
+     */
     public List<Waitlist> getWaitlistForUser(Long userId) {
-        return null;
+        List<Waitlist> userWaitlist = new ArrayList<>();
+
+        // Define the filter for the MongoDB query
+        Document filter = new Document();
+
+        // We want to match the "waitlist" array with a "borrowerId" equal to the provided userId
+        filter.put("waitlist.borrowerId", userId);
+
+        // Retrieve the documents from the collection where the waitlist contains the userId
+        FindIterable<Document> documents = collection.find(filter);
+
+        // Define the DateTimeFormatter for parsing dates
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        // Iterate through all the documents
+        for (Document doc : documents) {
+            // Extract the "waitlist" array from the document
+            List<Document> waitlistArray = (List<Document>) doc.get("waitlist");
+
+            if (waitlistArray != null) {
+                // Iterate over each entry in the waitlist array
+                for (Document entry : waitlistArray) {
+                    Long borrowerId = entry.get("borrowerId", Number.class) != null
+                            ? entry.get("borrowerId", Number.class).longValue()
+                            : null;
+
+                    if (borrowerId != null && borrowerId.equals(userId)) {
+                        // Create a Waitlist object and populate it with data
+                        Waitlist waitlistEntry = new Waitlist();
+                        waitlistEntry.setWaitlistId((int) entry.get("waitlistId", Number.class).longValue());
+                        Person entryPers = new Person();
+                        entryPers.setUserId(Math.toIntExact(borrowerId));
+
+                        // Handle checkoutDate safely: parse only if not null/empty
+                        String checkoutDate = entry.getString("checkoutDate");
+                        if (checkoutDate != null && !checkoutDate.isEmpty()) {
+                            waitlistEntry.setCheckoutDate(LocalDate.parse(checkoutDate, dateFormatter)); // Store LocalDate directly
+                        } else {
+                            waitlistEntry.setCheckoutDate(null); // Set to null if no checkout date
+                        }
+
+                        // Handle returnDate safely: parse only if not null/empty
+                        String returnDate = entry.getString("returnDate");
+                        if (returnDate != null && !returnDate.isEmpty()) {
+                            waitlistEntry.setReturnDate(LocalDate.parse(returnDate, dateFormatter)); // Store LocalDate directly
+                        } else {
+                            waitlistEntry.setReturnDate(null); // Set to null if no return date
+                        }
+
+                        waitlistEntry.setStatus(entry.getString("status"));
+
+                        // Add to the user's waitlist
+                        userWaitlist.add(waitlistEntry);
+                    }
+                }
+            }
+        }
+
+        return userWaitlist;
+
     }
 
 
+    /**
+     * Funktion, um den Status in einer Warteliste zu ändern.
+     */
     public boolean updateStatus(Long waitlistId, String status) {
 
         Bson filter = Filters.elemMatch("waitlist", Filters.eq("waitlistId", waitlistId));
@@ -114,12 +258,17 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
         return collection.updateOne(filter, update).getModifiedCount() > 0;
     }
 
-    //public void removeFromWaitlist(Long waitlistId) {}
 
+    /**
+     * Funktion, um die priorisierten Wartelisteneinträge zu bekommen.
+     */
     public List<Waitlist> getPrioritizedWaitlistEntries() {
         return null;
     }
 
+    /**
+     * Funktion, um das Checkoutdatum zu ändern.
+     */
     @Override
     public void updateCheckoutDate(Long waitlistId, LocalDate checkoutDate) {
 
@@ -140,6 +289,9 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
 
     }
 
+    /**
+     * Funktion, um rinrn Wartelisteneintrag zu löschen.
+     */
     @Override
     public boolean removeFromWaitlist(Long waitlistId) {
         Bson filter = Filters.elemMatch("waitlist", Filters.eq("waitlistId", waitlistId));
