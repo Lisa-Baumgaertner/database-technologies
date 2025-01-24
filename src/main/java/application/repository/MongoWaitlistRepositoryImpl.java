@@ -1,5 +1,6 @@
 package application.repository;
 
+import application.model.Book;
 import application.model.Contact;
 import application.model.Person;
 import application.model.Waitlist;
@@ -14,7 +15,10 @@ import org.bson.conversions.Bson;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -31,25 +35,68 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
     }
 
 
-    public Person getFirstBorrower() {
-        return null;
-    }
-
-    public String getUserNameById(int userId) {
-        return "Benutzername";
-    }
-
+    /**
+     * Funktion, um alle aktuellen Wartelisten zu bekommen.
+     */
     @Override
     public List<Waitlist> getAllWaitlistEntries() {
+        List<String> waitlistEntries = new ArrayList<>();
+
+        // Retrieve all documents from the collection
+        List<Document> documents = collection.find().into(new ArrayList<>());
+
+        for (Document doc : documents) {
+            List<Document> waitlistArray = (List<Document>) doc.get("waitlist");
+
+            if (waitlistArray != null) {
+                for (Document entry : waitlistArray) {
+                    Long waitlistId = entry.getLong("waitlistId");
+                    Long borrowerId = entry.getLong("borrowerId");
+                    String checkoutDate = entry.getString("checkoutDate");
+                    String status = entry.getString("status");
+                    String returnDate = entry.getString("returnDate");
+
+
+
+                    String [] arr = {String.valueOf(waitlistId), String.valueOf(borrowerId), checkoutDate, status, returnDate};
+
+                    waitlistEntries.add(Arrays.toString(arr));
+                }
+            }
+        }
+
+        System.out.println(waitlistEntries);
+
         return null;
+
+        /*List<String> keywordList = new ArrayList<>();
+
+        // Alle Dokumente aus der Keyword-Sammlung abrufen
+        List<Document> waitlists = collection.find().into(new ArrayList<>());
+        System.out.println(waitlists.toString());
+        // Extrahiere die Keywords aus jedem Dokument
+        keywordList = waitlists.stream()
+                .map(doc -> doc.get("waitlist"))
+                .filter(waitlist -> waitlist != null && !waitlist.isEmpty())  // Null oder leere Werte filtern
+                .collect(Collectors.toList());
+
+        System.out.println(keywordList.toString());
+        return null;*/
+        //return null;
 
     }
 
 
+    /**
+     * Funktion, um zu einer Warteliste hinzuzufügen.
+     */
     public boolean addToWaitlist(Long userId, Long bookId, String status) {
         return true;
     }
 
+    /**
+     * Funktion, um zu einer Warteliste hinzuzufügen.
+     */
     public Waitlist addToWaitlist(Waitlist waitlist) {
         System.out.println("MOngoooooo Waitlist: " + waitlist);
         System.out.println("MOngoooooo");
@@ -97,15 +144,24 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
 
     }
 
+    /**
+     * Funktion, um die Warteliste für ein Buch zu retournieren.
+     */
     public List<Waitlist> getWaitlistForBook(Long bookId) {
         return null;
     }
 
+    /**
+     * Funktion, um die Wartelisten zu retournieren, die für einen bestimmten Nutzer bestehen.
+     */
     public List<Waitlist> getWaitlistForUser(Long userId) {
         return null;
     }
 
 
+    /**
+     * Funktion, um den Status in einer Warteliste zu ändern.
+     */
     public boolean updateStatus(Long waitlistId, String status) {
 
         Bson filter = Filters.elemMatch("waitlist", Filters.eq("waitlistId", waitlistId));
@@ -114,12 +170,17 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
         return collection.updateOne(filter, update).getModifiedCount() > 0;
     }
 
-    //public void removeFromWaitlist(Long waitlistId) {}
 
+    /**
+     * Funktion, um die priorisierten Wartelisteneinträge zu bekommen.
+     */
     public List<Waitlist> getPrioritizedWaitlistEntries() {
         return null;
     }
 
+    /**
+     * Funktion, um das Checkoutdatum zu ändern.
+     */
     @Override
     public void updateCheckoutDate(Long waitlistId, LocalDate checkoutDate) {
 
@@ -140,6 +201,9 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
 
     }
 
+    /**
+     * Funktion, um rinrn Wartelisteneintrag zu löschen.
+     */
     @Override
     public boolean removeFromWaitlist(Long waitlistId) {
         Bson filter = Filters.elemMatch("waitlist", Filters.eq("waitlistId", waitlistId));
