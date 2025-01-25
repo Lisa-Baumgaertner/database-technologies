@@ -127,7 +127,10 @@ public class PostgresBookRepositoryImpl implements BookRepository {
                 book.setPublisher(resultSet.getString("publisher"));
                 book.setYearPublished(resultSet.getInt("year_published"));
                 book.setDescription(resultSet.getString("description"));
-                book.setStatus(Status.BookStatus.valueOf(resultSet.getString("status")));
+
+                String germanStatus = resultSet.getString("status");
+                System.out.println("Status English => " + Status.BookStatus.fromString(germanStatus));
+                book.setStatus(Status.BookStatus.fromString(germanStatus));
                 return book;
             }
         } catch (Exception e) {
@@ -203,7 +206,7 @@ public class PostgresBookRepositoryImpl implements BookRepository {
             statement.setInt(7, book.getYearPublished());
             statement.setString(8, book.getDescription());
             statement.setString(9, book.getStatus());
-            statement.setObject(10, book.getKeywordId(), Types.INTEGER);
+            statement.setObject(10, book.getKeywordId().get(), Types.INTEGER);
             statement.setLong(11, book.getBookId());
 
             statement.executeUpdate();

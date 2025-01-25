@@ -1,18 +1,14 @@
 package application.repository;
 
-import application.model.Address;
-import application.model.Contact;
 import application.model.Person;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -25,10 +21,6 @@ public class MongoUserRepositoryImpl implements UserRepository {
         this.database = database;
 
         this.personCollection = database.getCollection(MongoCollectionNameRepository.getCollectionName("Person"));
-
-        long totalPersons = personCollection.countDocuments();
-        System.out.println("Anzahl aller Einträge in der Collection: " + totalPersons);
-        System.out.println("personCollection " + this.personCollection.countDocuments() );
 
     }
 
@@ -47,13 +39,10 @@ public class MongoUserRepositoryImpl implements UserRepository {
      * Holt Name der Person anhand userId.
      */
     public  String getUserNameById(int userId) {
-        System.out.println("userId " + userId);
         Document query = new Document("userId", userId);
-        System.out.println("Query " + query);
         Document result = personCollection.find(query).first();
         if (result != null) {
             Document personalDetails = (Document) result.get("personalDetails");
-            System.out.println("personalDetails " + personalDetails);
             if (personalDetails != null) {
                 String firstName = personalDetails.getString("firstName");
                 String lastName = personalDetails.getString("lastName");
@@ -154,10 +143,4 @@ public class MongoUserRepositoryImpl implements UserRepository {
         return new Person(userId, firstName, lastName, birthDate, gender, role);
     }
 
-    private int getNextSequence(String name) {
-        Document filter = new Document("_id", name);
-        Document update = new Document("$inc", new Document("seq", 1));
-        Document result = database.getCollection("counter").findOneAndUpdate(filter, update);
-        return result.getInteger("seq");
-    }
 }

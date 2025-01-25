@@ -297,7 +297,7 @@ public class BookEditController {
 
         String germanStatus = editStatusDropdown.getValue();
         String englishStatus = Book.translateStatusToEnglish(germanStatus);
-        selectedBook.setStatus(Status.BookStatus.valueOf(englishStatus));
+        selectedBook.setStatus(Status.BookStatus.fromString(englishStatus));
 
         bookService.updateBook(selectedBook);
         resultsTable.refresh();
