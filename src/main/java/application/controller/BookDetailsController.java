@@ -22,6 +22,9 @@ import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 import java.text.BreakIterator;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -178,10 +181,9 @@ public class BookDetailsController {
 
         Waitlist resultAdd;
         String mystatus = statusLabel.getText();
-        System.out.print(mystatus);
+
         if (!mystatus.equals("available")){
 
-            System.out.print("in handleSearchUserWaitlsit");
             UserPageController uspController = new UserPageController();
             this.userId = uspController.getUserId();
 
@@ -192,8 +194,9 @@ public class BookDetailsController {
             Waitlist waitlist = new Waitlist();
             waitlist.setUser(testPers);
             waitlist.setBook(testBook);
-            waitlist.setCheckoutDate(null);
-            waitlist.setStatus(null);
+            LocalDate date = LocalDate.of(2024,1, 8);
+            waitlist.setCheckoutDate(date);
+            waitlist.setStatus("waiting");
             waitlist.setWaitlistId(2);
 
             //resultAdd = waitlistService.addToWaitlist(userId, myBookId , mystatus);
@@ -213,11 +216,7 @@ public class BookDetailsController {
 
             // Anzeige einer Meldung, wenn Buch vorhanden und direkt ausleihbar
             showAlert("Book Available", "The book is available for checkout!");
-
-
         }
-        long tmp= 1;
-        waitlistService.removeFromWaitlist(tmp);
 
         }
 
