@@ -311,34 +311,42 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
     public List<Waitlist> getPrioritizedWaitlistEntries() {
         List<Waitlist> prioritizedWaitlist = new ArrayList<>();
 
+        // Fetch documents with a waitlist field where status is "waiting"
+        List<Document> books = collection.find(eq("waitlist.status", "waiting")).into(new ArrayList<>());
+
 
             // Fetch documents with a waitlist field
-            List<Document> books = collection.find(eq("waitlist.status", "waiting")).into(new ArrayList<>());
+            //List<Document> books = collection.find(eq("waitlist.status", "waiting")).into(new ArrayList<>());
 
-            // Current date for priority calculation
-            LocalDate currentDate = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        // Current date for priority calculation
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
             for (Document book : books) {
                 List<Document> waitlist = book.getList("waitlist", Document.class);
 
                 for (Document entry : waitlist) {
                     if ("waiting".equals(entry.getString("status"))) {
-                        String checkoutDateStr = entry.getString("checkoutDate");
-                        LocalDate checkoutDate = LocalDate.parse(checkoutDateStr, formatter);
+                        try {
+                            String checkoutDateStr = entry.getString("checkoutDate");
+                            LocalDate checkoutDate = LocalDate.parse(checkoutDateStr, formatter);
 
 
-                        long priority = ChronoUnit.DAYS.between(checkoutDate, currentDate);
+                            long priority = ChronoUnit.DAYS.between(checkoutDate, currentDate);
 
 
-                        Waitlist waitlistEntry = new Waitlist();
-                        Person waitlistPers = new Person();
-                        waitlistPers.setUserId(entry.getInteger("borrowerId"));
-                        waitlistEntry.setUser(waitlistPers);
-                        waitlistEntry.setWaitlistId(entry.getInteger("waitlistId"));
-                        waitlistEntry.setCheckoutDate(checkoutDate); // Store LocalDate directly
-                        waitlistEntry.setStatus(entry.getString("status"));
-                        prioritizedWaitlist.add(waitlistEntry);
+                            Waitlist waitlistEntry = new Waitlist();
+                            Person waitlistPers = new Person();
+                            waitlistPers.setUserId(entry.getInteger("borrowerId"));
+                            waitlistEntry.setUser(waitlistPers);
+                            waitlistEntry.setWaitlistId(entry.getInteger("waitlistId"));
+                            waitlistEntry.setCheckoutDate(checkoutDate); // Store LocalDate directly
+                            waitlistEntry.setStatus(entry.getString("status"));
+                            prioritizedWaitlist.add(waitlistEntry);
+                        }
+                        catch (Exception e) {
+                            System.err.println("Error processing waitlist entry: " + e.getMessage());
+                        }
                     }
                 }
             }
