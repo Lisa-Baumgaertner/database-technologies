@@ -1,13 +1,13 @@
 package application.repository;
 
 import static com.mongodb.client.model.Filters.eq;
-import application.model.Book;
-import application.model.Keyword;
-import application.model.Status;
+
+import application.model.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -102,7 +102,14 @@ public class MongoBookRepositoryImpl implements BookRepository {
      */
     @Override
     public Book findBookById(Long id) {
-        return null;
+        // Buch mit der gegebenen ID in der MongoDB-Collection suchen
+        Document bookDoc = bookCollection.find(Filters.eq("bookId", id)).first();
+        if (bookDoc == null) {
+            System.out.println("Kein Buch mit der ID " + id + " gefunden.");
+            return null;
+        }
+        // Dokument in ein Book-Objekt umwandeln
+        return mapDocumentToBook(bookDoc);
     }
 
     /**
@@ -110,7 +117,21 @@ public class MongoBookRepositoryImpl implements BookRepository {
      */
     @Override
     public Book findBookByIsbn(String isbnLong, String isbnShort) {
-        return null;
+        // Filter für die Suche mit ISBN-13 oder ISBN-10
+        Bson query = Filters.or(
+                Filters.eq("isbn.long", isbnLong),
+                Filters.eq("isbn.short", isbnShort)
+        );
+
+        // Docu suchen
+        Document bookDoc = bookCollection.find(query).first();
+        if (bookDoc == null) {
+            System.out.println("Kein Buch mit ISBN " + isbnLong + " oder " + isbnShort + " gefunden.");
+            return null;
+        }
+
+        // Dokument in ein Book-Objekt umwandeln
+        return mapDocumentToBook(bookDoc);
     }
 
     /**
@@ -173,24 +194,54 @@ public class MongoBookRepositoryImpl implements BookRepository {
     public void insertBook(Book book) {
         int newBookId = getNextBookId();
         book.setBookId(newBookId);
-        Document bookDoc = mapBookToDocument(book);
-
-        System.out.println("Einfügen des Buches mit ID: " + newBookId);
-        System.out.println("Einzufügendes Dokument: " + bookDoc.toJson());
-
+        Document bookDoc = mapBookToDocumentForInsert(book);
         bookCollection.insertOne(bookDoc);
     }
 
     @Override
     public void insertBookKeyword(Long bookId, int keywordId) {
-
+    // Just for SQl
     }
     /**
      * Aktualisiert ein vorhandenes Buch in der MongoDB-Collection.
      */
     @Override
     public void updateBook(Book book) {
+        System.out.println("Starte Aktualisierung für Buch mit ID: " + book.getBookId());
+
+        // Prüfen, ob das Buch existiert
+        Document existingBookDoc = bookCollection.find(Filters.eq("bookId", book.getBookId())).first();
+
+        if (existingBookDoc == null) {
+            System.out.println("Fehler: Buch mit der ID " + book.getBookId() + " wurde nicht gefunden.");
+            return;
+        }
+
+        // Neues aktualisiertes Dokument erstellen
+        Document updatedDocument = mapBookToDocumentForUpdate(book);
+        if (updatedDocument == null) {
+            System.out.println("Fehler: Das Buch konnte nicht aktualisiert werden.");
+            return;
+        }
+
+        // Buch in MongoDB aktualisieren
+        try {
+            UpdateResult result = bookCollection.updateOne(
+                    Filters.eq("bookId", book.getBookId()),
+                    new Document("$set", updatedDocument)
+            );
+
+            if (result.getMatchedCount() > 0) {
+                System.out.println("Buch erfolgreich aktualisiert: " + book.getBookId());
+            } else {
+                System.out.println("Keine Übereinstimmung gefunden für Buch-ID: " + book.getBookId());
+            }
+
+        } catch (Exception e) {
+            System.err.println("Fehler bei der Aktualisierung des Buches: " + e.getMessage());
+        }
     }
+
 
     /**
      * Löscht ein Buch anhand seiner ID aus der MongoDB-Collection.
@@ -332,8 +383,9 @@ public class MongoBookRepositoryImpl implements BookRepository {
     /**
      * Hilfsmethode: Mappt ein Book-Objekt zu einem MongoDB-Dokument.
      */
-    private Document mapBookToDocument(Book book) {
-        System.out.println("mapBookToDocument => " + book.getKeywords());
+    private Document mapBookToDocumentForInsert(Book book) {
+        System.out.println("mapBookToDocument  first=> " + book.getKeywords().getFirst().getKeywordId());
+        System.out.println("mapBookToDocument size => " + book.getKeywords().size());
         Document metadata = new Document()
                 .append("title", book.getTitle())
                 .append("author", book.getAuthor())
@@ -352,7 +404,6 @@ public class MongoBookRepositoryImpl implements BookRepository {
             keywordDocs.add(new Document("keywordId", keywordId));
         }
 
-
         return new Document()
                 .append("bookId", (int) book.getBookId())
                 .append("isbn", isbn)
@@ -363,6 +414,111 @@ public class MongoBookRepositoryImpl implements BookRepository {
                 .append("lendings", new ArrayList<>()) // Leere Lendingsliste
                 .append("waitlist", new ArrayList<>()); // Leere Warteliste
     }
+
+    /**
+     * Hilfsmethode: Mappt ein Book-Objekt zu einem MongoDB-Dokument.
+     */
+    private Document mapBookToDocumentForUpdate(Book book) {
+        // Das vorhandene Buchdokument anhand der bookId aus der MongoDB abrufen
+        Document existingBookDoc = bookCollection.find(Filters.eq("bookId", book.getBookId())).first();
+
+        if (existingBookDoc == null) {
+            System.out.println("Kein Buch mit der ID " + book.getBookId() + " gefunden.");
+            return null;
+        }
+
+        // ISBN-Objekt extrahieren und aktualisieren
+        Document isbn = existingBookDoc.get("isbn", Document.class);
+        if (isbn == null) {
+            isbn = new Document();
+        }
+        isbn.put("long", book.getIsbnLong() != null ? book.getIsbnLong() : isbn.getString("long"));
+        isbn.put("short", book.getIsbnShort() != null ? book.getIsbnShort() : isbn.getString("short"));
+
+        // Copies extrahieren oder aktualisieren
+        int copies = book.getCopies() != null ? book.getCopies() : existingBookDoc.getInteger("copies", 0);
+
+        // Metadata-Objekt extrahieren und aktualisieren
+        Document metadata = existingBookDoc.get("metadata", Document.class);
+        if (metadata == null) {
+            metadata = new Document();
+        }
+        metadata.put("title", book.getTitle() != null ? book.getTitle() : metadata.getString("title"));
+        metadata.put("author", book.getAuthor() != null ? book.getAuthor() : metadata.getString("author"));
+        metadata.put("publisher", book.getPublisher() != null ? book.getPublisher() : metadata.getString("publisher"));
+        metadata.put("description", book.getDescription() != null ? book.getDescription() : metadata.getString("description"));
+        metadata.put("yearPublished", book.getYearPublished() != null ? book.getYearPublished() : metadata.getString("yearPublished"));
+
+        // Keywords aktualisieren
+        List<Document> keywordDocs = new ArrayList<>();
+        if (book.getKeywords() != null) {
+            for (Keyword keyword : book.getKeywords()) {
+                keywordDocs.add(new Document("keywordId", keyword.getKeywordId()));
+            }
+        } else {
+            keywordDocs = existingBookDoc.getList("keywords", Document.class, new ArrayList<>());
+        }
+
+        // Reviews aus dem bestehenden Dokument extrahieren
+        List<Document> reviewDocs = new ArrayList<>();
+        if (existingBookDoc.containsKey("reviews")) {
+            List<Document> existingReviews = existingBookDoc.getList("reviews", Document.class);
+            for (Document reviewDoc : existingReviews) {
+                reviewDocs.add(new Document()
+                        .append("reviewId", reviewDoc.getInteger("reviewId"))
+                        .append("borrowerId", reviewDoc.getInteger("borrowerId"))
+                        .append("text", reviewDoc.getString("text") != null ? reviewDoc.getString("text") : "")
+                        .append("date", reviewDoc.getString("date") != null ? reviewDoc.getString("date") : "")
+                        .append("rating", reviewDoc.getInteger("rating"))
+                );
+            }
+        }
+
+        // Lendings aus dem bestehenden Dokument extrahieren
+        List<Document> lendingDocs = new ArrayList<>();
+        if (existingBookDoc.containsKey("lendings")) {
+            List<Document> existingLendings = existingBookDoc.getList("lendings", Document.class);
+            for (Document lendingDoc : existingLendings) {
+                lendingDocs.add(new Document()
+                        .append("lendingId", lendingDoc.getInteger("lendingId"))
+                        .append("borrowerId", lendingDoc.getInteger("borrowerId"))
+                        .append("workerId", lendingDoc.getInteger("workerId"))
+                        .append("status", lendingDoc.getString("status"))
+                        .append("checkoutDate", lendingDoc.getString("checkoutDate"))
+                        .append("dueDate", lendingDoc.getString("dueDate"))
+                        .append("returnDate", lendingDoc.getString("returnDate"))
+                );
+            }
+        }
+
+        // Waitlist extrahieren
+        List<Document> waitlistDocs = new ArrayList<>();
+        if (existingBookDoc.containsKey("waitlist")) {
+            List<Document> existingWaitlist = existingBookDoc.getList("waitlist", Document.class);
+            for (Document waitlistDoc : existingWaitlist) {
+                waitlistDocs.add(new Document()
+                        .append("waitlistId", waitlistDoc.getInteger("waitlistId"))
+                        .append("borrowerId", waitlistDoc.getInteger("borrowerId"))
+                        .append("checkoutDate", waitlistDoc.getString("checkoutDate"))
+                        .append("status", waitlistDoc.getString("status"))
+                        .append("returnDate", waitlistDoc.getString("returnDate"))
+                );
+            }
+        }
+
+        // Aktualisiertes Buchdokument zurückgeben
+        return new Document()
+                .append("bookId", book.getBookId())
+                .append("isbn", isbn)
+                .append("copies", copies)
+                .append("metadata", metadata)
+                .append("keywords", keywordDocs)
+                .append("reviews", reviewDocs)
+                .append("lendings", lendingDocs)
+                .append("waitlist", waitlistDocs);
+    }
+
+
 
 
     /**
