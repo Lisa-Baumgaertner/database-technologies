@@ -77,7 +77,15 @@ public class MongoBookRepositoryImpl implements BookRepository {
 
         // Filter für Status, wenn gesetzt
         if (status != null && !status.equalsIgnoreCase("Alle") && !status.isEmpty()) {
-            filters.add(Filters.elemMatch("waitlist", Filters.eq("status", status)));
+            // Überprüfe, ob 'status' als Integer oder String gespeichert ist
+            try {
+                // Versuche, den status in einen Integer zu parsen
+                Integer statusInt = Integer.parseInt(status);
+                filters.add(Filters.elemMatch("waitlist", Filters.eq("status", statusInt)));
+            } catch (NumberFormatException e) {
+                // Wenn der status kein Integer ist, behandeln wir ihn als String
+                filters.add(Filters.elemMatch("waitlist", Filters.eq("status", status)));
+            }
         } else {
             // Kein spezifischer Statusfilter: Alle Bücher anzeigen
             System.out.println("Kein spezifischer Statusfilter. Alle Bücher mit ihrem gespeicherten Status anzeigen.");
@@ -317,8 +325,9 @@ public class MongoBookRepositoryImpl implements BookRepository {
         String author = metadata != null ? metadata.getString("author") : "Unknown";
         String publisher = metadata != null ? metadata.getString("publisher") : "Unknown";
         String description = metadata != null ? metadata.getString("description") : "No Description";
-        int yearPublished = metadata != null && metadata.getString("yearPublished") != null
-                ? Integer.parseInt(metadata.getString("yearPublished").split("-")[0])
+
+        int yearPublished = metadata != null && metadata.containsKey("yearPublished")
+                ? metadata.getInteger("yearPublished") // Direkte Extraktion als Integer
                 : 0;
 
         // ISBN extrahieren
