@@ -1,5 +1,6 @@
 package application.repository;
 
+import application.model.Book;
 import application.model.Person;
 import application.model.Waitlist;
 import com.mongodb.client.FindIterable;
@@ -12,8 +13,10 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -21,6 +24,7 @@ import static com.mongodb.client.model.Filters.eq;
 
 public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
     private final MongoCollection<Document> collection;
+    private final MongoCollection<Document> personCollection;
 
 
 
@@ -29,6 +33,7 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
      */
     public MongoWaitlistRepositoryImpl(MongoDatabase mongoDatabase) {
         this.collection = mongoDatabase.getCollection("Book"); // Verwende die Collection "books"
+        this.personCollection = mongoDatabase.getCollection("Person");
     }
 
 
@@ -37,13 +42,18 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
      */
     @Override
     public List<Waitlist> getAllWaitlistEntries() {
-        List<String> waitlistEntries = new ArrayList<>();
+        String firstName = "";
+        String lastName = "";
+        List<Waitlist> waitlistEntries = new ArrayList<>();
 
         // Retrieve all documents from the collection
         List<Document> documents = collection.find().into(new ArrayList<>());
 
         for (Document doc : documents) {
             List<Document> waitlistArray = (List<Document>) doc.get("waitlist");
+
+            // Define the formatter for the expected date format
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
             if (waitlistArray != null) {
                 for (Document entry : waitlistArray) {
@@ -56,23 +66,58 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
                     String status = entry.getString("status");
                     String returnDate = entry.getString("returnDate");
 
-                    // Prepare array representation
-                    String[] arr = {
-                            String.valueOf(waitlistId),
-                            String.valueOf(borrowerId),
-                            checkoutDate,
-                            status,
-                            returnDate
-                    };
+                    // Convert dates to LocalDate using the formatter
+                    LocalDate checkoutDateDate = (checkoutDate != null && !checkoutDate.isEmpty())
+                            ? LocalDate.parse(checkoutDate, formatter)
+                            : null;
 
-                    waitlistEntries.add(Arrays.toString(arr));
+                    LocalDate returnDateDate = (returnDate != null && !returnDate.isEmpty())
+                            ? LocalDate.parse(returnDate, formatter)
+                            : null;
+
+                    // Retrieve the book ID from the parent document
+                    Long bookId = doc.get("bookId", Number.class) != null
+                            ? doc.get("bookId", Number.class).longValue() : null;
+                    String bookTitle = doc.get("metadata", Document.class) != null
+                            ? doc.get("metadata", Document.class).getString("title") : null;
+
+                    // Retrieve borrower details from the person collection
+                    String borrowerName = null;
+                    if (borrowerId != null) {
+                        Document borrowerDoc = personCollection.find(new Document("userId", borrowerId)).first();
+                        if (borrowerDoc != null) {
+                            Document personalDetails = borrowerDoc.get("personalDetails", Document.class);
+                            if (personalDetails != null) {
+                                firstName = personalDetails.getString("firstName");
+                                lastName = personalDetails.getString("lastName");
+                                borrowerName = firstName + " " + lastName;
+                            }
+                        }
+                    }
+
+                    Waitlist waitlistEntry = new Waitlist();
+                    Person waitlistPers = new Person();
+                    waitlistPers.setUserId(Math.toIntExact(borrowerId));
+                    waitlistPers.setFirstName(firstName);
+                    waitlistPers.setLastName(lastName);
+                    waitlistEntry.setUser(waitlistPers);
+                    waitlistEntry.setWaitlistId(Math.toIntExact(waitlistId));
+                    waitlistEntry.setCheckoutDate(checkoutDateDate); // Store LocalDate directly
+                    waitlistEntry.setStatus(status);
+                    waitlistEntry.setReturnDate(returnDateDate);
+                    Book waitlistBook = new Book();
+                    waitlistBook.setTitle(bookTitle);
+                    waitlistBook.setBookId(bookId != null ? Math.toIntExact(bookId) : null);
+                    waitlistEntry.setBook(waitlistBook);
+
+                    waitlistEntries.add(waitlistEntry);
                 }
             }
         }
 
         System.out.println(waitlistEntries);
 
-        return null;
+        return waitlistEntries;
     }
 
 
@@ -175,6 +220,7 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
             }
         }
 
+        System.out.println("In waitlist for book: " + waitlist);
         return waitlist;
 
     }
@@ -263,7 +309,54 @@ public class MongoWaitlistRepositoryImpl implements WaitlistRepository {
      * Funktion, um die priorisierten Wartelisteneinträge zu bekommen.
      */
     public List<Waitlist> getPrioritizedWaitlistEntries() {
-        return null;
+        List<Waitlist> prioritizedWaitlist = new ArrayList<>();
+
+        // Fetch documents with a waitlist field where status is "waiting"
+        List<Document> books = collection.find(eq("waitlist.status", "waiting")).into(new ArrayList<>());
+
+
+            // Fetch documents with a waitlist field
+            //List<Document> books = collection.find(eq("waitlist.status", "waiting")).into(new ArrayList<>());
+
+        // Current date for priority calculation
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+            for (Document book : books) {
+                List<Document> waitlist = book.getList("waitlist", Document.class);
+
+                for (Document entry : waitlist) {
+                    if ("waiting".equals(entry.getString("status"))) {
+                        try {
+                            String checkoutDateStr = entry.getString("checkoutDate");
+                            LocalDate checkoutDate = LocalDate.parse(checkoutDateStr, formatter);
+
+
+                            long priority = ChronoUnit.DAYS.between(checkoutDate, currentDate);
+
+
+                            Waitlist waitlistEntry = new Waitlist();
+                            Person waitlistPers = new Person();
+                            waitlistPers.setUserId(entry.getInteger("borrowerId"));
+                            waitlistEntry.setUser(waitlistPers);
+                            waitlistEntry.setWaitlistId(entry.getInteger("waitlistId"));
+                            waitlistEntry.setCheckoutDate(checkoutDate); // Store LocalDate directly
+                            waitlistEntry.setStatus(entry.getString("status"));
+                            prioritizedWaitlist.add(waitlistEntry);
+                        }
+                        catch (Exception e) {
+                            System.err.println("Error processing waitlist entry: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+
+            // Sort waitlist by priority in descending order
+            //prioritizedWaitlist.sort(Comparator.comparingLong(Waitlist::getPriority).reversed());
+        //}
+
+        System.out.println("prioritized waitlist " + prioritizedWaitlist);
+        return prioritizedWaitlist;
     }
 
     /**

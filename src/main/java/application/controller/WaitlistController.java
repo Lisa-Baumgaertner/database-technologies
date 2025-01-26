@@ -88,8 +88,9 @@ public class WaitlistController {
     private int calculatePriority(Waitlist entry) {
         //Alle Wartelisteinträge für dasselbe Buch
         List<Waitlist> sortedWaitlist = waitlistService.getWaitlistForBook(entry.getBook().getBookId());
-
+        System.out.println("Sorted Waitlist: " + sortedWaitlist.toString());
         // Sortiere die Einträge nach dem Ausleihdatum (checkoutDate) aufsteigend
+
         sortedWaitlist.sort(Comparator.comparing(Waitlist::getCheckoutDate));
 
         // Durchlaufe die sortierte Liste und finde die Position des aktuellen Eintrags
