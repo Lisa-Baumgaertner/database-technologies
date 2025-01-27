@@ -209,4 +209,27 @@ public class EmployeePageController {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Wechselt zur Ansicht "LendingAddView" und initialisiert deren Controller.
+     */
+    @FXML
+    private void handleLendingAddView() {
+        try {
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/EmployeeLendingAddView.fxml"));
+            Parent lendingAddView = loader.load();
+
+            mainPane.setCenter(lendingAddView);
+            LendingAddController controller = loader.getController();
+            controller.setBookService(BookService.getInstance());
+            controller.setUserService(UserService.getInstance());
+            controller.setLendingService(LendingService.getInstance());
+
+
+        } catch (IOException e) {
+            System.err.println("Fehler beim Laden der EmployeeLendingAddView.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

@@ -59,7 +59,6 @@ public class PostgresLendingRepositoryImpl implements LendingRepository {
             statement.setLong(1, userId);
             statement.setLong(2, workerId);
             statement.setLong(3, bookId);
-            statement.setString(4, status);
             statement.executeUpdate();
 
         } catch (SQLException e) {

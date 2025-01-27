@@ -49,7 +49,6 @@ public class PostgresKeywordRepositoryImpl implements KeywordRepository {
                             resultSet.getString("KEYWORD")
                     ));
                 }
-                System.out.println("keywords " + keywords);
             }
 
         } catch (SQLException e) {

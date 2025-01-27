@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.DatePicker?>
+<GridPane xmlns="http://javafx.com/javafx/8.0"
+          xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="application.controller.LendingAddController"
+          hgap="10" vgap="10"
+          style="-fx-padding: 20; -fx-background-color: #f4f4f4;">
+
+
+    <!-- Buchauswahl -->
+    <Label text="Buch auswählen:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+    <ComboBox fx:id="bookComboBox" promptText="Buch auswählen" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+    <!-- Benutzer Auswahl -->
+    <Label text="Benutzer auswählen:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+    <ComboBox fx:id="userComboBox" promptText="Benutzer auswählen" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+    <!-- Status Auswahl -->
+    <Label text="Status:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+    <TextField fx:id="statusTextField" text="borrowed" editable="false" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+
+    <!-- Datumsauswahl -->
+    <Label text="Ausleihdatum:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+    <DatePicker fx:id="checkoutDatePicker" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+    <!-- Ausleihe starten Button -->
+    <Button text="Ausleihe starten" onAction="#handleStartLending"
+            GridPane.rowIndex="4" GridPane.columnSpan="2"
+            style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+</GridPane>
+
+

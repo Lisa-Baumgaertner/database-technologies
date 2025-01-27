@@ -9,6 +9,7 @@ import application.repository.AddressRepository;
 import application.repository.ContactRepository;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Diese Serviceklasse bietet Geschäftslogik für Benutzeroperationen.
@@ -33,6 +34,12 @@ public class UserService {
     }
 
 
+    /**
+     *
+     */
+    public List<Person> getAllPersons() {
+        return userRepository.getAllPersons();
+    }
     /**
      * Holt Name der Peron anhand userID.
      */

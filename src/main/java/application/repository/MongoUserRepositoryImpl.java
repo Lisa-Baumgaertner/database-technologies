@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -23,6 +24,8 @@ public class MongoUserRepositoryImpl implements UserRepository {
         this.personCollection = database.getCollection(MongoCollectionNameRepository.getCollectionName("Person"));
 
     }
+
+    public List<Person> getAllPersons() { return null;}
 
     public Person getFirstBorrower() {
         Document doc = personCollection.find(eq("role", "borrower")).first();

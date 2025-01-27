@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Diese Klasse bietet Methode zum Zugriff auf die Person-Tabelle
@@ -24,6 +26,33 @@ public class PostgresUserRepositoryImpl implements UserRepository {
      */
     public PostgresUserRepositoryImpl(Connection connection) {
         this.connection = connection;
+    }
+
+    /**
+     * Lädt alle Persons
+     */
+    public List<Person> getAllPersons() {
+        String query = "SELECT * FROM person";
+        List<Person> persons = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                Person person = new Person();
+                // Felder des Person-Objekts mit Daten aus der Datenbank befüllen
+                person.setUserId(rs.getInt("user_id"));
+                person.setFirstName(rs.getString("firstName"));
+                person.setLastName(rs.getString("lastName"));
+                person.setBirthDate(rs.getDate("birthdate").toLocalDate());
+                person.setGender(String.valueOf(rs.getString("gender").charAt(0)));
+                person.setRole(rs.getString("role")); // Annahme: Spalte heißt role
+
+                persons.add(person);
+            }
+        } catch (SQLException e) {
+            System.err.println("Fehler beim Abrufen der Personen: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        return persons;
     }
 
     /**

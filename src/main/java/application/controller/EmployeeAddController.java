@@ -4,6 +4,7 @@ import application.model.Address;
 import application.model.Contact;
 import application.model.Person;
 import application.service.UserService;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
@@ -168,5 +169,12 @@ public class EmployeeAddController {
         phoneField.clear();
         mobileField.clear();
         emailField.clear();
+    }
+
+    public void handleStartLending(ActionEvent actionEvent) {
+    }
+
+    public void handleResetFields(ActionEvent actionEvent) {
+
     }
 }
