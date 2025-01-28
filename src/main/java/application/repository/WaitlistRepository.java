@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface WaitlistRepository {
     List<Waitlist> getAllWaitlistEntries();
-    boolean addToWaitlist(Long userId, Long bookId, String status);
     List<Waitlist> getWaitlistForBook(Long bookId);
     List<Waitlist> getWaitlistForUser(Long userId);
     boolean updateStatus(Long waitlistId, String status);

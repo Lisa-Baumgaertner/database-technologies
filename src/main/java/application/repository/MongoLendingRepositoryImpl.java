@@ -10,6 +10,7 @@ import com.mongodb.client.model.Projections;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.elemMatch;
 
+import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -96,6 +97,7 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
 
         if (personResult.getModifiedCount() > 0 && bookResult.getModifiedCount() > 0) {
             System.out.println("Lending erfolgreich hinzugefügt.");
+            updateBookStatusAndCopies(bookId); // Status & Copies akutalisieren
         } else {
             System.err.println("Fehler beim Hinzufügen der Lending.");
         }
@@ -179,6 +181,13 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
 
         if (personResult.getModifiedCount() > 0 || bookResult.getModifiedCount() > 0) {
             System.out.println("Lending-Status erfolgreich aktualisiert.");
+
+            // Buch-ID abrufen, um Kopien & Status anzupassen
+            Document lendingDoc = bookCollection.find(eq("lendings.lendingId", lendingId)).first();
+            if (lendingDoc != null) {
+                Long bookId = lendingDoc.getLong("bookId");
+                updateBookStatusAndCopies(bookId);
+            }
         } else {
             System.err.println("Fehler beim Aktualisieren des Lending-Status.");
         }
@@ -188,6 +197,15 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
      * Entfernt einen Ausleiheintrag aus der Datenbank.
      */
     public  void removeFromLending(Long lendingId) {
+
+        Document lendingDoc = bookCollection.find(Filters.elemMatch("lendings", eq("lendingId", lendingId))).first();
+        if (lendingDoc == null) {
+            System.out.println("Kein Lending mit ID " + lendingId + " gefunden.");
+            return;
+        }
+
+        Long bookId = lendingDoc.getLong("bookId");
+
         // Lending aus der Person-Kollektion entfernen
         UpdateResult personResult = personCollection.updateOne(
                 Filters.elemMatch("lendings", eq("lendingId", lendingId)),
@@ -202,6 +220,7 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
 
         if (personResult.getModifiedCount() > 0 || bookResult.getModifiedCount() > 0) {
             System.out.println("Lending erfolgreich entfernt.");
+            updateBookStatusAndCopies(bookId);
         } else {
             System.err.println("Fehler beim Entfernen des Lending.");
         }
@@ -591,5 +610,65 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
         return date.format(formatter);
     }
 
+    private void updateBookStatusAndCopies(Long bookId) {
+        Document book = bookCollection.find(Filters.eq("bookId", bookId)).first();
+        if (book == null) {
+            System.out.println("Kein Buch mit der ID " + bookId + " gefunden.");
+            return;
+        }
+
+        int copies = book.getInteger("copies", 0);
+        List<Document> lendings = book.getList("lendings", Document.class, new ArrayList<>());
+        List<Document> waitlist = book.getList("waitlist", Document.class, new ArrayList<>());
+
+        // Status und Kopien initialisieren
+        int updatedCopies = copies;
+        String newStatus = "available";
+
+        // Verarbeitung der Lending-Liste
+        for (Document lending : lendings) {
+            String lendingStatus = lending.getString("status");
+            if ("borrowed".equalsIgnoreCase(lendingStatus)) {
+                updatedCopies--; // Reduziere Kopien, wenn ausgeliehen
+            } else if ("returned".equalsIgnoreCase(lendingStatus)) {
+                updatedCopies++; // Erhöhe Kopien, wenn zurückgegeben
+            }
+        }
+
+        // Verarbeitung der Warteliste
+        for (Document waitlistEntry : waitlist) {
+            String waitlistStatus = waitlistEntry.getString("status");
+            if ("waiting".equalsIgnoreCase(waitlistStatus)) {
+                updatedCopies--; // Reduziere Kopien, wenn auf Warteliste
+            } else if ("returned".equalsIgnoreCase(waitlistStatus)) {
+                updatedCopies++; // Erhöhe Kopien, wenn zurückgegeben
+            }
+        }
+
+        // Sicherstellen, dass die Kopienanzahl nicht negativ ist
+        updatedCopies = Math.max(0, updatedCopies);
+
+        // Status basierend auf den aktualisierten Kopien und Listen festlegen
+        if (updatedCopies > 0) {
+            newStatus = "available";
+        } else {
+            boolean isBorrowed = lendings.stream().anyMatch(l -> "borrowed".equalsIgnoreCase(l.getString("status")));
+            boolean hasWaitlist = waitlist.stream().anyMatch(w -> "waiting".equalsIgnoreCase(w.getString("status")));
+            if (isBorrowed) {
+                newStatus = "borrowed";
+            } else if (hasWaitlist) {
+                newStatus = "waiting";
+            }
+        }
+
+        // MongoDB-Dokument aktualisieren
+        bookCollection.updateOne(Filters.eq("bookId", bookId),
+                Updates.combine(
+                        Updates.set("status", newStatus),
+                        Updates.set("copies", updatedCopies)
+                ));
+
+        System.out.println("Status für Buch " + bookId + " gesetzt auf '" + newStatus + "', Verfügbare Exemplare: " + updatedCopies);
+    }
 
 }

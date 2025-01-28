@@ -76,6 +76,11 @@ public class MongoBookRepositoryImpl implements BookRepository {
         }
 
         // Filter für Status, wenn gesetzt
+        if (status != null && !status.isEmpty()) {
+            filters.add(Filters.eq("status", status));
+        }
+/*
+        // Filter für Status, wenn gesetzt
         if (status != null && !status.equalsIgnoreCase("Alle") && !status.isEmpty()) {
             // Überprüfe, ob 'status' als Integer oder String gespeichert ist
             try {
@@ -91,7 +96,7 @@ public class MongoBookRepositoryImpl implements BookRepository {
             System.out.println("Kein spezifischer Statusfilter. Alle Bücher mit ihrem gespeicherten Status anzeigen.");
             // Kein Filter für die Warteliste anwenden, um alle gespeicherten Status zurückzugeben.
         }
-
+ */
         // Kombiniere alle Filter
         Bson query = filters.isEmpty() ? new Document() : Filters.and(filters);
         try (MongoCursor<Document> cursor = this.bookCollection.find(query).iterator()) {
@@ -347,23 +352,14 @@ public class MongoBookRepositoryImpl implements BookRepository {
             }
         }
 
-        // Status aus der Warteliste extrahieren
-        List<Document> waitlist = doc.getList("waitlist", Document.class);
-        String finalStatus = null;
+        // Status aus dem Buch-Dokument lesen
+        String status = doc.getString("status");
 
-        if (waitlist != null && !waitlist.isEmpty()) {
-            for (Document entry : waitlist) {
-                String entryStatus = entry.getString("status");
-                if (entryStatus != null) {
-                    finalStatus = entryStatus;
-                    break;
-                }
-            }
-        }
+
         // Konvertierung des Status-Strings in das Enum
-        Status.BookStatus bookStatus = (finalStatus != null)
-                ? Status.BookStatus.fromString(finalStatus)
-                : Status.BookStatus.AVAILABLE; // Fallback zu einem Standardwert
+        Status.BookStatus bookStatus = status != null
+                ? Status.BookStatus.fromString(status)
+                : Status.BookStatus.AVAILABLE;
 
         // Buch-ID, Kopien und KeywordId
         Integer bookId = doc.getInteger("bookId");
@@ -393,8 +389,6 @@ public class MongoBookRepositoryImpl implements BookRepository {
      * Hilfsmethode: Mappt ein Book-Objekt zu einem MongoDB-Dokument.
      */
     private Document mapBookToDocumentForInsert(Book book) {
-        System.out.println("mapBookToDocument  first=> " + book.getKeywords().getFirst().getKeywordId());
-        System.out.println("mapBookToDocument size => " + book.getKeywords().size());
         Document metadata = new Document()
                 .append("title", book.getTitle())
                 .append("author", book.getAuthor())
@@ -412,6 +406,13 @@ public class MongoBookRepositoryImpl implements BookRepository {
             keyword.setKeywordId(keywordId);
             keywordDocs.add(new Document("keywordId", keywordId));
         }
+        // Status automatisch setzen basierend auf der Anzahl der Exemplare
+        String status;
+        if (book.getCopies() > 0) {
+            status = "available"; // Wenn Kopien vorhanden sind, ist das Buch verfügbar
+        } else {
+            status = "borrowed";
+        }
 
         return new Document()
                 .append("bookId", (int) book.getBookId())
@@ -421,7 +422,8 @@ public class MongoBookRepositoryImpl implements BookRepository {
                 .append("keywords", keywordDocs)
                 .append("reviews", new ArrayList<>()) // Leere Reviewsliste
                 .append("lendings", new ArrayList<>()) // Leere Lendingsliste
-                .append("waitlist", new ArrayList<>()); // Leere Warteliste
+                .append("waitlist", new ArrayList<>()) // Leere Warteliste
+                .append("status", status);
     }
 
     /**
@@ -515,6 +517,42 @@ public class MongoBookRepositoryImpl implements BookRepository {
             }
         }
 
+        // Anzahl der verfügbaren Kopien berechnen
+        int currentCopies = existingBookDoc.getInteger("copies", 0);
+
+        // Reduziere copies, wenn ein neues Lending oder eine neue Warteliste hinzugefügt wird
+        boolean bookBorrowed = false;
+        boolean bookInWaitlist = false;
+
+        for (Document lending : lendingDocs) {
+            String lendingStatus = lending.getString("status");
+            if ("borrowed".equalsIgnoreCase(lendingStatus)) {
+                bookBorrowed = true;
+            }
+        }
+
+        for (Document waitlist : waitlistDocs) {
+            String waitlistStatus = waitlist.getString("status");
+            if ("waiting".equalsIgnoreCase(waitlistStatus)) {
+                bookInWaitlist = true;
+            }
+        }
+
+        if (bookBorrowed || bookInWaitlist) {
+            currentCopies = Math.max(0, currentCopies - 1); // **Verhindere negative Werte**
+        } else {
+            currentCopies = Math.min(book.getCopies(), currentCopies + 1); // Falls zurückgegeben, Kopien erhöhen
+        }
+
+        String status;
+        if (bookBorrowed) {
+            status = "borrowed";
+        } else if (bookInWaitlist) {
+            status = "waiting";
+        } else {
+            status = currentCopies > 0 ? "available" : "waiting";
+        }
+
         // Aktualisiertes Buchdokument zurückgeben
         return new Document()
                 .append("bookId", book.getBookId())
@@ -524,7 +562,8 @@ public class MongoBookRepositoryImpl implements BookRepository {
                 .append("keywords", keywordDocs)
                 .append("reviews", reviewDocs)
                 .append("lendings", lendingDocs)
-                .append("waitlist", waitlistDocs);
+                .append("waitlist", waitlistDocs)
+                .append("status", status);
     }
 
 

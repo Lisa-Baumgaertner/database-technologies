@@ -102,13 +102,6 @@ public class WaitlistService {
     /**
      * Fügt einen Benutzer zu der Warteliste für ein bestimmtes Buch hinzu.
      */
-    public boolean addToWaitlist(Long userId, Long bookId, String status) {
-        return waitlistRepository.addToWaitlist(userId, bookId, status);
-    }
-
-    /**
-     * Fügt einen Benutzer zu der Warteliste für ein bestimmtes Buch hinzu.
-     */
     public Waitlist addToWaitlist(Waitlist waitlist) {
         return waitlistRepository.addToWaitlist(waitlist);
     }
