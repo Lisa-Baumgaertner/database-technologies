@@ -3,7 +3,7 @@ db.runCommand({
     validator: {
         $jsonSchema: {
             bsonType: "object",
-            required: ["bookId", "isbn", "copies", "metadata", "keywords", "reviews", "lendings", "waitlist"],
+            required: ["bookId", "isbn", "copies", "metadata", "keywords", "reviews", "lendings", "waitlist", "status"],
             properties: {
                 bookId: {
                     bsonType: "int",
@@ -176,6 +176,11 @@ db.runCommand({
                         }
                     },
                     description: "Must be an array of lending objects"
+                },
+                status: {
+                    bsonType: "string",
+                    enum: ["available", "borrowed", "returned", "waiting", "lost", "damaged", "checked_out", "in_maintenanc"],
+                    description: "Must be a string"
                 }
             }
         }
