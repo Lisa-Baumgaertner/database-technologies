@@ -1,4 +1,5 @@
 package application.repository;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
@@ -38,6 +39,7 @@ public class MongoNotificationRepositoryImpl implements NotificationRepository {
             String firstName = userDoc.get("personalDetails", Document.class).getString("firstName");
             String lastName = userDoc.get("personalDetails", Document.class).getString("lastName");
             List<Document> lendings = (List<Document>) userDoc.get("lendings");
+
 
             if (lendings != null) {
                 LocalDate currentDate = LocalDate.now();
@@ -84,43 +86,35 @@ public class MongoNotificationRepositoryImpl implements NotificationRepository {
     public List<String> getAvailableBookNotificationsForUser(Long userId) {
         List<String> notifications = new ArrayList<>();
         MongoCollection<Document> bookCollection = database.getCollection("Book");
-        MongoCollection<Document> personCollection = database.getCollection("Person");  // Collection "Person"
 
-        // Document bookDocument = bookCollection.find(new Document("bookId", bookId)).first();
+        // Suche nach Büchern, in denen der Nutzer auf der Warteliste steht
+        FindIterable<Document> booksWithWaitlist = bookCollection.find(new Document("waitlist.borrowerId", userId));
+        for (Document bookDoc : booksWithWaitlist) {
+            Integer bookId = bookDoc.getInteger("bookId");
+            if (bookId == null) continue;  // Sicherheit gegen Null-Werte
 
-        Document userDoc = personCollection.find(new Document("userId", userId)).first();
-        if (userDoc == null) {
-            System.out.println("Nutzer nicht gefunden!");
-            return notifications;
-        }
+            Integer totalCopies = bookDoc.getInteger("copies", 0);
+            if (totalCopies == 0) continue;  // Falls keine Exemplare existieren
 
-        List<Document> waitlist = (List<Document>) userDoc.get("waitlist");
-        if (waitlist == null || waitlist.isEmpty()) {
-            System.out.println("Nutzer hat keine Bücher auf der Warteliste.");
-            return notifications;
-        }
+            // Prüfe die Anzahl der ausgeliehenen Exemplare
+            List<Document> lendings = bookDoc.getList("lendings", Document.class);
+            long borrowedCount = (lendings != null) ? lendings.stream()
+                    .filter(l -> "borrowed".equalsIgnoreCase(l.getString("status"))).count() : 0;
 
-        // Überprüfe, ob die Bücher auf der Warteliste verfügbar sind
-
-        for (Document waitlistEntry : waitlist) {
-            int bookId = waitlistEntry.getInteger("bookId");
-            Document bookDoc = bookCollection.find(new Document("bookId", bookId)).first();
-
-            if (bookDoc != null) {
-                int totalCopies = bookDoc.getInteger("copies");
-                List<Document> lendings = (List<Document>) bookDoc.get("lendings");
-
-                long borrowedCount = lendings.stream().filter(l -> l.getString("status").equals("borrowed")).count();
-                if (borrowedCount < totalCopies) {
-                    // Benachrichtigung erstellen, wenn das Buch verfügbar ist
-                    String bookTitle = ((Document) bookDoc.get("metadata")).getString("title");
-                    String notification = "Das Buch '" + bookTitle + "' ist jetzt verfügbar!";
-                    notifications.add(notification);
+            // Wenn noch Exemplare verfügbar sind, soll der Nutzer benachrichtigt werden
+            if (borrowedCount < totalCopies) {
+                String bookTitle = "";
+                Document metadata = bookDoc.get("metadata", Document.class);
+                if (metadata != null) {
+                    bookTitle = metadata.getString("title");
                 }
+
+                String notification = "Das Buch '" + bookTitle + "' ist jetzt verfügbar!";
+                notifications.add(notification);
             }
         }
 
-            return notifications;
+        return notifications;
 
     }
 

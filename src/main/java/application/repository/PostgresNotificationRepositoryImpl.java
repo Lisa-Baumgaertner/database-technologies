@@ -61,14 +61,13 @@ public class PostgresNotificationRepositoryImpl implements NotificationRepositor
      */
     public List<String> getAvailableBookNotificationsForUser( Long userId) {
         String query = """
-            SELECT p.firstname, p.lastname, b.booktitle
-            FROM waitlist w
-            JOIN person p ON w.user_id = p.user_id
-            JOIN book b ON w.book_id = b.book_id
-            WHERE w.status = 'waiting'
-              AND b.status = 'available'
-              AND p.user_id = ?;
-        """;
+        SELECT p.firstname, p.lastname, b.booktitle
+        FROM waitlist w
+        JOIN person p ON w.user_id = p.user_id
+        JOIN book b ON w.book_id = b.book_id
+        WHERE p.user_id = ?
+        AND (b.status = 'available' OR b.copies > 0);
+    """;
 
         List<String> notifications = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(query)) {
