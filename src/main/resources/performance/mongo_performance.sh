@@ -1,37 +1,21 @@
 #!/bin/bash
 
-# Pfad zur application.properties
-PROPERTIES_FILE="src/main/resources/application.properties"
+# Direkt gesetzte Konfiguration
+MONGO_URI="mongodb+srv://<username>:<password>@librarymanagement.nogaz.mongodb.net" # Ersetze durch Login Daten
+MONGO_DB="Library"
+MONGO_CLIENT_PATH="<Pfad zu mongosh>" # Ersetze durch den Pfad zu mongosh
 
-# Funktion zum Abrufen der Properties
-get_property() {
-    grep "^$1=" "$PROPERTIES_FILE" | cut -d'=' -f2
-}
-
-# Lade Konfiguration aus application.properties
-MONGO_CLIENT_PATH=$(get_property "mongo.path")
-MONGO_URI_FULL=$(get_property "mongodb.uri")
-MONGO_DB=$(get_property "mongodb.database")
-
-# Verarbeite die URI, um nur den Teil bis `.mongodb.net/` zu übernehmen
-MONGO_URI=$(echo "$MONGO_URI_FULL" | sed -E 's/(mongodb\+srv:\/\/[^\/]+\/).*/\1/')
-
-# Log-Verzeichnis
+# Log-Datei
 LOG_DIR="src/main/resources/logs"
 LOG_FILE="$LOG_DIR/mongo_performance.log"
 
-# Verzeichnis sicherstellen
 mkdir -p "$LOG_DIR"
 
-# Debug-Ausgabe
-echo "Geladene MONGO_URI: $MONGO_URI"
-echo "Geladene MONGO_DB: $MONGO_DB"
-
-# Zeitmessung und Logging initialisieren
 echo "MongoDB Performance Test - $(date)" > "$LOG_FILE"
 echo "-----------------------------------" >> "$LOG_FILE"
 
-# Abfragen und Operationen definieren
+
+# Abfragen
 operations=(
     'db.Person.find({ "role": "borrower" });'                                                # 1. SELECT alle Borrower
     'db.Lending.countDocuments({ "status": "borrowed" });'                                   # 2. SELECT Anzahl der ausgeliehenen Bücher
@@ -47,20 +31,17 @@ operations=(
 
 # Vorgänge durchlaufen
 for operation in "${operations[@]}"; do
-    echo "Führe Operation aus: $operation" | tee -a "$LOG_FILE"
+    echo "Führe Operation aus: $operation" >> "$LOG_FILE"
 
-    # Zeitmessung starten
     start_time=$(date +%s%3N)
-    result=$("$MONGO_CLIENT_PATH" "$MONGO_URI/$MONGO_DB" --quiet --eval "$operation" 2>&1)
+    "$MONGO_CLIENT_PATH" "$MONGO_URI/$MONGO_DB" --quiet --eval "$operation" > /dev/null 2>&1
     end_time=$(date +%s%3N)
 
     # Dauer berechnen
     duration=$((end_time - start_time))
 
-    # Ergebnis und Dauer protokollieren
-    echo "$result" | tee -a "$LOG_FILE"
-    echo "Ausführungszeit: ${duration} Millisekunden" | tee -a "$LOG_FILE"
-    echo "--------------------------------" | tee -a "$LOG_FILE"
+    echo "Ausführungszeit: $duration Millisekunden" >> "$LOG_FILE"
+    echo "--------------------------------" >> "$LOG_FILE"
 done
 
 echo "MongoDB Performance Test abgeschlossen. Ergebnisse in $LOG_FILE"

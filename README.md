@@ -62,6 +62,13 @@ database.password=password
 mongodb.uri=mongodb+srv://<username>:<password>@librarymanagement.nogaz.mongodb.net/?retryWrites=true&w=majority&appName=librarymanagement
 mongodb.database=Library
 
+# PostgreSQL Backup Einstellungen - Standard: erwartet pg_dump im PATH
+pg_dump.path=<Pfad zu pg_dump.exe>
+
+# Mongodb Backup Einstellungen - Standard: erwartet mongodump im PATH
+mongodump.path=<Pfad zu mongodump.exe>
+
+
 ```
 ## ➕ Add to ``` .gitignore ```
 Create or update the ```.gitignore``` file in your project root and add the following line:
