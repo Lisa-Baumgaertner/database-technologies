@@ -125,3 +125,120 @@ CREATE TRIGGER trigger_set_return_date
     BEFORE UPDATE ON LENDING
     FOR EACH ROW
 EXECUTE FUNCTION set_return_date();
+
+-- Function to update book status when a book is borrowed
+CREATE OR REPLACE FUNCTION update_book_status_on_lending() RETURNS TRIGGER AS $$
+BEGIN
+    BEGIN
+        -- Decrease the number of available copies when a book is borrowed
+        UPDATE BOOK
+        SET COPIES = COPIES - 1
+        WHERE BOOK_ID = NEW.BOOK_ID;
+
+        -- If no copies are available, update the book status to 'borrowed'
+        UPDATE BOOK
+        SET STATUS = CASE
+                         WHEN COPIES = 0 THEN 'borrowed'
+                         ELSE 'available'
+            END
+        WHERE BOOK_ID = NEW.BOOK_ID;
+
+        RETURN NEW;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE NOTICE 'Error updating book status on lending: %', SQLERRM;
+            RETURN NULL; -- Cancel the operation if an error occurs
+    END;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to execute the function after a book is borrowed
+CREATE TRIGGER trigger_update_book_status_on_lending
+    AFTER INSERT ON LENDING
+    FOR EACH ROW
+EXECUTE FUNCTION update_book_status_on_lending();
+
+
+-- Function to update book status when a book is returned
+CREATE OR REPLACE FUNCTION update_book_status_on_return() RETURNS TRIGGER AS $$
+BEGIN
+    BEGIN
+        -- Increase the number of available copies when a book is returned
+        UPDATE BOOK
+        SET COPIES = COPIES + 1
+        WHERE BOOK_ID = NEW.BOOK_ID;
+
+        -- If copies are available, update the book status to 'available'
+        UPDATE BOOK
+        SET STATUS = 'available'
+        WHERE BOOK_ID = NEW.BOOK_ID;
+
+        RETURN NEW;
+    EXCEPTION
+        -- Handle any errors and log them
+        WHEN OTHERS THEN
+            RAISE NOTICE 'Error updating book status on return: %', SQLERRM;
+            RETURN NULL; -- Cancel the operation if an error occurs
+    END;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to execute the function after a book is returned
+CREATE TRIGGER trigger_update_book_status_on_return
+    AFTER UPDATE ON LENDING
+    FOR EACH ROW
+    WHEN (NEW.STATUS = 'returned')
+EXECUTE FUNCTION update_book_status_on_return();
+
+-- Function to update book status when a book is added to the waitlist
+CREATE OR REPLACE FUNCTION update_book_status_on_waitlist() RETURNS TRIGGER AS $$
+BEGIN
+    BEGIN
+        -- Set the status to 'waitlist' if no copies are available
+        UPDATE BOOK
+        SET STATUS = 'waiting'
+        WHERE BOOK_ID = NEW.BOOK_ID
+          AND COPIES = 0;
+
+        RETURN NEW;
+    EXCEPTION
+        -- Handle any errors and log them
+        WHEN OTHERS THEN
+            RAISE NOTICE 'Error updating book status on waitlist: %', SQLERRM;
+            RETURN NULL; -- Cancel the operation if an error occurs
+    END;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to execute the function after a book is added to the waitlist
+CREATE TRIGGER trigger_update_book_status_on_waitlist
+    AFTER INSERT ON WAITLIST
+    FOR EACH ROW
+EXECUTE FUNCTION update_book_status_on_waitlist();
+
+-- Function to update book status when a book is removed from the waitlist
+CREATE OR REPLACE FUNCTION update_book_status_on_waitlist_removal() RETURNS TRIGGER AS $$
+BEGIN
+    BEGIN
+        -- If the book is no longer on the waitlist and copies are available, set status to 'available'
+        UPDATE BOOK
+        SET STATUS = 'available'
+        WHERE BOOK_ID = OLD.BOOK_ID
+          AND NOT EXISTS (SELECT 1 FROM WAITLIST WHERE BOOK_ID = OLD.BOOK_ID)
+          AND COPIES > 0;
+
+        RETURN OLD;
+    EXCEPTION
+        -- Handle any errors and log them
+        WHEN OTHERS THEN
+            RAISE NOTICE 'Error removing book from waitlist: %', SQLERRM;
+            RETURN NULL; -- Cancel the operation if an error occurs
+    END;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to execute the function after a book is removed from the waitlist
+CREATE TRIGGER trigger_update_book_status_on_waitlist_removal
+    AFTER DELETE ON WAITLIST
+    FOR EACH ROW
+EXECUTE FUNCTION update_book_status_on_waitlist_removal();

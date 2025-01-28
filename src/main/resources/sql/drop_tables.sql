@@ -5,10 +5,20 @@ DROP FUNCTION IF EXISTS assign_user_and_role();
 -- Trigger für  Tabellen entfernen
 DROP TRIGGER IF EXISTS trigger_set_due_date ON LENDING;
 DROP TRIGGER IF EXISTS trigger_set_return_date ON LENDING;
+DROP TRIGGER IF EXISTS trigger_update_book_status_on_lending ON LENDING;
+DROP TRIGGER IF EXISTS  trigger_update_book_status_on_return ON LENDING;
+DROP TRIGGER IF EXISTS  trigger_update_book_status_on_waitlist ON WAITLIST;
+DROP TRIGGER IF EXISTS  rigger_update_book_status_on_waitlist_removal ON WAITLIST;
+
 
 -- Funktionen für  Trigger entfernen
 DROP FUNCTION IF EXISTS set_due_date();
 DROP FUNCTION IF EXISTS set_return_date();
+DROP FUNCTION IF EXISTS update_book_status_on_lending();
+DROP FUNCTION IF EXISTS update_book_status_on_return();
+DROP FUNCTION IF EXISTS update_book_status_on_waitlist();
+DROP FUNCTION IF EXISTS update_book_status_on_waitlist_removal();
+
 
 -- Tabellen löschen (mit CASCADE, um Abhängigkeiten zu entfernen)
 DROP TABLE IF EXISTS ADDRESS CASCADE;
