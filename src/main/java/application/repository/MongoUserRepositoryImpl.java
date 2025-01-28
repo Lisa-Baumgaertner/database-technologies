@@ -2,6 +2,7 @@ package application.repository;
 
 import application.model.Person;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
@@ -13,11 +14,16 @@ import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 
-
+/**
+ * Diese Klasse stellt die Implementierung des `UserRepository` für MongoDB bereit.
+ */
 public class MongoUserRepositoryImpl implements UserRepository {
     private final MongoDatabase database;
     private final MongoCollection<Document> personCollection;
 
+    /**
+     * Konstruktor zur Initialisierung der MongoDB-Datenbankverbindung und Collection.
+     */
     public MongoUserRepositoryImpl(MongoDatabase database) {
         this.database = database;
 
@@ -25,8 +31,27 @@ public class MongoUserRepositoryImpl implements UserRepository {
 
     }
 
-    public List<Person> getAllPersons() { return null;}
+    /**
+     * Ruft alle Personen aus der MongoDB-Collection ab und gibt eine Liste von `Person`-Objekten zurück.
+     * @return Liste aller Personen.
+     */
+    public List<Person> getAllPersons() {
+        List<Person> persons = new ArrayList<>();
+        try (MongoCursor<Document> cursor = personCollection.find().iterator()) {
+            while (cursor.hasNext()) {
+                Document doc = cursor.next();
+                persons.add(mapToPerson(doc));
+            }
+        } catch (Exception e) {
+            System.err.println("Fehler beim Abrufen der Personen: " + e.getMessage());
+        }
 
+        return persons;
+    }
+
+    /**
+     * Findet die erste Person, die die Rolle "borrower" (Ausleiher) hat.
+     */
     public Person getFirstBorrower() {
         Document doc = personCollection.find(eq("role", "borrower")).first();
         if (doc != null) {
@@ -39,7 +64,7 @@ public class MongoUserRepositoryImpl implements UserRepository {
     }
 
     /**
-     * Holt Name der Person anhand userId.
+     * Holt den Namen einer Person anhand der `userId`.
      */
     public  String getUserNameById(int userId) {
         Document query = new Document("userId", userId);
@@ -59,7 +84,7 @@ public class MongoUserRepositoryImpl implements UserRepository {
     }
 
     /**
-     * Person hinzufügen.
+     * Fügt eine neue Person in die MongoDB-Collection ein.
      */
     public Person insertPerson(Person person) {
         try {
@@ -119,9 +144,77 @@ public class MongoUserRepositoryImpl implements UserRepository {
         return maxUserId + 1;
     }
 
+    /**
+     * Löscht eine Person anhand der `userId` aus der MongoDB-Collection.
+     */
+    public void deletePerson(Integer userId) {
+        try {
+            // Erstelle den Filter für die zu löschende Person anhand der `userId`
+            Document filter = new Document("userId", userId);
 
-    public void deletePerson(Integer userId) {}
-    public void updatePerson(Person Person) {}
+            // Führe die Löschoperation durch
+            long deletedCount = personCollection.deleteOne(filter).getDeletedCount();
+
+            if (deletedCount > 0) {
+                System.out.println("Person mit userId " + userId + " wurde erfolgreich gelöscht.");
+            } else {
+                System.out.println("Keine Person mit userId " + userId + " gefunden.");
+            }
+        } catch (Exception e) {
+            System.err.println("Fehler beim Löschen der Person mit userId " + userId + ": " + e.getMessage());
+        }
+    }
+
+
+    /**
+     * Aktualisiert die Daten einer vorhandenen Person in der MongoDB-Collection.
+     */
+    public void updatePerson(Person person) {
+        try {
+            // Filter erstellen, um die Person zu finden
+            Document filter = new Document("userId", person.getUserId());
+
+            // Prüfe, ob die Person existiert
+            Document existingPerson = personCollection.find(filter).first();
+            if (existingPerson == null) {
+                System.out.println("Keine Person mit userId " + person.getUserId() + " gefunden.");
+                return;
+            }
+
+            // Aktualisierte persönliche Details
+            Document personalDetails = new Document()
+                    .append("firstName", person.getFirstName())
+                    .append("lastName", person.getLastName())
+                    .append("dateOfBirth", person.getBirthDate() != null ? person.getBirthDate().toString() : "")
+                    .append("gender", String.valueOf(person.getGender()));
+
+            // Aktualisierte Adresse
+            Document addressDoc = new Document("street", person.getAddress().getStreet())
+                    .append("houseNumber", person.getAddress().getHouseNumber())
+                    .append("city", person.getAddress().getCity())
+                    .append("zipCode", person.getAddress().getZipCode());
+
+            // Aktualisierte Kontaktdaten
+            Document contactDoc = new Document("email", person.getContact().getEmail())
+                    .append("phone", person.getContact().getPhone())
+                    .append("mobile", person.getContact().getMobile());
+
+            // Erstelle das Update-Dokument, um nur die persönlichen Daten, Adresse und Kontakt zu aktualisieren
+            Document updateDoc = new Document("$set", new Document()
+                    .append("role", person.getRole())
+                    .append("personalDetails", personalDetails)
+                    .append("address", addressDoc)
+                    .append("contact", contactDoc)
+            );
+
+            // Führe das Update aus
+            personCollection.updateOne(filter, updateDoc);
+
+            System.out.println("Person mit userId " + person.getUserId() + " erfolgreich aktualisiert.");
+        } catch (Exception e) {
+            System.err.println("Fehler beim Aktualisieren der Person mit userId " + person.getUserId() + ": " + e.getMessage());
+        }
+    }
 
     private Person mapToPerson(Document doc) {
         Integer userId = doc.getInteger("userId");
