@@ -83,23 +83,39 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
                 .append("dueDate", formatDate(checkoutDate.plusDays(28))) // Standardmäßig 28 Tage
                 .append("returnDate", "Noch nicht zurückgegeben");
 
-        // Zu Person-Dokument hinzufügen
-        UpdateResult personResult = personCollection.updateOne(
-                eq("userId", userId),
-                new Document("$push", new Document("lendings", newLending))
-        );
 
-        // Zu Buch-Dokument hinzufügen
-        UpdateResult bookResult = bookCollection.updateOne(
-                eq("bookId", bookId),
-                new Document("$push", new Document("lendings", newLending))
-        );
+        try {
+            // 1. Lending zur Person hinzufügen
+            UpdateResult personResult = personCollection.updateOne(
+                    eq("userId", userId),
+                    new Document("$push", new Document("lendings", newLending))
+            );
 
-        if (personResult.getModifiedCount() > 0 && bookResult.getModifiedCount() > 0) {
-            System.out.println("Lending erfolgreich hinzugefügt.");
-            updateBookStatusAndCopies(bookId); // Status & Copies akutalisieren
-        } else {
-            System.err.println("Fehler beim Hinzufügen der Lending.");
+            // 2. Lending zum Buch hinzufügen
+            UpdateResult bookResult = bookCollection.updateOne(
+                    eq("bookId", bookId),
+                    new Document("$push", new Document("lendings", newLending))
+            );
+
+            // 3. Prüfen, ob beide erfolgreich waren
+            if (personResult.getModifiedCount() > 0 && bookResult.getModifiedCount() > 0) {
+                System.out.println("Lending erfolgreich in Person und Book gespeichert.");
+                updateBookStatusAndCopies(bookId); // Aktualisiere den Status & Copies
+            } else {
+                System.err.println("Fehler: Lending konnte nicht vollständig gespeichert werden.");
+                // Falls es nur bei einer Collection geklappt hat, entferne den fehlerhaften Eintrag
+                personCollection.updateOne(
+                        eq("userId", userId),
+                        new Document("$pull", new Document("lendings", newLending))
+                );
+
+                bookCollection.updateOne(
+                        eq("bookId", bookId),
+                        new Document("$pull", new Document("lendings", newLending))
+                );
+            }
+        } catch (Exception e) {
+            System.err.println("Fehler beim Speichern des Lending: " + e.getMessage());
         }
     }
 
