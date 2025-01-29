@@ -7,6 +7,7 @@ import com.mongodb.client.model.Filters;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -72,12 +73,51 @@ public class MongoKeywordRepositoryImpl implements KeywordRepository {
     @Override
     public int getKeywordIdByName(String keywordName) {
 
-        return 0;
+        Document keywordDoc = keywordCollection.find(Filters.eq("keyword", keywordName)).first();
+
+        if (keywordDoc != null) {
+            return keywordDoc.getInteger("keyword_id");
+        }
+        return -1; // Falls das Keyword nicht existiert
     }
+
+    /**
+     * Fügt Keyword hinzu
+     */
 
     @Override
     public int insertKeyword(String keywordName) {
 
-        return 0;
+        // Prüfen, ob das Keyword bereits existiert
+        int existingKeywordId = getKeywordIdByName(keywordName);
+        if (existingKeywordId != -1) {
+            return existingKeywordId; // Bereits vorhanden, Rückgabe der ID
+        }
+
+        // Neue ID generieren
+        int newKeywordId = generateNewKeywordId();
+
+        Document newKeyword = new Document()
+                .append("keyword_id", newKeywordId)  // Feldname angepasst
+                .append("keyword", keywordName);
+
+        keywordCollection.insertOne(newKeyword);
+
+        return newKeywordId;
     }
+
+
+    /**
+     * Generiert eine neue keyword_id basierend auf der höchsten existierenden ID.
+     */
+    private int generateNewKeywordId() {
+        Document maxIdDoc = keywordCollection.aggregate(Arrays.asList(
+                new Document("$group", new Document("_id", null)
+                        .append("maxId", new Document("$max", "$keyword_id")) // Feldname angepasst
+                )
+        )).first();
+
+        return (maxIdDoc != null) ? maxIdDoc.getInteger("maxId") + 1 : 1;
+    }
+
 }
