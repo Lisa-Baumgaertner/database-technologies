@@ -17,6 +17,7 @@ import org.bson.conversions.Bson;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -527,11 +528,10 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         List<Lending> lendingList = new ArrayList<>();
 
-        // Überprüfen, ob userId existiert, wenn nicht, Standardwert setzen
-        int userIdBorrower = doc.containsKey("userId") ? doc.getInteger("userId", 0) : 0;
+        // Sichere Typenkonvertierung für userIdBorrower
+        int userIdBorrower = doc.containsKey("userId") ? ((Number) doc.get("userId")).intValue() : 0;
         System.out.println("Extracted userId: " + userIdBorrower);
 
-        // Prüfen, ob das Feld "lendings" existiert und nicht null ist
         if (!doc.containsKey("lendings") || doc.get("lendings") == null) {
             System.out.println("Keine Lending-Daten gefunden.");
             return lendingList;
@@ -543,19 +543,16 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
             return lendingList;
         }
 
-        // Iteration über alle Lending-Einträge
         for (Document lendingDoc : lendingDocs) {
-            int lendingId = lendingDoc.getInteger("lendingId", 0);
-            int bookId = lendingDoc.getInteger("bookId", 0);
-            int workerId = lendingDoc.getInteger("workerId", 0);
+            int lendingId = ((Number) lendingDoc.get("lendingId")).intValue();
+            int bookId = ((Number) lendingDoc.get("bookId")).intValue();
+            int workerId = ((Number) lendingDoc.get("workerId")).intValue();
             String status = lendingDoc.getString("status") != null ? lendingDoc.getString("status") : "unknown";
 
-            // Sichere Datumsumwandlung
             LocalDate checkoutDate = parseDate(lendingDoc.getString("checkoutDate"), formatter);
             LocalDate dueDate = parseDate(lendingDoc.getString("dueDate"), formatter);
             LocalDate returnDate = parseDate(lendingDoc.getString("returnDate"), formatter);
 
-            // Lending-Objekt erstellen und zur Liste hinzufügen
             Lending lending = new Lending(lendingId, bookId, userIdBorrower, workerId, status, checkoutDate, returnDate, dueDate);
             lendingList.add(lending);
         }
@@ -607,16 +604,19 @@ public class MongoLendingRepositoryImpl implements LendingRepository {
      * Hilfsmethode zur sicheren Umwandlung eines Datumsstrings in LocalDate.
      */
     private LocalDate parseDate(String dateString, DateTimeFormatter formatter) {
-        if (dateString == null || dateString.trim().isEmpty() || dateString.equalsIgnoreCase("Noch nicht zurückgegeben")) {
+        if (dateString == null || dateString.trim().isEmpty() ||
+                dateString.equalsIgnoreCase("Noch nicht zurückgegeben") ||
+                "null".equalsIgnoreCase(dateString)) {
             return null;
         }
         try {
             return LocalDate.parse(dateString, formatter);
-        } catch (Exception e) {
-            System.err.println("Fehler bei der Datumsumwandlung für: " + dateString);
+        } catch (DateTimeParseException e) {
+            System.err.println("Fehler bei der Datumsumwandlung für: '" + dateString + "' - Ungültiges Format.");
             return null;
         }
     }
+
 
     /**
      * Hilfsmethode zur sicheren Umwandlung eines LocalDate zu Datumsstring.
