@@ -64,6 +64,9 @@ public class MongoNotificationRepositoryImpl implements NotificationRepository {
         return notifications;
     }
 
+    /**
+     * Holt Titel eine Buchs anhand book_id
+     */
     private String getBookTitleById(int bookId) {
         MongoCollection<Document> bookCollection = database.getCollection("Book");// Collection "Book"
         Document bookDocument = bookCollection.find(new Document("bookId", bookId)).first();  // Holt das erste passende Dokument

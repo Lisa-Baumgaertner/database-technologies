@@ -79,24 +79,7 @@ public class MongoBookRepositoryImpl implements BookRepository {
         if (status != null && !status.isEmpty()) {
             filters.add(Filters.eq("status", status));
         }
-/*
-        // Filter für Status, wenn gesetzt
-        if (status != null && !status.equalsIgnoreCase("Alle") && !status.isEmpty()) {
-            // Überprüfe, ob 'status' als Integer oder String gespeichert ist
-            try {
-                // Versuche, den status in einen Integer zu parsen
-                Integer statusInt = Integer.parseInt(status);
-                filters.add(Filters.elemMatch("waitlist", Filters.eq("status", statusInt)));
-            } catch (NumberFormatException e) {
-                // Wenn der status kein Integer ist, behandeln wir ihn als String
-                filters.add(Filters.elemMatch("waitlist", Filters.eq("status", status)));
-            }
-        } else {
-            // Kein spezifischer Statusfilter: Alle Bücher anzeigen
-            System.out.println("Kein spezifischer Statusfilter. Alle Bücher mit ihrem gespeicherten Status anzeigen.");
-            // Kein Filter für die Warteliste anwenden, um alle gespeicherten Status zurückzugeben.
-        }
- */
+
         // Kombiniere alle Filter
         Bson query = filters.isEmpty() ? new Document() : Filters.and(filters);
         try (MongoCursor<Document> cursor = this.bookCollection.find(query).iterator()) {
